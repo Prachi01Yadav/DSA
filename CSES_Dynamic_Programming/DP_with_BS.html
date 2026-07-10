@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DP + Binary Search Master Playbook</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .pattern-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-top: 5px solid var(--primary);
+        }
+
+        .pattern-card h2 {
+            color: var(--secondary);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag {
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .analogy-box {
+            background: #ecfdf5;
+            border-left: 4px solid var(--accent);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .analogy-box h4 {
+            margin: 0 0 10px 0;
+            color: #065f46;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        code .keyword { color: #569cd6; font-weight: bold; }
+        code .type { color: #4ec9b0; }
+        code .comment { color: #6a9955; font-style: italic; }
+        code .method { color: #dcdcaa; }
+        code .number { color: #b5cea8; }
+
+        .key-takeaways {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .key-takeaways ul { margin: 0; padding-left: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>The DP + Binary Search Playbook</h1>
+    <div class="subtitle">How to magically drop O(N²) time complexities down to O(N log N)</div>
+
+    <div class="pattern-card">
+        <h2>Pattern 1: Interval Scheduling <span class="tag">The Timeline</span></h2>
+        <p><strong>Use Case:</strong> You are given a list of events with a start time, end time, and a reward. You want to pick non-overlapping events to maximize the reward.</p>
+        
+        <div class="analogy-box">
+            <h4>💡 The Mental Model: "Looking into the Safe Past"</h4>
+            <p>Imagine building a timeline. If you sort events by when they <strong>end</strong>, you guarantee that as you move forward, the "past" is set in stone. When evaluating a new event, you use Binary Search to look backwards and find the latest event that finished before your current one started. Because the DP array stores the maximum profit up to that point, grabbing that single past value gives you the best possible combination of prior events.</p>
+        </div>
+
+        <h3>The Core Implementation (Java)</h3>
+        <pre><code><span class="comment">// 1. Sort strictly by END TIMES</span>
+Arrays.<span class="method">sort</span>(events, (a, b) -> Integer.<span class="method">compare</span>(a[<span class="number">1</span>], b[<span class="number">1</span>]));
+
+<span class="type">int</span>[] dp = <span class="keyword">new</span> <span class="type">int</span>[n];
+dp[<span class="number">0</span>] = events[<span class="number">0</span>][<span class="number">2</span>]; <span class="comment">// Base case: profit of first event</span>
+
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i < n; i++) {
+    <span class="type">int</span> skip = dp[i - <span class="number">1</span>];
+    <span class="type">int</span> take = events[i][<span class="number">2</span>];
+    
+    <span class="comment">// 2. Binary Search for the latest valid non-overlapping event</span>
+    <span class="type">int</span> s = <span class="number">0</span>, e = i - <span class="number">1</span>, ans = -<span class="number">1</span>;
+    <span class="keyword">while</span> (s <= e) {
+        <span class="type">int</span> mid = s + (e - s) / <span class="number">2</span>;
+        <span class="keyword">if</span> (events[mid][<span class="number">1</span>] < events[i][<span class="number">0</span>]) { <span class="comment">// If mid ends before i starts</span>
+            ans = mid;
+            s = mid + <span class="number">1</span>; <span class="comment">// Try to find a later, better event</span>
+        } <span class="keyword">else</span> {
+            e = mid - <span class="number">1</span>;
+        }
+    }
+    
+    <span class="keyword">if</span> (ans != -<span class="number">1</span>) take += dp[ans];
+    dp[i] = Math.<span class="method">max</span>(skip, take);
+}</code></pre>
+
+        <div class="key-takeaways">
+            <strong>When to use:</strong> Job Scheduling, CSES Projects, any problem where states overlap in time.
+        </div>
+    </div>
+
+    <div class="pattern-card">
+        <h2>Pattern 2: Monotonic Reduction <span class="tag">The Matryoshka</span></h2>
+        <p><strong>Use Case:</strong> You have 2D objects (like envelopes, boxes, or pairs of numbers) and you need to find the longest chain where one fits strictly inside the next.</p>
+
+        <div class="analogy-box">
+            <h4>💡 The Mental Model: "Cheating a Dimension"</h4>
+            <p>A 2D DP table is too slow. Instead, we completely eliminate the Width dimension by sorting widths ascending. But here is the magic trick: if widths are identical, we sort heights <strong>descending</strong>. Why? Because you can't put a 3x4 envelope into a 3x5 envelope. By forcing the 5 to come before the 4, a standard "Longest Increasing Subsequence" algorithm naturally refuses to pick both! We maintain an active 'tails' array and use Binary Search to slot heights into their optimal place.</p>
+        </div>
+
+        <h3>The Core Implementation (Java)</h3>
+        <pre><code><span class="comment">// 1. Sort: Width ASCENDING, Height DESCENDING</span>
+Arrays.<span class="method">sort</span>(envelopes, (a, b) -> {
+    <span class="keyword">if</span> (a[<span class="number">0</span>] != b[<span class="number">0</span>]) <span class="keyword">return</span> Integer.<span class="method">compare</span>(a[<span class="number">0</span>], b[<span class="number">0</span>]);
+    <span class="keyword">return</span> Integer.<span class="method">compare</span>(b[<span class="number">1</span>], a[<span class="number">1</span>]); <span class="comment">// The Magic Step</span>
+});
+
+<span class="comment">// 2. LIS Array Tracker</span>
+<span class="type">int</span>[] tails = <span class="keyword">new</span> <span class="type">int</span>[n];
+<span class="type">int</span> len = <span class="number">0</span>;
+
+<span class="keyword">for</span> (<span class="type">int</span>[] env : envelopes) {
+    <span class="type">int</span> height = env[<span class="number">1</span>];
+    
+    <span class="type">int</span> s = <span class="number">0</span>, e = len - <span class="number">1</span>, insertIdx = len;
+    
+    <span class="comment">// Binary search to find where this height belongs in the sequence</span>
+    <span class="keyword">while</span> (s <= e) {
+        <span class="type">int</span> mid = s + (e - s) / <span class="number">2</span>;
+        <span class="keyword">if</span> (tails[mid] >= height) {
+            insertIdx = mid; <span class="comment">// Replace a larger/equal tail with a smaller one</span>
+            e = mid - <span class="number">1</span>;
+        } <span class="keyword">else</span> {
+            s = mid + <span class="number">1</span>;
+        }
+    }
+    
+    tails[insertIdx] = height;
+    <span class="keyword">if</span> (insertIdx == len) len++; <span class="comment">// We successfully extended the sequence</span>
+}</code></pre>
+
+        <div class="key-takeaways">
+            <strong>When to use:</strong> Russian Doll Envelopes, Longest Increasing Subsequence, Stacking problems where order doesn't matter initially.
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

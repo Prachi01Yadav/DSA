@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State-Space (Multiverse) Graphs Masterclass</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --container-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --accent-hover: #79c0ff;
+            --border-color: #30363d;
+            --highlight-bg: #1f2428;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            border-bottom: none;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #8b949e;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+        .concept-box {
+            background-color: var(--highlight-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        code {
+            background-color: rgba(110, 118, 129, 0.4);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 0.9em;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            background-color: var(--highlight-bg);
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .question-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        .state-definition {
+            color: #ff7b72;
+            font-family: monospace;
+            font-size: 1em;
+            margin-bottom: 10px;
+            display: block;
+        }
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #8b949e;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌌 The Multiverse Graph Masterclass</h1>
+    <div class="subtitle">State-Space Graph Algorithms for Advanced Competitive Programming</div>
+
+    <div class="concept-box">
+        <h2>🧠 The Core Concept: What is a State-Space Graph?</h2>
+        <p>Standard Dijkstra or BFS algorithms fail when a problem introduces a <strong>conditional constraint</strong>—like having a discount coupon, a limited number of layovers, or the ability to break through walls. A greedy algorithm might overwrite a path that is currently more expensive, failing to realize that path preserves a resource needed later.</p>
+        <p><strong>The Solution:</strong> We create a "Multiverse" by adding an extra dimension to our distance/visited array. Instead of <code>dist[node]</code>, we use <code>dist[node][state]</code>.</p>
+        <p>Using a resource (like a coupon or a wall-breaker) acts as a <strong>portal</strong>, shifting our path from Universe 0 into Universe 1. This prevents paths with different resource states from illegally overwriting each other in the Priority Queue.</p>
+    </div>
+
+    <h2>🎟️ Category 1: The Resource Limits</h2>
+    <p>These problems give you a limited resource (stops, time, coupons) and ask for the optimal path.</p>
+    <ul>
+        <li>
+            <div class="question-title">1. Minimum Cost to Reach City With Discounts (LeetCode 2093)</div>
+            <span class="state-definition">State: dist[current_city][discounts_used]</span>
+            <p><strong>The Breakdown:</strong> The exact same logic as our Flight Discount problem, but instead of 1 coupon, you have <i>K</i> coupons. You maintain <i>K+1</i> parallel universes.</p>
+            <a href="https://leetcode.com/problems/minimum-cost-to-reach-city-with-discounts/" target="_blank">🔗 Solve on LeetCode (Premium)</a>
+        </li>
+        <li>
+            <div class="question-title">2. Cheapest Flights Within K Stops (LeetCode 787)</div>
+            <span class="state-definition">State: dist[current_city][stops_taken]</span>
+            <p><strong>The Breakdown:</strong> A classic. A cheaper flight path is invalid if it takes too many layovers. The state tracks how many flights you've taken to prevent a cheap-but-long route from overwriting an expensive-but-direct route.</p>
+            <a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank">🔗 Solve on LeetCode</a>
+        </li>
+        <li>
+            <div class="question-title">3. Minimum Cost to Reach Destination in Time (LeetCode 1928)</div>
+            <span class="state-definition">State: dist[current_city][time_spent]</span>
+            <p><strong>The Breakdown:</strong> Minimize the cost (passing fees), but you have a strict time limit. A slower, more expensive path in one universe might be the only valid option if the fast path runs out of time.</p>
+            <a href="https://leetcode.com/problems/minimum-cost-to-reach-destination-in-time/" target="_blank">🔗 Solve on LeetCode</a>
+        </li>
+        <li>
+            <div class="question-title">4. Second Minimum Time to Reach Destination (LeetCode 2045)</div>
+            <span class="state-definition">State: dist[current_city][0_or_1]</span>
+            <p><strong>The Breakdown:</strong> Instead of a resource, the state tracks the absolute shortest time <code>[0]</code> and the strict <i>second</i> shortest time <code>[1]</code> simultaneously.</p>
+            <a href="https://leetcode.com/problems/second-minimum-time-to-reach-destination/" target="_blank">🔗 Solve on LeetCode</a>
+        </li>
+    </ul>
+
+    <h2>🔨 Category 2: The Grid Smashers</h2>
+    <p>Grid BFS problems where you are allowed to break the rules of the maze a limited number of times.</p>
+    <ul>
+        <li>
+            <div class="question-title">5. Shortest Path in a Grid with Obstacles Elimination (LeetCode 1293)</div>
+            <span class="state-definition">State: visited[row][col][walls_broken]</span>
+            <p><strong>The Breakdown:</strong> A Google interview favorite. You can walk through walls, but only <i>K</i> times. Jumping into a wall teleports you to a lower universe where your sledgehammer durability is reduced.</p>
+            <a href="https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/" target="_blank">🔗 Solve on LeetCode</a>
+        </li>
+    </ul>
+
+    <h2>🐉 Category 3: The Bitmask Final Bosses</h2>
+    <p>The ultimate evolution. Instead of tracking a single integer counter, the state uses a binary bitmask to track an entire inventory of items or visited nodes.</p>
+    <ul>
+        <li>
+            <div class="question-title">6. Shortest Path to Get All Keys (LeetCode 864)</div>
+            <span class="state-definition">State: visited[row][col][keys_bitmask]</span>
+            <p><strong>The Breakdown:</strong> You navigate a maze with locked doors. You can only pass a door if you have the key. Picking up a key acts as a portal to a new universe where that specific door is forever unlocked.</p>
+            <a href="https://leetcode.com/problems/shortest-path-to-get-all-keys/" target="_blank">🔗 Solve on LeetCode</a>
+        </li>
+        <li>
+            <div class="question-title">7. Shortest Path Visiting All Nodes (LeetCode 847)</div>
+            <span class="state-definition">State: visited[current_node][visited_nodes_bitmask]</span>
+            <p><strong>The Breakdown:</strong> An unweighted graph where you must visit every node, allowing revisits. The state tracks exactly which combination of nodes you have seen so far to prevent infinite loops while allowing necessary backtracking.</p>
+            <a href="https://leetcode.com/problems/shortest-path-visiting-all-nodes/" target="_blank">🔗 Solve on LeetCode</a>
+        </li>
+    </ul>
+
+    <div class="footer">
+        <p>Stay legendary! 🚀 Keep pushing that problem count higher.</p>
+    </div>
+</div>
+
+</body>
+</html>

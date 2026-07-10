@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kosaraju's Algorithm: The Masterclass</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --text-main: #cbd5e1;
+            --text-heading: #f8fafc;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #c084fc;
+            --accent-pink: #f43f5e;
+            --card-bg: #1e293b;
+            --code-bg: #0b1120;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--accent-purple);
+            margin: 50px 0 20px;
+            border-left: 5px solid var(--accent-purple);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--text-heading);
+            margin: 30px 0 15px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+            font-size: 1.1rem;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .mind-blow {
+            background: linear-gradient(145deg, var(--card-bg), #141e30);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-left: 5px solid var(--accent-pink);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .mind-blow::before {
+            content: '🤯 MIND BLOWN FACT';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--accent-pink);
+            color: white;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .use-case-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 3px solid var(--accent-cyan);
+        }
+
+        .use-case-card h4 {
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .pattern-box {
+            background: rgba(192, 132, 252, 0.1);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 25px 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            color: #a78bfa;
+            font-size: 0.95rem;
+        }
+
+        .inline-code {
+            background: var(--card-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-cyan);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .problem-statement {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 8px;
+            font-style: italic;
+            border-left: 4px solid var(--text-main);
+            margin-bottom: 30px;
+        }
+
+        .links-section a {
+            display: inline-block;
+            background: var(--accent-purple);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-right: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .links-section a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(192, 132, 252, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Kosaraju's Algorithm</h1>
+        <div class="subtitle">The Advanced Masterclass: Pushing SCCs to the Absolute Limit</div>
+    </header>
+
+    <p>Welcome to the deep end. You already know the basics: <em>Step 1: DFS and push to stack on exit. Step 2: Reverse the graph. Step 3: Pop from stack and run DFS to find Strongly Connected Components (SCCs).</em></p>
+    <p>But <strong>why</strong> does it work? What is the secret geometry of graphs that makes this 3-step dance so flawless? And more importantly, how do we weaponize this algorithm to solve some of the hardest problems in computer science? Let's dive in.</p>
+
+    <h2>1. The Secret Sauce: Why It Actually Works</h2>
+    
+    <p>To understand Kosaraju deeply, you need to understand the <strong>Condensation Graph</strong>. Imagine you take every SCC in a graph, wrap it in a bubble, and treat that whole bubble as a single giant "Super-Node". If you draw edges between these Super-Nodes based on the original edges, you get the Condensation Graph.</p>
+    
+    <div class="mind-blow">
+        The Condensation Graph of ANY directed graph is ALWAYS a <strong>Directed Acyclic Graph (DAG)</strong>. There are no cycles between SCCs. If there were a cycle between two SCCs, they would merge and become one giant SCC!
+    </div>
+
+    <p>Now, here is the absolute genius of Kosaraju's algorithm:</p>
+    <ul>
+        <li><strong>The First DFS:</strong> When you run the first DFS and push nodes to a stack upon exiting, you are actually sorting the SCCs! The node sitting at the <em>top of the stack</em> is guaranteed to belong to a "Source SCC" (an SCC with no incoming edges from other SCCs in the Condensation Graph).</li>
+        <li><strong>The Bleeding Problem:</strong> If we just ran DFS from that Source SCC right away, we would "bleed" into all the other downstream SCCs. We wouldn't know where our SCC ends and the next one begins.</li>
+        <li><strong>The Reversal (The Magic):</strong> When we transpose (reverse) all edges, the DAG is inverted. The Source SCC becomes a <strong>Sink SCC</strong> (no outgoing edges). Now, when we pop that node from the stack and run DFS on the reversed graph, <strong>it is physically trapped!</strong> It can visit every node in its own SCC, but it cannot bleed into other SCCs because the exit doors are now entrance doors!</li>
+    </ul>
+
+    <h2>2. Real-World Industry Usage</h2>
+    <p>You might wonder, <em>"Is this just a competitive programming trick?"</em> Absolutely not. SCCs are foundational to how the modern world processes complex networks.</p>
+
+    <div class="use-case-grid">
+        <div class="use-case-card">
+            <h4>Social Network Echo Chambers</h4>
+            <p>Twitter (X) and Facebook use SCCs to identify "Echo Chambers" or highly insular communities. If a massive group of users all mutually follow each other (creating an SCC), algorithms can classify them as a tightly-knit sub-community for targeted advertising or trend analysis.</p>
+        </div>
+        <div class="use-case-card">
+            <h4>Package Managers (npm, pip)</h4>
+            <p>When installing software dependencies, circular dependencies can crash the build. Package managers use SCC detection to identify packages that depend on each other in a loop, grouping them together so the compiler can process them as a single monolithic unit.</p>
+        </div>
+        <div class="use-case-card">
+            <h4>Google Maps & GPS Routing</h4>
+            <p>Imagine driving into a neighborhood of one-way streets where you can't get out. That's a "Sink SCC". Map routing algorithms pre-process city grids using Kosaraju's to ensure that every zone is reachable and, crucially, that drivers can escape back to the main highway network.</p>
+        </div>
+    </div>
+
+    <h2>3. The God-Tier Patterns (Variations)</h2>
+    <p>Once you extract the SCCs, you unlock a new tier of problem-solving. Here are the three main patterns you will see in high-level interviews and CP.</p>
+
+    <div class="pattern-box">
+        <h3>Pattern 1: DAG-ification + Dynamic Programming</h3>
+        <p><strong>The Setup:</strong> You are given a graph with values on nodes. You want to find a path that maximizes the sum of values, and you can visit nodes multiple times (but you only collect the value once).</p>
+        <p><strong>The Play:</strong> 
+        1. Use Kosaraju to find all SCCs.
+        2. Shrink each SCC into a single Super-Node. The value of the Super-Node is the sum of all nodes inside it.
+        3. Build the Condensation Graph (which is a DAG).
+        4. Run a simple DP or Topological Sort on the DAG to find the longest path. What was a wildly complex cyclic graph is now a trivial DP-on-DAG problem!</p>
+    </div>
+
+    <div class="pattern-box">
+        <h3>Pattern 2: 2-SAT (2-Satisfiability)</h3>
+        <p><strong>The Setup:</strong> You have boolean constraints like: <em>"Either Alice comes to the party OR Bob comes"</em> (<span class="inline-code">A || B</span>), and you have thousands of these. Is there a valid guest list?</p>
+        <p><strong>The Play:</strong> 
+        Convert <span class="inline-code">A || B</span> into implications: <span class="inline-code">!A &rarr; B</span> and <span class="inline-code">!B &rarr; A</span>. Build a directed graph from these. 
+        <br><br>
+        Run Kosaraju's. If any variable <span class="inline-code">X</span> and its negation <span class="inline-code">!X</span> belong to the <strong>same SCC</strong>, it's a paradox! The system is unsolvable. If they are in different SCCs, a valid assignment is guaranteed to exist!</p>
+    </div>
+
+    <div class="pattern-box">
+        <h3>Pattern 3: The Minimum Edges to Strongly Connect</h3>
+        <p><strong>The Setup:</strong> "What is the minimum number of new one-way roads we need to build so that every city can reach every other city?"</p>
+        <p><strong>The Play:</strong>
+        Find the SCCs and build the Condensation Graph. Count how many Super-Nodes have an in-degree of 0 (let's call it <span class="inline-code">in0</span>) and how many have an out-degree of 0 (let's call it <span class="inline-code">out0</span>). 
+        <br><br>
+        The minimum edges required to make the whole graph strongly connected is exactly <strong><span class="inline-code">max(in0, out0)</span></strong> (except when the graph is already one SCC, then answer is 0). You literally just connect the sinks to the sources!</p>
+    </div>
+
+    <h2>4. Destroying the Example Problem: Planets and Kingdoms</h2>
+    
+    <div class="problem-statement">
+        <strong>CSES Problem:</strong> A game has n planets, connected by m teleporters. Two planets a and b belong to the same kingdom exactly when there is a route both from a to b and from b to a. Determine for each planet its kingdom.
+    </div>
+
+    <p>This is the purest form of Kosaraju's Algorithm. "Mutual reachability" is the exact definition of an SCC. A "Kingdom" is an SCC. We need to assign an ID to each SCC.</p>
+
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005;
+vector&lt;int&gt; adj[MAXN], rev_adj[MAXN];
+bool visited[MAXN];
+stack&lt;int&gt; st;
+int kingdom[MAXN]; // Stores the kingdom ID for each planet
+
+// Step 1: Normal DFS to fill the stack with exit times
+void dfs1(int u) {
+    visited[u] = true;
+    for (int v : adj[u]) {
+        if (!visited[v]) dfs1(v);
+    }
+    st.push(u); // Push on exit!
+}
+
+// Step 3: DFS on reversed graph to map SCCs
+void dfs2(int u, int id) {
+    visited[u] = true;
+    kingdom[u] = id; // Assign planet 'u' to kingdom 'id'
+    for (int v : rev_adj[u]) {
+        if (!visited[v]) dfs2(v, id);
+    }
+}
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    
+    for (int i = 0; i &lt; m; i++) {
+        int u, v; cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+        rev_adj[v].push_back(u); // Build reversed graph immediately
+    }
+    
+    // Pass 1
+    memset(visited, false, sizeof(visited));
+    for (int i = 1; i &lt;= n; i++) {
+        if (!visited[i]) dfs1(i);
+    }
+    
+    // Pass 2
+    memset(visited, false, sizeof(visited));
+    int current_kingdom_id = 0;
+    
+    while (!st.empty()) {
+        int u = st.top();
+        st.pop();
+        if (!visited[u]) {
+            current_kingdom_id++; // Found a new SCC!
+            dfs2(u, current_kingdom_id);
+        }
+    }
+    
+    // Output format exactly as requested by CSES
+    cout &lt;&lt; current_kingdom_id &lt;&lt; "
+";
+    for (int i = 1; i &lt;= n; i++) {
+        cout &lt;&lt; kingdom[i] &lt;&lt; (i == n ? "" : " ");
+    }
+    cout &lt;&lt; "
+";
+    
+    return 0;
+}</code></pre>
+
+    <h2>5. The Practice Arsenal</h2>
+    <p>Ready to test your newly forged weapons? Here are the best hand-picked problems across platforms that test the patterns discussed above:</p>
+
+    <div class="links-section">
+        <a href="https://cses.fi/problemset/task/1683" target="_blank">CSES: Planets and Kingdoms (The Example)</a>
+        <a href="https://cses.fi/problemset/task/1682" target="_blank">CSES: Flight Routes Check</a>
+        <a href="https://leetcode.com/problems/longest-cycle-in-a-graph/" target="_blank">LeetCode 2360: Longest Cycle in Graph</a>
+        <a href="https://leetcode.com/problems/course-schedule/" target="_blank">LeetCode 207: Course Schedule (Cycle Detection)</a>
+    </div>
+
+    <p style="text-align: center; margin-top: 50px; color: var(--accent-pink); font-weight: bold;">
+        Now go out there and collapse some cycles! 🚀
+    </p>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kosaraju's Algorithm — Mapping Every Kingdom in the Galaxy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05030F; --panel:#120B29; --panel-2:#1B1140; --line:#2E2158;
+    --text:#F1EAFF; --muted:#A79AD1;
+    --teal:#4FD1C5; --magenta:#F0629A; --amber:#FFB454; --blue:#7C9CFF; --lime:#B6FF6B; --coral:#FF7A59;
+    --red:#FF6B6B; --radius:14px;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background: radial-gradient(circle at 85% -10%, #1A0E3A 0%, var(--bg) 55%) fixed, var(--bg);
+    color:var(--text); font-family:'Inter',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk',sans-serif; margin:0 0 .4em; letter-spacing:-0.01em; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  a{ color:var(--teal); }
+  section{ max-width:980px; margin:0 auto; padding:72px 24px; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--magenta); display:flex; align-items:center; gap:10px; margin-bottom:16px;
+  }
+  .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--magenta); box-shadow:0 0 10px var(--magenta); animation:beacon 1.6s ease-in-out infinite; }
+  @keyframes beacon{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  .hero{ max-width:1100px; padding-top:90px; }
+  .board{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.12em;
+    color:#e9defc; background:#0D0724; border:1px solid #2A1B57; padding:8px 14px; border-radius:6px; margin-bottom:22px;
+  }
+  .board b{ color:var(--magenta); }
+  .hero h1{ font-size:clamp(32px,5vw,54px); max-width:19ch; line-height:1.1; }
+  .hero p.lead{ max-width:64ch; font-size:18px; color:var(--muted); }
+  .ticket{
+    margin-top:32px; background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line);
+    border-radius:var(--radius); padding:22px 26px; max-width:640px; position:relative;
+  }
+  .ticket::before,.ticket::after{ content:""; position:absolute; top:50%; width:20px; height:20px; background:var(--bg); border-radius:50%; transform:translateY(-50%); }
+  .ticket::before{ left:-10px; } .ticket::after{ right:-10px; }
+  .ticket h3{ font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+  .ticket .io{ font-family:'JetBrains Mono',monospace; font-size:13.5px; white-space:pre; overflow-x:auto; color:#dcd0ff; }
+  .ticket .io .comment{ color:var(--muted); }
+
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px 28px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media (max-width:760px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+  .recap{ border-left:3px solid var(--amber); padding-left:18px; color:var(--muted); font-size:15px; max-width:70ch; }
+
+  /* ---- demo ---- */
+  .demo-wrap{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .demo-head{ display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--line); }
+  button{
+    font-family:'JetBrains Mono',monospace; font-size:13px; border-radius:8px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text); padding:9px 14px; cursor:pointer;
+    transition:border-color .15s, transform .1s;
+  }
+  button:hover{ border-color:var(--teal); }
+  button:active{ transform:scale(.97); }
+  button.primary{ background:var(--magenta); color:#2b0417; border-color:var(--magenta); font-weight:700; }
+  button.primary:hover{ filter:brightness(1.08); }
+  button[disabled]{ opacity:.45; cursor:not-allowed; }
+
+  .demo-body{ display:grid; grid-template-columns:1.3fr 1fr; }
+  @media (max-width:800px){ .demo-body{ grid-template-columns:1fr; } }
+  .svg-area{ padding:18px; border-right:1px solid var(--line); }
+  @media (max-width:800px){ .svg-area{ border-right:none; border-bottom:1px solid var(--line); } }
+  .svg-area svg{ width:100%; height:auto; display:block; }
+
+  .planet circle.body{ fill:var(--panel-2); stroke:var(--line); stroke-width:2; transition:fill .35s,stroke .35s,filter .35s; }
+  .planet circle.crater{ fill:none; stroke:var(--line); stroke-width:1; opacity:.6; }
+  .planet text{ font-family:'JetBrains Mono',monospace; font-weight:700; fill:var(--text); font-size:16px; pointer-events:none; }
+  .planet.planet-visiting circle.body{ stroke:var(--amber); stroke-width:3; filter:drop-shadow(0 0 8px rgba(255,180,84,.6)); }
+  .planet.planet-finished circle.body{ stroke:#5a4d86; }
+
+  .edge{ stroke:var(--line); stroke-width:2; transition:stroke .35s; }
+  .edge-trace{ stroke:var(--amber); stroke-width:2.2; }
+  .edge-bridge{ stroke:var(--red); stroke-width:2; stroke-dasharray:5 6; }
+
+  .side{ padding:20px 22px; display:flex; flex-direction:column; gap:16px; }
+  .phase-label{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); min-height:34px; }
+  .phase-label b{ color:var(--text); }
+
+  .stack-box-wrap{
+    display:flex; flex-direction:column; gap:0; border:1px solid var(--line); border-radius:8px; overflow:hidden;
+    min-height: 54px;
+  }
+  .stack-title{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; padding:8px 10px; background:var(--panel-2); border-bottom:1px solid var(--line); }
+  #stack-panel{ display:flex; flex-direction:column; }
+  .stack-box{
+    font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 12px; border-bottom:1px solid var(--line);
+    background: rgba(255,180,84,.08); color:var(--text); transition: opacity .35s, transform .35s;
+  }
+  .stack-box.popped{ opacity:0; transform: translateX(30px); }
+
+  .kingdom-log{ display:flex; flex-direction:column; gap:8px; font-size:13.5px; }
+  .kingdom-entry{ display:flex; align-items:center; gap:8px; }
+  .kingdom-entry .swatch{ width:12px; height:12px; border-radius:50%; flex:none; }
+  .kingdom-entry .members{ color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+  .banner{ border-radius:10px; padding:16px 18px; font-family:'JetBrains Mono',monospace; border:1px solid var(--line); background:var(--panel-2); }
+  .banner .stamp{ font-size:15px; font-weight:700; color:var(--teal); letter-spacing:.05em; }
+  .banner p{ margin:8px 0 0; font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); }
+  .banner[hidden]{ display:none; }
+
+  /* ---- proof ---- */
+  .proof-step{ display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--line); }
+  .proof-step:last-child{ border-bottom:none; }
+  .proof-step .num{ font-family:'JetBrains Mono',monospace; color:var(--magenta); font-weight:700; font-size:14px; min-width:28px; }
+  .proof-step h4{ margin:0 0 6px; font-family:'Space Grotesk',sans-serif; font-size:17px; }
+  .proof-step p{ margin:0; color:var(--muted); font-size:15px; }
+
+  /* ---- code ---- */
+  .code-tabs{ display:flex; gap:8px; margin-bottom:12px; }
+  .code-tab.active{ border-color:var(--teal); color:var(--teal); }
+  pre.codebox{
+    background:#0A0620; border:1px solid var(--line); border-radius:10px; padding:20px; overflow-x:auto;
+    font-family:'JetBrains Mono',monospace; font-size:13.5px; line-height:1.65; color:#E3D9FF; position:relative;
+  }
+  pre.codebox .c{ color:#7E6FAE; }
+  .code-panel{ display:none; }
+  .code-panel.active{ display:block; }
+  .copy-btn{ position:absolute; top:12px; right:12px; padding:6px 10px; font-size:11px; }
+
+  /* ---- facts/apps ---- */
+  .fact{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px; }
+  .fact .fn{ font-family:'JetBrains Mono',monospace; color:var(--magenta); font-size:12px; letter-spacing:.1em; }
+  .fact h4{ font-family:'Space Grotesk',sans-serif; font-size:16px; margin:8px 0; }
+  .fact p{ color:var(--muted); font-size:14.5px; margin:0; }
+
+  table.cmp{ width:100%; border-collapse:collapse; font-size:14px; }
+  table.cmp th, table.cmp td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); color:var(--muted); }
+  table.cmp th{ color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  table.cmp td b{ color:var(--text); }
+
+  .plink{ display:block; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; text-decoration:none; color:var(--text); transition:border-color .15s, transform .1s; }
+  .plink:hover{ border-color:var(--teal); transform:translateY(-2px); }
+  .plink .src{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .plink h4{ font-family:'Space Grotesk',sans-serif; margin:6px 0; font-size:16px; }
+  .plink p{ margin:0; font-size:13.5px; color:var(--muted); }
+  .plink-group{ margin-bottom:30px; }
+  .plink-group h3{ font-size:14px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:14px; }
+
+  footer{ text-align:center; padding:40px 24px 70px; color:var(--muted); font-size:13px; font-family:'JetBrains Mono',monospace; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="board">STATUS: <b>MAPPING GALAXY</b> · GRAPH THEORY · KOSARAJU'S ALGORITHM</div>
+  <h1>Not just "is it one kingdom" — what are ALL the kingdoms?</h1>
+  <p class="lead">n planets, m one-way teleporters. Two planets share a kingdom exactly when they can reach each other. This time we don't just want yes/no — we want the entire map, labeled, kingdom by kingdom.</p>
+
+  <div class="ticket">
+    <h3>The problem, restated as a transmission manifest</h3>
+    <div class="io"><span class="comment">// input</span>
+n planets, m one-way teleporters (a → b)
+
+<span class="comment">// output</span>
+k                         <span class="comment">number of kingdoms</span>
+label[1..n]               <span class="comment">kingdom id (1..k) for every planet</span></div>
+  </div>
+</section>
+
+<section>
+  <p class="recap">Quick recap, in one line: earlier we checked whether an <em>entire</em> graph is one strongly connected blob, using two BFS runs from a single hub. That trick only answers yes/no. Here we go further — we'll find <em>every</em> blob, however many there are, and label every node. This is the full <b>Kosaraju's algorithm</b>.</p>
+</section>
+
+<section>
+  <div class="eyebrow">The mechanism</div>
+  <h2>Two passes: explore, then flood-fill in reverse</h2>
+  <p style="color:var(--muted); max-width:72ch;">Think of each planet as a room. You walk in, and while you're inside, you visit every room reachable from it before you're allowed to "leave." The moment you finish visiting everything reachable from a room — that's its <b>finish time</b>. Kosaraju's algorithm is built entirely around comparing finish times.</p>
+
+  <div class="grid2" style="margin-top:22px;">
+    <div class="panel">
+      <h3 style="font-size:16px; color:var(--amber);">Pass 1 — Explore &amp; stack</h3>
+      <p style="color:var(--muted); font-size:14.5px;">Run a DFS across the <em>original</em> teleporter graph. Every time you finish exploring everything reachable from a planet, push that planet onto a stack. Planets that take longest to "close out" — because huge chunks of the galaxy hang off them — end up near the top.</p>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:16px; color:var(--teal);">Pass 2 — Pop &amp; flood-fill in reverse</h3>
+      <p style="color:var(--muted); font-size:14.5px;">Flip every teleporter's direction. Pop planets off the stack one at a time. If a planet hasn't been claimed by a kingdom yet, everything you can reach from it <em>on this reversed map</em> is exactly one full kingdom. Color it, move to the next unclaimed planet on the stack, repeat.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">See it fly</div>
+  <h2>The galaxy mapper</h2>
+  <p style="color:var(--muted); max-width:72ch;">This is the exact 5-planet example from the problem statement. Watch Pass 1 build the finish-time stack (amber), then Pass 2 pop it from the top and flood-fill each kingdom in its own color on the reversed map.</p>
+
+  <div class="demo-wrap" style="margin-top:22px;">
+    <div class="demo-head">
+      <div class="mono" style="font-size:12.5px; color:var(--muted);">5 planets · 6 teleporters · matches the CSES sample exactly</div>
+      <button id="btn-run" class="primary" onclick="runKosaraju()">▶ Run Kosaraju's algorithm</button>
+    </div>
+    <div class="demo-body">
+      <div class="svg-area" id="svg-area"></div>
+      <div class="side">
+        <div class="phase-label" id="phase-label">Press <b>Run</b> to start mapping the galaxy.</div>
+        <div class="stack-box-wrap">
+          <div class="stack-title">Finish-time stack (top = last finished)</div>
+          <div id="stack-panel"></div>
+        </div>
+        <div class="kingdom-log" id="kingdom-log"></div>
+        <div class="banner" id="banner" hidden>
+          <div class="stamp" id="banner-stamp"></div>
+          <p id="banner-text"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">The proof</div>
+  <h2>Why popping in reverse-finish order carves out exact kingdoms</h2>
+  <p style="color:var(--muted); max-width:72ch;">This is the part that genuinely surprises people the first time they see it. It hinges on one lemma about finish times.</p>
+
+  <div class="panel" style="margin-top:22px;">
+    <div class="proof-step">
+      <div class="num">01</div>
+      <div><h4>Collapse each kingdom into one supernode.</h4><p>Squash every planet in a kingdom into a single blob. The result — the <b>condensation</b> — is guaranteed to be a DAG (a graph with no cycles between kingdoms). Why? If two kingdom-blobs pointed to each other, they'd actually be mutually reachable — meaning they were never two separate kingdoms to begin with.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">02</div>
+      <div><h4>The finish-time lemma.</h4><p>For any two kingdoms A and B, if there's a teleporter route from A's blob to B's blob in the condensation, then <b>the highest finish time inside A is always greater than the highest finish time inside B</b> — no matter which planet you start the DFS from.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">03</div>
+      <div><h4>Why the lemma is true.</h4><p>Whichever kingdom the DFS stumbles into first, one of two things happens. If it enters A first: since A can reach B, that same DFS call will tunnel through and finish all of B before it can finish A's starting planet — so A's finish times end up higher. If it enters B first: since B can't reach back to A (the condensation has no A←B edge, or that would form a cycle), the DFS finishes all of B and closes it out completely before A is even touched — so again, A's finish times end up higher, just later in time.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">04</div>
+      <div><h4>So the very last planet to finish belongs to a "source" kingdom.</h4><p>A kingdom with no incoming teleporters from any other kingdom. Nothing in the condensation points to it.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">05</div>
+      <div><h4>Flip the map, and that source kingdom becomes a dead end.</h4><p>On the reversed teleporter graph, a kingdom with no incoming routes becomes a kingdom with no <em>outgoing</em> routes. So starting a search from the top-of-stack planet on the reversed map can only wander around inside its own kingdom — it's fenced in. It can never leak into a different kingdom.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">06</div>
+      <div><h4>Repeat, and every leak is fenced off in turn.</h4><p>Pop the next unclaimed planet from the stack, flood-fill on the reversed map again — same argument applies, because once a kingdom's planets are all claimed, the remaining unclaimed planets are always the newest "topmost" source kingdom of what's left. One clean kingdom, every single time.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Zoom out</div>
+  <h2>The condensation: your galaxy, minus the tangles</h2>
+  <p style="color:var(--muted); max-width:70ch; margin-bottom:22px;">Once every kingdom is found, you can shrink each one down to a single point. Whatever tangled mess of teleporters existed inside a kingdom disappears — what's left between kingdoms is always a clean DAG.</p>
+  <div class="panel" style="display:flex; justify-content:center;">
+    <svg viewBox="0 0 420 140" width="100%" style="max-width:420px;">
+      <defs>
+        <marker id="cond-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#8CA0C4"></path>
+        </marker>
+      </defs>
+      <line x1="120" y1="70" x2="270" y2="70" stroke="#8CA0C4" stroke-width="2" marker-end="url(#cond-arrow)"></line>
+      <circle cx="80" cy="70" r="55" fill="rgba(79,209,197,.15)" stroke="#4FD1C5" stroke-width="2.5"></circle>
+      <text x="80" y="65" text-anchor="middle" fill="#F1EAFF" font-family="Space Grotesk" font-size="14" font-weight="700">Kingdom 1</text>
+      <text x="80" y="84" text-anchor="middle" fill="#A79AD1" font-family="JetBrains Mono" font-size="11">planets 1,2,3</text>
+      <circle cx="340" cy="70" r="45" fill="rgba(240,98,154,.15)" stroke="#F0629A" stroke-width="2.5"></circle>
+      <text x="340" y="65" text-anchor="middle" fill="#F1EAFF" font-family="Space Grotesk" font-size="14" font-weight="700">Kingdom 2</text>
+      <text x="340" y="84" text-anchor="middle" fill="#A79AD1" font-family="JetBrains Mono" font-size="11">planets 4,5</text>
+    </svg>
+  </div>
+  <p style="color:var(--muted); font-size:14px; margin-top:16px;">This is the payoff: once you're looking at a DAG, every DAG-only trick becomes available — topological sort, dynamic programming over dependencies, longest paths, counting reachable pairs — even though the original graph was full of cycles.</p>
+</section>
+
+<section>
+  <div class="eyebrow">Implementation</div>
+  <h2>Iterative, two-pass, no recursion</h2>
+  <p style="color:var(--muted); max-width:72ch;">Same reason as before: at n = 100,000, a recursive DFS risks a stack overflow on a long chain of planets. Both passes below are written with explicit stacks.</p>
+
+  <div class="code-tabs">
+    <button class="code-tab active" onclick="showCode('cpp')">C++</button>
+    <button class="code-tab" onclick="showCode('py')">Python</button>
+  </div>
+
+  <div id="code-cpp" class="code-panel active">
+    <pre class="codebox"><button class="copy-btn" onclick="copyCode('code-cpp',this)">Copy</button><code><span class="c">// CSES 1683 - Planets and Kingdoms</span>
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m;
+vector&lt;int&gt; adj[100001], radj[100001];
+bool visited_[100001];
+int comp[100001];
+vector&lt;int&gt; order_;
+
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++){
+        int a, b; cin &gt;&gt; a &gt;&gt; b;
+        adj[a].push_back(b);
+        radj[b].push_back(a);
+    }
+
+    <span class="c">// Pass 1: iterative DFS, record finish order</span>
+    vector&lt;int&gt; itIdx(n + 1, 0);
+    for (int s = 1; s &lt;= n; s++){
+        if (visited_[s]) continue;
+        vector&lt;int&gt; stk{s};
+        visited_[s] = true;
+        while (!stk.empty()){
+            int u = stk.back();
+            if (itIdx[u] &lt; (int)adj[u].size()){
+                int v = adj[u][itIdx[u]++];
+                if (!visited_[v]){ visited_[v] = true; stk.push_back(v); }
+            } else {
+                order_.push_back(u);
+                stk.pop_back();
+            }
+        }
+    }
+
+    <span class="c">// Pass 2: pop in reverse finish order, flood-fill on the reversed graph</span>
+    int k = 0;
+    for (int i = (int)order_.size() - 1; i &gt;= 0; i--){
+        int s = order_[i];
+        if (comp[s] != 0) continue;
+        k++;
+        vector&lt;int&gt; stk{s};
+        comp[s] = k;
+        while (!stk.empty()){
+            int u = stk.back(); stk.pop_back();
+            for (int v : radj[u])
+                if (comp[v] == 0){ comp[v] = k; stk.push_back(v); }
+        }
+    }
+
+    cout &lt;&lt; k &lt;&lt; "\n";
+    for (int i = 1; i &lt;= n; i++) cout &lt;&lt; comp[i] &lt;&lt; " \n"[i == n];
+}</code></pre>
+  </div>
+
+  <div id="code-py" class="code-panel">
+    <pre class="codebox"><button class="copy-btn" onclick="copyCode('code-py',this)">Copy</button><code><span class="c"># CSES 1683 - Planets and Kingdoms</span>
+import sys
+
+def main():
+    data = sys.stdin.buffer.read().split()
+    idx = 0
+    n = int(data[idx]); idx += 1
+    m = int(data[idx]); idx += 1
+
+    adj  = [[] for _ in range(n + 1)]
+    radj = [[] for _ in range(n + 1)]
+    for _ in range(m):
+        a = int(data[idx]); idx += 1
+        b = int(data[idx]); idx += 1
+        adj[a].append(b)
+        radj[b].append(a)
+
+    visited = [False] * (n + 1)
+    it_idx  = [0] * (n + 1)
+    order = []
+
+    <span class="c"># Pass 1: iterative DFS, record finish order</span>
+    for s in range(1, n + 1):
+        if visited[s]:
+            continue
+        stack = [s]
+        visited[s] = True
+        while stack:
+            u = stack[-1]
+            if it_idx[u] < len(adj[u]):
+                v = adj[u][it_idx[u]]
+                it_idx[u] += 1
+                if not visited[v]:
+                    visited[v] = True
+                    stack.append(v)
+            else:
+                order.append(u)
+                stack.pop()
+
+    <span class="c"># Pass 2: pop in reverse finish order, flood-fill on the reversed graph</span>
+    comp = [0] * (n + 1)
+    k = 0
+    for s in reversed(order):
+        if comp[s] != 0:
+            continue
+        k += 1
+        stack = [s]
+        comp[s] = k
+        while stack:
+            u = stack.pop()
+            for v in radj[u]:
+                if comp[v] == 0:
+                    comp[v] = k
+                    stack.append(v)
+
+    out = [str(k), ' '.join(str(comp[i]) for i in range(1, n + 1))]
+    print('\n'.join(out))
+
+main()</code></pre>
+  </div>
+
+  <p style="color:var(--muted); font-size:14px; margin-top:16px;">Both run in O(n + m) time and space — two linear passes, not one per node. n = 1 or a graph with zero teleporters both work fine: every planet is its own kingdom.</p>
+</section>
+
+<section>
+  <div class="eyebrow">Where this actually gets used</div>
+  <h2>Real applications, not just contest problems</h2>
+  <div class="grid2" style="margin-top:22px; gap:22px;">
+    <div class="panel">
+      <h3 style="font-size:16px; color:var(--teal);">2-SAT solving</h3>
+      <p style="color:var(--muted); font-size:14.5px;">Given a boolean formula where every clause has exactly two literals, build an "implication graph": each literal points to whatever it forces to be true. Run Kosaraju. If a variable and its negation ever land in the <em>same</em> SCC, the formula is unsatisfiable — full stop, no backtracking search needed. This turns a problem that looks like it needs brute-force SAT solving into a linear-time graph algorithm.</p>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:16px; color:var(--magenta);">Circular dependency detection</h3>
+      <p style="color:var(--muted); font-size:14.5px;">Build systems and package managers model modules as a directed graph of "depends on" edges. Any SCC of size greater than one is a circular dependency — module A needs B, which eventually needs A back. Compilers and dependency resolvers use exactly this to reject broken build graphs before wasting time compiling.</p>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:16px; color:var(--amber);">Mapping the shape of the web</h3>
+      <p style="color:var(--muted); font-size:14.5px;">In the landmark 2000 study <em>"Graph Structure in the Web,"</em> Broder et al. computed SCCs across hundreds of millions of pages and found the web has a "bowtie" shape: a giant central SCC (pages that can all reach each other), an IN region feeding into it, an OUT region it feeds into, and disconnected tendrils — all discovered by running exactly this kind of algorithm at massive scale.</p>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:16px; color:var(--blue);">Feedback-loop detection in circuits</h3>
+      <p style="color:var(--muted); font-size:14.5px;">Model a digital circuit's signal dependencies as a directed graph. A purely combinational circuit's graph should be acyclic. If SCC analysis finds a cycle, that's a feedback loop — meaning the design needs a register or latch to handle state, not plain combinational logic. EDA (electronic design automation) tools run this kind of check as a matter of course.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Beyond the basic problem</div>
+  <h2>Every pattern this idea shows up in</h2>
+  <div class="panel" style="margin-top:22px;">
+    <table class="cmp">
+      <tr><th>Pattern</th><th>What changes</th></tr>
+      <tr><td><b>Label every SCC</b></td><td>Exactly this problem — assign each node a kingdom id. The base case everything else builds on.</td></tr>
+      <tr><td><b>Count SCCs only</b></td><td>Same algorithm, just return the counter <span class="mono">k</span> and skip storing per-node labels.</td></tr>
+      <tr><td><b>Condense, then run DP on the DAG</b></td><td>After building the condensation, run topological-order DP over it — e.g. "longest chain of reachable kingdoms," or "how many (ordered) pairs of planets can reach each other," collapsing cycles first so a DAG-only algorithm becomes usable.</td></tr>
+      <tr><td><b>Minimum edges to unite everything</b></td><td>A classic result by Eswaran &amp; Tarjan (1976): build the condensation, count its <em>source</em> kingdoms (no incoming routes) and <em>sink</em> kingdoms (no outgoing routes). The minimum number of new teleporters needed to make the whole galaxy one kingdom is <span class="mono">max(sources, sinks)</span> — and zero if it's already a single kingdom.</td></tr>
+      <tr><td><b>2-SAT satisfiability</b></td><td>SCCs of an implication graph directly decide satisfiability — see above.</td></tr>
+    </table>
+  </div>
+
+  <h3 style="margin-top:32px; font-size:18px;">Kosaraju vs. its single-pass cousins</h3>
+  <div class="panel">
+    <table class="cmp">
+      <tr><th>Algorithm</th><th>Passes</th><th>Idea</th><th>Trade-off</th></tr>
+      <tr><td><b>Kosaraju (1978)</b></td><td>Two DFS passes + a reversed graph</td><td>Finish-time ordering, then flood-fill in reverse.</td><td>Easiest to prove correct; needs the reversed graph stored in memory.</td></tr>
+      <tr><td><b>Tarjan (1972)</b></td><td>One DFS pass</td><td>Tracks a "low-link" value per node to detect the root of each SCC on the fly, using one explicit stack.</td><td>No reversed graph needed and typically faster in practice; the low-link invariant is trickier to prove and implement correctly.</td></tr>
+      <tr><td><b>Gabow's path-based (2000)</b></td><td>One DFS pass</td><td>Uses two stacks instead of low-link numbers to track candidate SCC roots.</td><td>Same single-pass benefit as Tarjan's, with an arguably simpler bookkeeping rule.</td></tr>
+    </table>
+    <p style="color:var(--muted); font-size:14px; margin-top:14px;">Fun historical wrinkle: Tarjan's single-pass method actually predates Kosaraju's two-pass method by about six years — the "easier to understand" algorithm came <em>later</em>, not first.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Things that make this click</div>
+  <h2>Facts worth remembering</h2>
+  <div class="grid3" style="margin-top:22px;">
+    <div class="fact">
+      <div class="fn">01</div>
+      <h4>The name has two owners</h4>
+      <p>Kosaraju's algorithm is credited to S. Rao Kosaraju, who described it in an unpublished 1978 note — it was independently published by Micha Sharir in 1981, which is why some textbooks call it the Kosaraju–Sharir algorithm.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">02</div>
+      <h4>The condensation is always acyclic</h4>
+      <p>No matter how tangled the original graph is, collapsing every SCC into a point always produces a DAG. This is what makes SCC-finding a gateway into every DAG algorithm — topological sort, DP, longest/shortest paths — for graphs that originally had cycles everywhere.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">03</div>
+      <h4>Two BFS from a hub is a special case of this</h4>
+      <p>The earlier "is the whole graph one SCC" check is exactly what happens if you run Kosaraju's algorithm and get k = 1 at the end. Same machinery, one is just the yes/no shortcut.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">04</div>
+      <h4>2-SAT turns satisfiability into a graph problem</h4>
+      <p>Deciding general boolean satisfiability is NP-complete. Restricting every clause to exactly two literals collapses that difficulty entirely — it becomes solvable in linear time purely because SCCs can be found in linear time.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">05</div>
+      <h4>Recursion is the silent killer here too</h4>
+      <p>A textbook recursive version of Pass 1 (DFS, then push on the way back up the call stack) is elegant to write but will blow the call stack on a graph shaped like a single long chain of 100,000 planets. The iterative version above sidesteps that entirely.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">06</div>
+      <h4>Kingdoms can be a single planet</h4>
+      <p>A planet with no teleporter cycles through it at all is still a perfectly valid kingdom — just a kingdom of one. Kosaraju's algorithm handles this with zero special-casing.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Keep flying</div>
+  <h2>Practice this pattern</h2>
+
+  <div class="plink-group" style="margin-top:26px;">
+    <h3>Origin problem</h3>
+    <a class="plink" href="https://cses.fi/problemset/task/1683" target="_blank" rel="noopener">
+      <div class="src">CSES 1683</div>
+      <h4>Planets and Kingdoms</h4>
+      <p>The exact problem this page explains — full Kosaraju's algorithm, labeling every SCC.</p>
+    </a>
+  </div>
+
+  <div class="plink-group">
+    <h3>Direct SCC practice &amp; variations</h3>
+    <div class="grid2">
+      <a class="plink" href="https://www.geeksforgeeks.org/problems/strongly-connected-components-kosarajus-algo/1" target="_blank" rel="noopener">
+        <div class="src">GeeksforGeeks</div>
+        <h4>Strongly Connected Components (Kosaraju's Algo)</h4>
+        <p>Return the raw count of SCCs — good for drilling the two-pass mechanics without the labeling step.</p>
+      </a>
+      <a class="plink" href="https://codeforces.com/problemset/problem/468/B" target="_blank" rel="noopener">
+        <div class="src">Codeforces 468B</div>
+        <h4>Two Sets</h4>
+        <p>A classic 2-SAT exercise: model the constraints as an implication graph and let SCCs decide satisfiability.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="plink-group">
+    <h3>Related low-link technique</h3>
+    <a class="plink" href="https://leetcode.com/problems/critical-connections-in-a-network/" target="_blank" rel="noopener">
+      <div class="src">LeetCode 1192</div>
+      <h4>Critical Connections in a Network</h4>
+      <p>Not SCCs exactly — this finds bridges in an undirected graph — but it uses the same low-link/DFS-timestamp toolkit that powers Tarjan's SCC algorithm. Great for seeing the family resemblance.</p>
+    </a>
+  </div>
+</section>
+
+<footer>THE GALAXY, FULLY CHARTED, ONE FLOOD-FILL AT A TIME</footer>
+
+<script>
+  const POS = { 1:{x:160,y:110}, 2:{x:80,y:260}, 3:{x:240,y:260}, 4:{x:460,y:170}, 5:{x:460,y:340} };
+  const EDGES = [[1,2],[2,3],[3,1],[3,4],[4,5],[5,4]];
+  const NN = 5;
+  const PLANET_R = 26;
+  const KINGDOM_COLORS = ['#4FD1C5','#F0629A','#FFB454','#7C9CFF','#B6FF6B','#FF7A59'];
+
+  const svgArea = document.getElementById('svg-area');
+  const phaseLbl = document.getElementById('phase-label');
+  const stackPanel = document.getElementById('stack-panel');
+  const kingdomLog = document.getElementById('kingdom-log');
+  const banner = document.getElementById('banner');
+  const bannerStamp = document.getElementById('banner-stamp');
+  const bannerText = document.getElementById('banner-text');
+  const runBtn = document.getElementById('btn-run');
+
+  function buildAdj(edges, n){
+    const fwd = {}, rev = {};
+    for(let i=1;i<=n;i++){ fwd[i]=[]; rev[i]=[]; }
+    edges.forEach(([a,b]) => { fwd[a].push(b); rev[b].push(a); });
+    return { fwd, rev };
+  }
+
+  function edgeCoords(a, b){
+    const pa = POS[a], pb = POS[b];
+    const dx = pb.x - pa.x, dy = pb.y - pa.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx/dist, uy = dy/dist;
+    return {
+      x1: pa.x + ux*PLANET_R, y1: pa.y + uy*PLANET_R,
+      x2: pb.x - ux*(PLANET_R+8), y2: pb.y - uy*(PLANET_R+8)
+    };
+  }
+
+  function renderGraph(){
+    const edgesHTML = EDGES.map(([a,b]) => {
+      const c = edgeCoords(a,b);
+      return `<line id="edge-${a}-${b}" class="edge" x1="${c.x1}" y1="${c.y1}" x2="${c.x2}" y2="${c.y2}" marker-end="url(#arrow-gray)"></line>`;
+    }).join('');
+
+    const nodesHTML = Object.keys(POS).map(k => {
+      const num = parseInt(k);
+      const p = POS[num];
+      return `<g id="p-${num}" class="planet">
+        <circle class="body" cx="${p.x}" cy="${p.y}" r="${PLANET_R}"></circle>
+        <circle class="crater" cx="${p.x-8}" cy="${p.y-6}" r="4"></circle>
+        <circle class="crater" cx="${p.x+7}" cy="${p.y+8}" r="3"></circle>
+        <text x="${p.x}" y="${p.y+6}" text-anchor="middle">${num}</text>
+      </g>`;
+    }).join('');
+
+    svgArea.innerHTML = `
+    <svg viewBox="0 0 560 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#3A2E66"></path>
+        </marker>
+        <marker id="arrow-trace" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#FFB454"></path>
+        </marker>
+        <marker id="arrow-bridge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#FF6B6B"></path>
+        </marker>
+      </defs>
+      <g id="edges-layer">${edgesHTML}</g>
+      <g id="nodes-layer">${nodesHTML}</g>
+    </svg>`;
+  }
+
+  function resetVisual(){
+    renderGraph();
+    stackPanel.innerHTML = '';
+    kingdomLog.innerHTML = '';
+    banner.hidden = true;
+    phaseLbl.innerHTML = 'Press <b>Run</b> to start mapping the galaxy.';
+  }
+
+  function reducedMotion(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function wait(ms){ return new Promise(res => setTimeout(res, reducedMotion() ? 0 : ms)); }
+
+  function computeEvents(fwd, n){
+    const visited = {}; for(let i=1;i<=n;i++) visited[i]=false;
+    const itIdx = {}; for(let i=1;i<=n;i++) itIdx[i]=0;
+    const events = []; const order = [];
+    for(let s=1;s<=n;s++){
+      if(visited[s]) continue;
+      const stack=[s];
+      visited[s]=true;
+      events.push({type:'visit', node:s, parent:null});
+      while(stack.length){
+        const u = stack[stack.length-1];
+        const nbrs = fwd[u];
+        if(itIdx[u] < nbrs.length){
+          const v = nbrs[itIdx[u]++];
+          if(!visited[v]){
+            visited[v]=true;
+            events.push({type:'visit', node:v, parent:u});
+            stack.push(v);
+          }
+        } else {
+          events.push({type:'finish', node:u});
+          order.push(u);
+          stack.pop();
+        }
+      }
+    }
+    return { events, order };
+  }
+
+  function litEdge(a, b, kind){
+    const el = document.getElementById(`edge-${a}-${b}`);
+    if(!el) return;
+    el.classList.remove('edge-trace','edge-bridge');
+    if(kind === 'trace'){ el.classList.add('edge-trace'); el.setAttribute('marker-end','url(#arrow-trace)'); }
+    if(kind === 'bridge'){ el.classList.add('edge-bridge'); el.setAttribute('marker-end','url(#arrow-bridge)'); }
+  }
+
+  function setPlanetColor(num, color){
+    const el = document.getElementById(`p-${num}`);
+    if(!el) return;
+    el.classList.remove('planet-visiting');
+    const circle = el.querySelector('circle.body');
+    circle.style.fill = color + '33';
+    circle.style.stroke = color;
+    circle.style.filter = `drop-shadow(0 0 8px ${color}88)`;
+  }
+
+  async function animateExploration(events){
+    for(const ev of events){
+      const el = document.getElementById(`p-${ev.node}`);
+      if(ev.type === 'visit'){
+        if(ev.parent !== null) litEdge(ev.parent, ev.node, 'trace');
+        el.classList.add('planet-visiting');
+        await wait(430);
+      } else {
+        el.classList.remove('planet-visiting');
+        el.classList.add('planet-finished');
+        const box = document.createElement('div');
+        box.className = 'stack-box';
+        box.textContent = `Planet ${ev.node} — finished`;
+        stackPanel.insertBefore(box, stackPanel.firstChild);
+        await wait(260);
+      }
+    }
+  }
+
+  function popTopStackBox(){
+    const top = stackPanel.firstChild;
+    if(top){
+      top.classList.add('popped');
+      setTimeout(() => top.remove(), 400);
+    }
+  }
+
+  function addKingdomEntry(k, color){
+    const div = document.createElement('div');
+    div.className = 'kingdom-entry';
+    div.id = `kingdom-${k}`;
+    div.innerHTML = `<span class="swatch" style="background:${color}"></span><span>Kingdom ${k}: <span class="members" id="members-${k}"></span></span>`;
+    kingdomLog.appendChild(div);
+  }
+
+  function appendKingdomMember(k, node){
+    const span = document.getElementById(`members-${k}`);
+    span.textContent = span.textContent ? `${span.textContent}, ${node}` : `${node}`;
+  }
+
+  function setButtonsDisabled(disabled){ runBtn.disabled = disabled; }
+
+  async function runKosaraju(){
+    resetVisual();
+    setButtonsDisabled(true);
+    const { fwd, rev } = buildAdj(EDGES, NN);
+
+    phaseLbl.innerHTML = '<b>Pass 1 — Exploring:</b> DFS across the teleporter map, building the finish-time stack.';
+    const { events, order } = computeEvents(fwd, NN);
+    await animateExploration(events);
+
+    await wait(450);
+    phaseLbl.innerHTML = '<b>Pass 2 — Flood-filling:</b> popping the stack, coloring each kingdom on the reversed map.';
+
+    const comp = {};
+    let kingdomCount = 0;
+
+    for(let i = order.length - 1; i >= 0; i--){
+      const s = order[i];
+      popTopStackBox();
+      if(comp[s]){ await wait(280); continue; }
+
+      kingdomCount++;
+      const color = KINGDOM_COLORS[(kingdomCount - 1) % KINGDOM_COLORS.length];
+      comp[s] = kingdomCount;
+      setPlanetColor(s, color);
+      addKingdomEntry(kingdomCount, color);
+      appendKingdomMember(kingdomCount, s);
+      await wait(350);
+
+      const queue = [s];
+      while(queue.length){
+        const u = queue.shift();
+        for(const v of rev[u]){
+          if(!comp[v]){
+            comp[v] = kingdomCount;
+            setPlanetColor(v, color);
+            appendKingdomMember(kingdomCount, v);
+            queue.push(v);
+            await wait(380);
+          }
+        }
+      }
+      await wait(300);
+    }
+
+    EDGES.forEach(([a,b]) => {
+      if(comp[a] !== comp[b]) litEdge(a, b, 'bridge');
+    });
+
+    phaseLbl.innerHTML = `<b>Done.</b> ${kingdomCount} kingdom${kingdomCount===1?'':'s'} found.`;
+    banner.hidden = false;
+    bannerStamp.textContent = `✓ ${kingdomCount} KINGDOM${kingdomCount===1?'':'S'} CHARTED`;
+    bannerText.textContent = 'Every planet is now labeled. The dashed red line is a one-way bridge between kingdoms — it explains why they never merged into one.';
+    setButtonsDisabled(false);
+  }
+
+  function showCode(which){
+    document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.code-tab[onclick="showCode('${which}')"]`).classList.add('active');
+    document.getElementById(`code-${which}`).classList.add('active');
+  }
+
+  function copyCode(id, btn){
+    const code = document.getElementById(id).querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const old = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  }
+
+  resetVisual();
+</script>
+
+</body>
+</html>

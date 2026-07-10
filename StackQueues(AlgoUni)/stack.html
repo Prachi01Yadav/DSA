@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering Stacks & Queues: Interview Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #2d3436;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+        }
+        h1 { font-weight: 700; color: #0984e3; border-bottom: 3px solid #0984e3; padding-bottom: 10px; }
+        h2 { font-weight: 600; color: #2d3436; margin-top: 40px; background: #dfe6e9; padding: 10px; border-radius: 5px; }
+        h3 { color: #d63031; margin-top: 25px; }
+        .pattern-card {
+            background: white;
+            border-left: 5px solid #00b894;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 0 5px 5px 0;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+            background: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e84393;
+            font-size: 0.9em;
+        }
+        .highlight { font-weight: 600; color: #0984e3; }
+        .recognition {
+            background: #6c5ce7;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { text-align: left; padding: 12px; border: 1px solid #dfe6e9; }
+        th { background-color: #0984e3; color: white; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Mastering Stacks & Queues</h1>
+    <p>A comprehensive guide to recognizing patterns, mastering techniques, and cracking coding interviews.</p>
+
+    <div class="recognition">
+        <h2>How to Recognize a Stack/Queue Problem</h2>
+        <ul>
+            <li><strong>LIFO (Last-In-First-Out):</strong> If you need to "undo" something or access the most recently processed element.</li>
+            <li><strong>Dependency on Neighbors:</strong> If the current element depends on its immediate predecessor or successor (e.g., matching brackets).</li>
+            <li><strong>Monotonic Behavior:</strong> If you need to find the "next greater" or "previous smaller" element.</li>
+            <li><strong>Recursive Nature:</strong> Any iterative solution that replaces a recursive DFS usually uses a Stack.</li>
+            <li><strong>BFS / Level Order:</strong> If the problem asks for the "shortest path" in a graph or processing items level-by-level, use a <strong>Queue</strong>.</li>
+        </ul>
+    </div>
+
+    <h2>1. Monotonic Stack Pattern</h2>
+    <p>This is the most frequent interview pattern. You maintain a stack in strictly increasing or decreasing order.</p>
+    <div class="pattern-card">
+        <span class="highlight">Use Case:</span> Next Greater Element, Largest Rectangle in Histogram, Trapping Rain Water.
+        <br><br>
+        <strong>Template Logic:</strong>
+        <pre><code>
+for (int i = 0; i < n; i++) {
+    while (!stack.isEmpty() && arr[stack.peek()] < arr[i]) {
+        // We found the next greater element for stack.peek()
+        int index = stack.pop();
+        result[index] = arr[i];
+    }
+    stack.push(i);
+}
+        </code></pre>
+    </div>
+
+    <h2>2. Bracket Matching / String Manipulation</h2>
+    <p>Using a stack to manage state while parsing a string.</p>
+    <div class="pattern-card">
+        <span class="highlight">Common Questions:</span>
+        <ul>
+            <li>Valid Parentheses: <code>()[]{}</code></li>
+            <li>Simplify File Path: <code>/a/./b/../../c/</code></li>
+            <li>Decoded String: <code>3[a2[c]]</code></li>
+        </ul>
+        <p><strong>Pro-Tip:</strong> Use a <code>Map</code> to store opening and closing bracket pairs for cleaner code.</p>
+    </div>
+
+    <h2>3. Infix, Postfix, and Prefix</h2>
+    <p>Understanding how computers evaluate expressions. Shunting-Yard Algorithm is the core technique here.</p>
+    
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Example</th>
+            <th>Logic</th>
+        </tr>
+        <tr>
+            <td><strong>Infix</strong></td>
+            <td><code>a + b</code></td>
+            <td>Human readable. Requires operator precedence.</td>
+        </tr>
+        <tr>
+            <td><strong>Postfix</strong></td>
+            <td><code>a b +</code></td>
+            <td>Stack-friendly. Push operands; Pop twice on operator.</td>
+        </tr>
+        <tr>
+            <td><strong>Prefix</strong></td>
+            <td><code>+ a b</code></td>
+            <td>Reverse the string and treat similarly to postfix.</td>
+        </tr>
+    </table>
+
+    <div class="pattern-card" style="border-left-color: #d63031;">
+        <strong>Basic Postfix Evaluation:</strong>
+        <ol>
+            <li>Scan string from left to right.</li>
+            <li>If operand: <code>push(operand)</code>.</li>
+            <li>If operator: <code>val1 = pop()</code>, <code>val2 = pop()</code>, <code>push(val2 operator val1)</code>.</li>
+        </ol>
+    </div>
+
+    <h2>4. Sliding Window Maximum (Queue/Deque)</h2>
+    <p>Using a <strong>Double-Ended Queue (Deque)</strong> to find the maximum in every sliding window of size K.</p>
+    <div class="pattern-card">
+        <span class="highlight">The Technique:</span> Maintain a deque of indices such that the values are in <strong>decreasing order</strong>. 
+        <ul>
+            <li>Remove indices that are out of the current window.</li>
+            <li>Remove values from the back that are smaller than the current element (they will never be the maximum).</li>
+            <li>The <code>front</code> of the deque is always the maximum.</li>
+        </ul>
+    </div>
+
+    <h2>5. Interview Cheat Sheet: High-Frequency Questions</h2>
+    <ul>
+        <li><strong>Easy:</strong> Implement Stack using Queues (and vice versa), Min Stack (GetMin in O(1)).</li>
+        <li><strong>Medium:</strong> Daily Temperatures, Online Stock Span, Largest Rectangle in Histogram, Circular Queue.</li>
+        <li><strong>Hard:</strong> Max Sliding Window, Trapping Rain Water, Basic Calculator (I, II, III).</li>
+    </ul>
+
+    <h2>6. Summary Table</h2>
+    <table>
+        <tr>
+            <th>Pattern</th>
+            <th>Data Structure</th>
+            <th>Keywords</th>
+        </tr>
+        <tr>
+            <td>Next Greater Element</td>
+            <td>Monotonic Stack</td>
+            <td>"Next larger", "Previous smaller", "Histogram"</td>
+        </tr>
+        <tr>
+            <td>Shortest Path</td>
+            <td>Queue</td>
+            <td>"Levels", "Minimum steps", "BFS"</td>
+        </tr>
+        <tr>
+            <td>Expression Parsing</td>
+            <td>Two Stacks</td>
+            <td>"Calculator", "Parentheses", "Postfix"</td>
+        </tr>
+        <tr>
+            <td>Sliding Window Max</td>
+            <td>Deque</td>
+            <td>"Window of size K", "Maximum in range"</td>
+        </tr>
+    </table>
+
+</body>
+</html>

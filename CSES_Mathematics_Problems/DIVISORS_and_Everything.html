@@ -1,0 +1,537 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering Divisors & Number Theory for CP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-code: #0b0f19;
+            --accent: #38bdf8;
+            --accent-dim: #0ea5e9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --highlight: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header h1 span {
+            color: var(--accent);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--highlight);
+        }
+
+        ul {
+            list-style-type: none;
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        ul li::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .formula-box {
+            background-color: rgba(56, 189, 248, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            color: var(--highlight);
+        }
+
+        .formula {
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(51, 65, 85, 0.5);
+            color: var(--text-main);
+        }
+
+        td {
+            color: var(--text-muted);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+
+        pre {
+            background-color: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .keyword { color: #f472b6; }
+        .type { color: #38bdf8; }
+        .comment { color: #64748b; font-style: italic; }
+        .literal { color: #fbbf24; }
+        .function { color: #4ade80; }
+
+        .pro-tip {
+            background-color: rgba(251, 191, 36, 0.05);
+            border-left: 4px solid #fbbf24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .pro-tip title {
+            display: block;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Mastering Divisors &amp; Number Theory <span>// CP Guide</span></h1>
+        <p>Core mathematical properties, essential limits, and highly optimized code implementations.</p>
+    </header>
+
+    <div class="card">
+        <h2>1. The Symmetry of Divisors</h2>
+        <p>Divisors always appear in structural pairs. If <code>d</code> is a factor of <code>N</code>, then <code>N/d</code> is automatically a factor as well.</p>
+        
+        <ul>
+            <li><strong>The Range Boundary:</strong> Within any structural pair, one factor will always be less than or equal to <code>&radic;N</code>, while the matching factor will be greater than or equal to <code>&radic;N</code>.</li>
+            <li><strong>Parity of Count:</strong> The only scenario where a divisor does not have a unique pair partner is when <code>d = N/d</code> (meaning <code>N = d<sup>2</sup></code>). Thus, <strong>only perfect squares have an odd number of divisors</strong>.</li>
+        </ul>
+
+        <div class="pro-tip">
+            <title>Competitive Programming Optimization</title>
+            You never need to loop sequentially from 1 all the way up to N to extract factors. Stopping exactly at <code>&radic;N</code> slashes execution boundaries from <strong>O(N)</strong> straight down to <strong>O(&radic;N)</strong>.
+        </div>
+
+        <pre><code><span class="keyword">static</span> <span class="type">List</span>&lt;<span class="type">Long</span>&gt; <span class="function">getDivisors</span>(<span class="type">long</span> el) {
+    <span class="type">List</span>&lt;<span class="type">Long</span>&gt; divs = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="comment">// Loop directly bounds itself up to the square root</span>
+    <span class="keyword">for</span> (<span class="type">long</span> i = <span class="literal">1</span>; i * i &lt;= el; i++) {
+        <span class="keyword">if</span> (el % i == <span class="literal">0</span>) {
+            divs.<span class="function">add</span>(i);
+            <span class="comment">// Pair validation check to prevent duplicating perfect square roots</span>
+            <span class="keyword">if</span> (i != el / i) {
+                divs.<span class="function">add</span>(el / i);
+            }
+        }
+    }
+    <span class="keyword">return</span> divs; <span class="comment">// Note: Extracted factors are unsorted</span>
+}</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>2. Canonical Prime Factorization Formulas</h2>
+        <p>By breaking down any composite integer into its distinct prime signatures, you can immediately solve for total divisor counts and summation statistics without performing any array lookups.</p>
+        
+        <p>Let an integer <code>N</code> be cleanly mapped to its prime factors:</p>
+        <div class="formula-box">
+            <span class="formula">N = p<sub>1</sub><sup>a<sub>1</sub></sup> &times; p<sub>2</sub><sup>a<sub>2</sub></sup> &times; ... &times; p<sub>k</sub><sup>a<sub>k</sub></sup></span>
+        </div>
+
+        <p><strong>Total Number of Divisors &tau;(N):</strong> Add 1 to each unique prime power exponent and compute the combined product:</p>
+        <div class="formula-box">
+            <span class="formula">&tau;(N) = (a<sub>1</sub> + 1) &times; (a<sub>2</sub> + 1) &times; ... &times; (a<sub>k</sub> + 1)</span>
+        </div>
+
+        <p><strong>Sum of All Divisors &sigma;(N):</strong> Evaluated cleanly via a geometric progression expansion across every prime component group:</p>
+        <div class="formula-box">
+            <span class="formula">&sigma;(N) = &prod;<sub>i=1</sub><sup>k</sup> [ (p<sub>i</sub><sup>a<sub>i</sub>+1</sup> - 1) / (p<sub>i</sub> - 1) ]</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>3. Knowing Your Limits: Divisor Upper Bounds</h2>
+        <p>When engineering time-bound systems, knowing the exact mathematical maximum limits of divisor counts prevents false TLE assumptions. Integers containing more factors than any value smaller than them are known as <strong>Highly Composite Numbers</strong>.</p>
+        
+        <p>Divisor population curves scale incredibly slowly compared to standard array bounds:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Maximum Boundary Range (N)</th>
+                    <th>Max Possible Divisor Count &tau;(N)</th>
+                    <th>Example Smallest Peak Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>N &le; 10<sup>4</sup></td>
+                    <td><strong>64</strong></td>
+                    <td>7,560</td>
+                </tr>
+                <tr>
+                    <td>N &le; 10<sup>5</sup></td>
+                    <td><strong>128</strong></td>
+                    <td>83,160</td>
+                </tr>
+                <tr>
+                    <td>N &le; 10<sup>6</sup></td>
+                    <td><strong>240</strong></td>
+                    <td>720,720</td>
+                </tr>
+                <tr>
+                    <td>N &le; 10<sup>9</sup></td>
+                    <td><strong>1,344</strong></td>
+                    <td>735,134,400</td>
+                </tr>
+                <tr>
+                    <td>N &le; 10<sup>18</sup> (Standard 64-bit Long)</td>
+                    <td><strong>103,680</strong></td>
+                    <td>9,200,527,801,105,600</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pro-tip">
+            <title>The O(D²) Loop Strategy</title>
+            If a problem demands that you find all divisors of a number up to <code>10<sup>9</sup></code> and execute a nested loop over them, the worst-case operation count is only <code>1,344 &times; 1,344 &asymp; 1.8 &times; 10<sup>6</sup></code> actions. This will comfortably finish in under 5 milliseconds.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>4. Range Generation: The Harmonic Lemma Sieve</h2>
+        <p>If you need to calculate the complete divisor profile for <strong>every single number spanning from 1 to N</strong>, computing individual square roots up to <code>O(N&radic;N)</code> will result in a Time Limit Exceeded error at <code>10<sup>6</sup></code>.</p>
+        
+        <p>Instead, apply a forward distribution sieve method. For every single factor, walk forward along its active multi-step sequence map to log its presence across its multiples:</p>
+
+        <div class="formula-box">
+            <span class="formula">Total Operations = N/1 + N/2 + N/3 + ... + N/N = N &times; &sum; (1/i) &asymp; O(N log N)</span>
+        </div>
+
+        <pre><code><span class="type">int</span> N = <span class="literal">1000000</span>;
+<span class="comment">// Declaring a raw index vector map to save object allocation memory</span>
+<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;[] allDivisors = <span class="keyword">new</span> <span class="type">ArrayList</span>[N + <span class="literal">1</span>];
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="literal">1</span>; i &le; N; i++) {
+    allDivisors[i] = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+}
+
+<span class="comment">// The Sieve Distribution Model</span>
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="literal">1</span>; i &le; N; i++) {          <span class="comment">// i functions as the factor</span>
+    <span class="keyword">for</span> (<span class="type">int</span> j = i; j &le; N; j += i) {   <span class="comment">// j maps directly to the active multiples</span>
+        allDivisors[j].<span class="function">add</span>(i);
+    }
+}</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>5. Advanced Trick: Ordered LCM Pairs via Exponents</h2>
+        <p>A classic CP sub-problem involves counting pairs of integers <code>(j, k)</code> whose exact least common multiple matches a fixed target value <code>i</code> (<code>LCM(j, k) = i</code>).</p>
+        
+        <p>Instead of testing all divisor combinations with nested GCD tests, use the prime factorization exponents of <code>i</code> directly. For a single prime component <code>p<sup>a</sup></code>, to secure a maximum power of exactly <code>a</code> between two choices, one element must hold exactly <code>a</code> while the other can hold any integer from <code>0</code> up to <code>a</code>.</p>
+
+        <div class="formula-box">
+            <span class="formula">Pairs per Prime Factor = (2a + 1)</span>
+        </div>
+
+        <p>Multiplying these possibilities across all unique prime components of a number gives the exact count of valid LCM pairs instantly:</p>
+        <div class="formula-box">
+            <span class="formula">Total Ordered Pairs [LCM(j, k) = i] = &prod;<sub>k=1</sub><sup>m</sup> (2a<sub>k</sub> + 1)</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Optimal Approach: GCD and Divisors</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-main: #334155;
+            --heading-color: #0f172a;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --highlight: #db2777;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        h1, h2, h3 { color: var(--heading-color); }
+        h1 { 
+            font-size: 2.5rem; 
+            border-bottom: 4px solid var(--accent); 
+            padding-bottom: 15px; 
+            margin-top: 0;
+        }
+        h2 { 
+            font-size: 1.75rem; 
+            margin-top: 40px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .step-badge {
+            background: var(--accent);
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .callout {
+            background: var(--accent-light);
+            border-left: 5px solid var(--accent);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.05rem;
+        }
+        .callout strong { color: var(--accent); }
+        .math { 
+            font-family: 'Georgia', serif; 
+            font-style: italic; 
+            font-weight: bold; 
+            color: var(--accent); 
+        }
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        code { font-family: 'Fira Code', 'Consolas', monospace; }
+        p code, li code { 
+            background: #f1f5f9; 
+            color: var(--highlight); 
+            padding: 3px 6px; 
+            border-radius: 4px; 
+            font-size: 0.9em; 
+        }
+        .example-box {
+            border: 2px dashed #cbd5e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            background: #fafaf9;
+        }
+        .complexity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .card.old { background: #fee2e2; border: 1px solid #fca5a5; }
+        .card.new { background: #dcfce7; border: 1px solid #86efac; }
+        .card h4 { margin: 0 0 10px 0; font-size: 1.2rem; }
+        
+        @media (max-width: 600px) {
+            .container { padding: 30px 20px; }
+            .complexity-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Optimal Approach:<br>GCD and Divisors</h1>
+        
+        <p>Imagine you have a giant array of numbers and you are tasked with finding exactly how many numbers divide <em>all</em> of them perfectly. If you try checking every possible divisor one by one, your program will quickly exhaust its time limit (TLE). But there is a mathematical trick that turns this mountain of a problem into a molehill.</p>
+
+        <div class="callout">
+            <strong>The Core Theorem:</strong> Any common divisor of a set of numbers MUST also be a divisor of their <strong>Greatest Common Divisor (GCD)</strong>.
+        </div>
+
+        <p>Because of this theorem, we don't need to look at the whole array to find common divisors. We just need to find the overall GCD of the array, and then find the divisors of <em>that single number</em>. Let's break this down into two elegant steps.</p>
+
+        <h2><span class="step-badge">1</span> Shrinking the Array to One Number</h2>
+        <p>Instead of comparing every divisor against every array element, we find the GCD of the entire array. The GCD acts as a "filter" that holds all the prime factors shared by every single element in the array.</p>
+        
+        <div class="example-box">
+            <strong>Example:</strong> Let's say our array is <code>[12, 24, 36]</code>.<br><br>
+            Instead of checking if 1, 2, 3, 4, 5, 6... divide all three numbers, we calculate their GCD:<br>
+            • GCD(12, 24) = 12<br>
+            • GCD(12, 36) = 12<br>
+            The overall GCD is <strong>12</strong>. Now, the problem is incredibly simple: just find the divisors of 12!
+        </div>
+
+        <h2><span class="step-badge">2</span> Counting Divisors in <span class="math">O(&radic;N)</span></h2>
+        <p>Once we have the overall GCD, how do we count its divisors fast? A naive approach checks every number from 1 to the GCD. But divisors always come in <strong>pairs</strong>.</p>
+        <p>For our GCD of 12:</p>
+        <ul>
+            <li>If 1 divides 12, then <code>12 / 1 = 12</code> (Pair: 1, 12)</li>
+            <li>If 2 divides 12, then <code>12 / 2 = 6</code> (Pair: 2, 6)</li>
+            <li>If 3 divides 12, then <code>12 / 3 = 4</code> (Pair: 3, 4)</li>
+        </ul>
+        <p>Notice that we only need to check numbers up to the <strong>square root</strong> of the GCD. For 12, &radic;12 is approx 3.46. By looping only up to 3, we found <em>all</em> divisors by counting both halves of the pair!</p>
+
+        <h2>Code Implementation (Java)</h2>
+<pre><code>long g = 0;
+// Step 1: Find overall GCD
+for (int i = 0; i < n; i++) {
+    g = gcd(g, a[i]); 
+}
+
+// Step 2: Count divisors up to square root of GCD
+long ans = 0;
+for (long i = 1; i * i <= g; i++) {
+    if (g % i == 0) {
+        ans++; // i is a divisor
+        
+        // Count the paired divisor if it's different
+        if (i != g / i) {
+            ans++; 
+        }
+    }
+}
+System.out.println(ans);</code></pre>
+
+        <h2>Why is this so fast?</h2>
+        <p>Let's look at the time complexity transformation:</p>
+        
+        <div class="complexity-grid">
+            <div class="card old">
+                <h4>Old Approach</h4>
+                <p><span class="math">O(M log M)</span></p>
+                <p style="font-size: 0.9em; color: #7f1d1d;">Checking every multiple of every possible number against a HashSet. For numbers up to 10<sup>9</sup>, this results in Time Limit Exceeded (TLE).</p>
+            </div>
+            <div class="card new">
+                <h4>New Approach</h4>
+                <p><span class="math">O(N + &radic;GCD)</span></p>
+                <p style="font-size: 0.9em; color: #14532d;">O(N) to find the GCD of the array, plus O(&radic;GCD) to count the divisors. For 10<sup>9</sup>, the loop only runs ~31,622 times. Lightning fast!</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

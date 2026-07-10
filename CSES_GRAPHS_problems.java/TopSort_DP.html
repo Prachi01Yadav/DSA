@@ -1,0 +1,1736 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Topo Sort + DP — The Complete Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg:        #0d0f14;
+    --surface:   #141720;
+    --surface2:  #1b1f2e;
+    --border:    #252a3a;
+    --accent:    #7c6af7;
+    --accent2:   #50d9b2;
+    --accent3:   #f7c26a;
+    --accent4:   #f76a8a;
+    --text:      #dde2f0;
+    --muted:     #8890aa;
+    --code-bg:   #0a0c11;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 56px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display:none; }
+  .nav-logo {
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:15px;
+    color:var(--accent);
+    margin-right:16px;
+    flex-shrink:0;
+  }
+  nav a {
+    color:var(--muted);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:500;
+    padding:4px 12px;
+    border-radius:20px;
+    transition: all .2s;
+    flex-shrink:0;
+  }
+  nav a:hover { color:var(--text); background:var(--surface2); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 96px 40px 72px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--accent2);
+    background: rgba(80,217,178,0.1);
+    border:1px solid rgba(80,217,178,0.25);
+    padding:4px 14px;
+    border-radius:20px;
+    margin-bottom:24px;
+    letter-spacing:.05em;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 68px);
+    font-weight:900;
+    line-height:1.1;
+    letter-spacing:-0.03em;
+    margin-bottom:24px;
+  }
+  .hero h1 span.g {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero p {
+    font-size:18px;
+    color:var(--muted);
+    max-width:640px;
+    line-height:1.8;
+  }
+  .hero-pills {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:32px;
+  }
+  .pill {
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:6px 16px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    color:var(--muted);
+  }
+  .pill.hot { border-color:rgba(124,106,247,0.4); color:var(--accent); background:rgba(124,106,247,0.07); }
+  .pill.go  { border-color:rgba(80,217,178,0.4); color:var(--accent2); background:rgba(80,217,178,0.07); }
+
+  /* ── LAYOUT ── */
+  .page { max-width:880px; margin:0 auto; padding:0 32px 120px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom:80px; }
+  .section-header {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:32px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--border);
+  }
+  .section-num {
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--accent);
+    background:rgba(124,106,247,0.12);
+    padding:4px 10px;
+    border-radius:8px;
+    border:1px solid rgba(124,106,247,0.25);
+  }
+  .section-header h2 {
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:-0.02em;
+  }
+
+  h3 {
+    font-size:20px;
+    font-weight:700;
+    margin: 36px 0 14px;
+    color:var(--text);
+  }
+  h4 {
+    font-size:16px;
+    font-weight:600;
+    color:var(--accent3);
+    margin: 24px 0 10px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  p { margin-bottom:14px; color:#bfc8e0; }
+  strong { color:var(--text); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(124,106,247,0.07);
+    padding:18px 22px;
+    border-radius:0 10px 10px 0;
+    margin:22px 0;
+    font-size:15px;
+  }
+  .callout.green { border-color:var(--accent2); background:rgba(80,217,178,0.07); }
+  .callout.yellow{ border-color:var(--accent3); background:rgba(247,194,106,0.07); }
+  .callout.red   { border-color:var(--accent4); background:rgba(247,106,138,0.07); }
+  .callout-title {
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+    color:var(--accent);
+  }
+  .callout.green .callout-title { color:var(--accent2); }
+  .callout.yellow .callout-title{ color:var(--accent3); }
+  .callout.red .callout-title   { color:var(--accent4); }
+
+  /* ── CODE ── */
+  pre {
+    background: var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:24px;
+    overflow-x:auto;
+    margin:20px 0;
+    position:relative;
+  }
+  pre .lang-label {
+    position:absolute;
+    top:10px; right:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:.08em;
+  }
+  code {
+    font-family:'JetBrains Mono', monospace;
+    font-size:13.5px;
+    line-height:1.7;
+    color:#c5cfe8;
+  }
+  .kw  { color:#7c6af7; }  /* keyword */
+  .fn  { color:#50d9b2; }  /* function */
+  .str { color:#f7c26a; }  /* string */
+  .cm  { color:#4a5270; font-style:italic; }  /* comment */
+  .num { color:#f76a8a; }  /* number */
+  .var { color:#dde2f0; }  /* variable */
+
+  /* ── CARDS ── */
+  .card-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+    margin:20px 0;
+  }
+  .card {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .card-icon { font-size:26px; margin-bottom:12px; }
+  .card h4 { font-size:15px; color:var(--text); margin:0 0 8px; font-family:'Inter',sans-serif; font-weight:700; }
+  .card p { font-size:13.5px; color:var(--muted); margin:0; }
+
+  /* ── QUESTION CARDS ── */
+  .q-card {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 24px;
+    margin:14px 0;
+    display:flex;
+    gap:18px;
+    align-items:flex-start;
+    transition: border-color .2s;
+  }
+  .q-card:hover { border-color:var(--accent); }
+  .q-badge {
+    flex-shrink:0;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:8px;
+    margin-top:2px;
+  }
+  .easy  { background:rgba(80,217,178,0.15); color:var(--accent2); border:1px solid rgba(80,217,178,0.3); }
+  .med   { background:rgba(247,194,106,0.15); color:var(--accent3); border:1px solid rgba(247,194,106,0.3); }
+  .hard  { background:rgba(247,106,138,0.15); color:var(--accent4); border:1px solid rgba(247,106,138,0.3); }
+  .q-info h5 { font-size:15px; font-weight:700; margin-bottom:5px; color:var(--text); }
+  .q-info p  { font-size:13.5px; color:var(--muted); margin:0; }
+  .q-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .q-tag {
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    padding:2px 8px;
+    border-radius:6px;
+    background:var(--surface2);
+    color:var(--muted);
+    border:1px solid var(--border);
+  }
+  .platform-lc { color:#ffa116; }
+  .platform-cf { color:#66aaff; }
+
+  /* ── STEPS ── */
+  .steps { margin:22px 0; }
+  .step {
+    display:flex;
+    gap:18px;
+    margin-bottom:22px;
+  }
+  .step-num {
+    flex-shrink:0;
+    width:34px; height:34px;
+    border-radius:50%;
+    background:rgba(124,106,247,0.15);
+    border:1px solid rgba(124,106,247,0.35);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent);
+  }
+  .step-body { padding-top:4px; }
+  .step-body strong { font-size:15px; display:block; margin-bottom:4px; }
+  .step-body p { font-size:14px; color:var(--muted); margin:0; }
+
+  /* ── GRAPH VIZ ── */
+  .graph-box {
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:28px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13.5px;
+    color:var(--accent2);
+    line-height:2;
+    margin:20px 0;
+    overflow-x:auto;
+  }
+  .graph-box .node { color:var(--accent3); }
+  .graph-box .edge { color:var(--accent); }
+  .graph-box .label{ color:var(--muted); font-size:12px; }
+
+  /* ── TABLE ── */
+  table {
+    width:100%;
+    border-collapse:collapse;
+    margin:20px 0;
+    font-size:14px;
+  }
+  th {
+    background:var(--surface2);
+    color:var(--muted);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:12px 16px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+  td {
+    padding:12px 16px;
+    border-bottom:1px solid var(--border);
+    color:#bfc8e0;
+    vertical-align:top;
+  }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--surface2); }
+
+  /* ── PATTERN BOX ── */
+  .pattern-box {
+    background: linear-gradient(135deg, rgba(124,106,247,0.08) 0%, rgba(80,217,178,0.05) 100%);
+    border:1px solid rgba(124,106,247,0.3);
+    border-radius:16px;
+    padding:28px 32px;
+    margin:28px 0;
+  }
+  .pattern-box .pattern-title {
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:12px;
+  }
+  .pattern-box h3 { margin:0 0 12px; font-size:18px; }
+  .pattern-box p { font-size:14.5px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--border), transparent);
+    margin:60px 0;
+  }
+
+  /* ── SCROLL ANCHOR OFFSET ── */
+  [id] { scroll-margin-top: 72px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+  <div class="nav-logo">topo+dp</div>
+  <a href="#intuition">Intuition</a>
+  <a href="#topo-basics">Topo Sort</a>
+  <a href="#why-dp">Why DP</a>
+  <a href="#patterns">Patterns</a>
+  <a href="#template">Template</a>
+  <a href="#leetcode">LeetCode</a>
+  <a href="#codeforces">Codeforces</a>
+  <a href="#interview">Interview Qs</a>
+  <a href="#mistakes">Pitfalls</a>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<div class="hero">
+  <div class="hero-tag">DSA DEEP DIVE — GRAPH + DP</div>
+  <h1>Topological Sort<br/><span class="g">meets Dynamic Programming</span></h1>
+  <p>
+    The holy combo that lets you solve "what's the best way to do something when X must come before Y?" 
+    in a single clean pass. Used in compilers, build systems, scheduling, course planning, and every hard graph problem 
+    you'll see in FAANG interviews.
+  </p>
+  <div class="hero-pills">
+    <div class="pill hot">DAGs Only</div>
+    <div class="pill hot">O(V + E) Time</div>
+    <div class="pill go">No Cycles</div>
+    <div class="pill go">Process → Extend</div>
+    <div class="pill">BFS (Kahn's) or DFS</div>
+    <div class="pill">Memoization fits perfectly</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<div class="page">
+
+<!-- ─── SECTION 1: INTUITION ─── -->
+<div class="section" id="intuition">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>The Core Intuition 🧠</h2>
+  </div>
+
+  <p>
+    Imagine you're getting dressed. You can't wear shoes before socks. You can't wear a shirt before your undershirt. 
+    There's a dependency order. <strong>Topological sort is just "figure out the right order to do things when some things must come before others."</strong>
+  </p>
+
+  <div class="callout green">
+    <div class="callout-title">💡 The Golden Rule</div>
+    Topo Sort + DP = "When I've finished everything that comes <em>before</em> me, I can compute my own best answer using those results."
+    This is exactly what DP on a DAG is: process nodes in dependency order, and each node inherits/extends the answers from its parents.
+  </div>
+
+  <p>
+    Dynamic programming needs the property: <strong>when you compute dp[node], all nodes that feed into it are already computed.</strong>
+    Topological order guarantees exactly that — you see every prerequisite before you see the node itself.
+  </p>
+
+  <div class="graph-box">
+    <span class="label"># Example: Course prerequisites</span><br/>
+    <span class="node">Course A</span> <span class="edge">──▶</span> <span class="node">Course B</span> <span class="edge">──▶</span> <span class="node">Course D</span><br/>
+    <span class="node">Course A</span> <span class="edge">──▶</span> <span class="node">Course C</span> <span class="edge">──▶</span> <span class="node">Course D</span><br/><br/>
+    <span class="label"># Topo order: A → B → C → D   (one valid order)</span><br/>
+    <span class="label"># DP:   dp[D] = dp[B] + dp[C] + 1  (longest path through D)</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🔗</div>
+      <h4>Dependency Graph</h4>
+      <p>Tasks where A must happen before B. Build systems, compilers, course prereqs.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📏</div>
+      <h4>Longest / Shortest Path</h4>
+      <p>Maximum XP you can collect along a DAG. Only works in DAGs (no cycles = no infinite loops).</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔢</div>
+      <h4>Count Paths</h4>
+      <p>How many ways to reach node D? Sum all ways to reach its predecessors.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h4>Min Cost / Time</h4>
+      <p>Minimum time to finish all tasks. Combines topo order with classical DP recurrence.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SECTION 2: TOPO SORT BASICS ─── -->
+<div class="section" id="topo-basics">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>Topological Sort — Two Ways 🔄</h2>
+  </div>
+
+  <p>
+    There are exactly two algorithms for topological sort. Both give you a valid ordering. 
+    For DP on DAGs, <strong>Kahn's BFS</strong> is usually easier because it naturally processes 
+    nodes "level by level" and you can compute DP values on-the-fly.
+  </p>
+
+  <h3>Method 1: Kahn's Algorithm (BFS + In-degree)</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Compute in-degree for every node</strong>
+        <p>In-degree = how many edges point INTO this node. A node with in-degree 0 has no prerequisites — it can go first.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Push all in-degree-0 nodes into a queue</strong>
+        <p>These are your starting points. They have nothing depending on them.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Process queue: pop a node, update DP, reduce neighbor in-degrees</strong>
+        <p>When a neighbor's in-degree hits 0, push it into the queue. Do your DP computation here!</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>If you processed all nodes — success. If not — there was a cycle.</strong>
+        <p>This is also how you detect cycles in a directed graph.</p>
+      </div>
+    </div>
+  </div>
+
+<pre><code><span class="cm"># Kahn's Algorithm — Clean Python</span>
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">kahn_topo_sort</span>(n, edges):
+    <span class="cm"># Build graph and in-degree array</span>
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    <span class="cm"># Start with all zero-indegree nodes</span>
+    q = deque([i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>])
+    order = []
+
+    <span class="kw">while</span> q:
+        node = q.popleft()
+        order.append(node)
+        <span class="kw">for</span> nei <span class="kw">in</span> adj[node]:
+            in_deg[nei] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[nei] == <span class="num">0</span>:
+                q.append(nei)
+
+    <span class="cm"># len(order) != n means cycle exists</span>
+    <span class="kw">return</span> order <span class="kw">if</span> len(order) == n <span class="kw">else</span> []
+<span class="lang-label">Python</span></code></pre>
+
+  <h3>Method 2: DFS-based (Recursive / Iterative)</h3>
+  <p>
+    Run DFS on every unvisited node. After you've explored all children of a node, 
+    push it to a stack. Reverse the stack → topo order. 
+    Great for memoized DFS (where you compute dp[node] after recursing into neighbors).
+  </p>
+
+<pre><code><span class="cm"># DFS Topo Sort — Python</span>
+<span class="kw">def</span> <span class="fn">dfs_topo_sort</span>(n, adj):
+    visited = [<span class="num">False</span>] * n
+    stack = []
+
+    <span class="kw">def</span> <span class="fn">dfs</span>(u):
+        visited[u] = <span class="kw">True</span>
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="kw">if not</span> visited[v]:
+                <span class="fn">dfs</span>(v)
+        stack.append(u)   <span class="cm"># push AFTER children are done</span>
+
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):
+        <span class="kw">if not</span> visited[i]:
+            <span class="fn">dfs</span>(i)
+
+    <span class="kw">return</span> stack[::-<span class="num">1</span>]   <span class="cm"># reverse = topo order</span>
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="callout yellow">
+    <div class="callout-title">⚠️ Important Distinction</div>
+    <strong>Kahn's BFS</strong> = naturally process nodes level-by-level → easy to attach DP updates inline.<br/>
+    <strong>DFS</strong> = attach DP at the "return" step of recursion → natural for memoization / top-down DP.<br/>
+    Both work! Choose based on what feels cleaner for the specific problem.
+  </div>
+</div>
+
+<!-- ─── SECTION 3: WHY DP FITS ─── -->
+<div class="section" id="why-dp">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Why Does DP Fit Perfectly? 🎯</h2>
+  </div>
+
+  <p>
+    DP requires <strong>optimal substructure</strong>: the best answer for a node depends only on 
+    the best answers for its sub-problems. In a DAG, "sub-problems" = previous nodes in topological order. 
+    There are no back-edges (cycles), so you never run into circular dependencies.
+  </p>
+
+  <div class="pattern-box">
+    <div class="pattern-title">The Universal DP Recurrence on DAGs</div>
+    <h3>dp[node] = f( dp[predecessor₁], dp[predecessor₂], ... )</h3>
+    <p>
+      Where <strong>f</strong> is whatever your problem needs: max, min, sum, product, count, etc.
+      Because you process nodes in topo order, every predecessor is already computed. 
+      This is literally the definition of why topological sort and DP are best friends.
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>DP Goal</th><th>Recurrence</th><th>Example Problem</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Longest path</td><td>dp[v] = max(dp[u] + w) for all u→v</td><td>Longest Increasing Subsequence (as DAG)</td></tr>
+      <tr><td>Shortest path</td><td>dp[v] = min(dp[u] + w) for all u→v</td><td>Min cost to finish all tasks</td></tr>
+      <tr><td>Count paths</td><td>dp[v] = Σ dp[u] for all u→v</td><td>Number of ways to reach destination</td></tr>
+      <tr><td>Reachability</td><td>dp[v] = OR(dp[u]) for all u→v</td><td>Can we reach target?</td></tr>
+      <tr><td>Max score</td><td>dp[v] = max(dp[u]) + score[v]</td><td>Collect max coins in a DAG</td></tr>
+      <tr><td>Topological levels</td><td>dp[v] = max(dp[u] + 1) for all u→v</td><td>Critical path / project scheduling</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── SECTION 4: PATTERNS ─── -->
+<div class="section" id="patterns">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>The 7 Core Patterns 🏗️</h2>
+  </div>
+
+  <!-- PATTERN 1 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 1</div>
+    <h3>🔥 Longest Path in a DAG</h3>
+    <p>The most classic pattern. dp[v] = longest path ending at v. Extend from every predecessor.</p>
+  </div>
+
+  <p>
+    Classic example: <strong>Longest Increasing Subsequence (LIS)</strong> can be modeled as a DAG 
+    where you draw an edge from i→j if arr[i] < arr[j] and i < j. Then LIS = longest path in this DAG.
+  </p>
+
+<pre><code><span class="cm"># Longest Path in a DAG using Kahn's + DP</span>
+<span class="kw">def</span> <span class="fn">longest_path</span>(n, edges, weights):
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    dp = [weights[i] <span class="kw">for</span> i <span class="kw">in</span> range(n)]   <span class="cm"># start with own weight</span>
+    q = deque([i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>])
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="cm"># KEY STEP: extend best path through u to v</span>
+            dp[v] = max(dp[v], dp[u] + weights[v])
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="kw">return</span> max(dp)
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="divider"></div>
+
+  <!-- PATTERN 2 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 2</div>
+    <h3>📊 Count Paths in a DAG</h3>
+    <p>dp[v] = number of distinct paths from source to v. dp[v] = sum of dp[all predecessors of v].</p>
+  </div>
+
+  <p>
+    Used in: probability over DAGs, counting distinct arrangements respecting constraints, 
+    number of ways to finish tasks in valid orders.
+  </p>
+
+<pre><code><span class="cm"># Count all paths from source (node 0) to each node</span>
+<span class="kw">def</span> <span class="fn">count_paths</span>(n, edges):
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    dp = [<span class="num">0</span>] * n
+    dp[<span class="num">0</span>] = <span class="num">1</span>   <span class="cm"># 1 way to be at source</span>
+    q = deque([i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>])
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            dp[v] += dp[u]   <span class="cm"># add all paths coming through u</span>
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="kw">return</span> dp   <span class="cm"># dp[i] = # paths from 0 to i</span>
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="divider"></div>
+
+  <!-- PATTERN 3 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 3</div>
+    <h3>🗓️ Task Scheduling / Earliest Completion Time</h3>
+    <p>
+      Each task has a duration. Task B can only start after A finishes. 
+      What's the earliest each task can complete? 
+      dp[v] = max(dp[u] + dur[u]) over all u→v. This is literally CPM (Critical Path Method).
+    </p>
+  </div>
+
+<pre><code><span class="cm"># Earliest start time for each task (CPM)</span>
+<span class="kw">def</span> <span class="fn">earliest_completion</span>(n, edges, duration):
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    <span class="cm"># dp[v] = earliest time to START task v</span>
+    dp = [<span class="num">0</span>] * n
+    q = deque([i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>])
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="cm"># v can't start until u is done (dp[u] + duration[u])</span>
+            dp[v] = max(dp[v], dp[u] + duration[u])
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="cm"># Total time = max over all tasks of (start + duration)</span>
+    <span class="kw">return</span> max(dp[i] + duration[i] <span class="kw">for</span> i <span class="kw">in</span> range(n))
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="divider"></div>
+
+  <!-- PATTERN 4 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 4</div>
+    <h3>🧩 DP on Implicit DAG (LIS, LCS variants)</h3>
+    <p>
+      Sometimes the graph is not given explicitly — you construct it from the problem's ordering rules. 
+      LIS, Longest Bitonic Subsequence, Longest Chain of Pairs are all "build DAG from rules → longest path."
+    </p>
+  </div>
+
+  <p>
+    The trick: <strong>define the DAG implicitly.</strong> "There's an edge from i to j if condition(i, j) is true."
+    Then longest path in this implicit DAG = your answer.
+  </p>
+
+<pre><code><span class="cm"># LIS via explicit DAG DP — O(n²)</span>
+<span class="kw">def</span> <span class="fn">lis</span>(arr):
+    n = len(arr)
+    <span class="cm"># dp[i] = length of LIS ending at index i</span>
+    dp = [<span class="num">1</span>] * n
+
+    <span class="kw">for</span> j <span class="kw">in</span> range(<span class="num">1</span>, n):
+        <span class="kw">for</span> i <span class="kw">in</span> range(j):
+            <span class="kw">if</span> arr[i] < arr[j]:     <span class="cm"># edge i → j exists</span>
+                dp[j] = max(dp[j], dp[i] + <span class="num">1</span>)
+
+    <span class="kw">return</span> max(dp)   <span class="cm"># this IS topo DP on the implicit DAG!</span>
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="callout">
+    <div class="callout-title">💡 Key Insight</div>
+    The <code>for j in range(n)</code> outer loop is your topological ordering!
+    Since j always increases, and edges only go from smaller index to larger, you're processing in topo order automatically.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PATTERN 5 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 5</div>
+    <h3>🔄 Memoized DFS on DAG (Top-Down)</h3>
+    <p>
+      Instead of BFS + explicit topo order, recurse into the graph and cache results. 
+      Python's @cache or a memo dict handles this. Works great when the DAG is implicit or complex.
+    </p>
+  </div>
+
+<pre><code><span class="cm"># Memoized DFS — longest path from each node</span>
+<span class="kw">from</span> functools <span class="kw">import</span> lru_cache
+
+<span class="kw">def</span> <span class="fn">longest_path_memo</span>(n, adj):
+    <span class="kw">@lru_cache</span>(maxsize=<span class="kw">None</span>)
+    <span class="kw">def</span> <span class="fn">dp</span>(u):
+        best = <span class="num">0</span>
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            best = max(best, <span class="fn">dp</span>(v) + <span class="num">1</span>)
+        <span class="kw">return</span> best
+
+    <span class="kw">return</span> max(<span class="fn">dp</span>(i) <span class="kw">for</span> i <span class="kw">in</span> range(n))
+
+<span class="cm"># The magic: lru_cache ensures each node is computed ONCE.</span>
+<span class="cm"># Recursion implicitly respects topo order (children computed before parents return).</span>
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="divider"></div>
+
+  <!-- PATTERN 6 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 6</div>
+    <h3>🌊 Lexicographically Smallest Topo Order</h3>
+    <p>
+      Use a min-heap instead of a regular queue in Kahn's algorithm. 
+      At each step, pick the smallest-index node with in-degree 0.
+    </p>
+  </div>
+
+<pre><code><span class="kw">import</span> heapq
+
+<span class="kw">def</span> <span class="fn">lex_smallest_topo</span>(n, edges):
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    heap = [i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>]
+    heapq.heapify(heap)
+    order = []
+
+    <span class="kw">while</span> heap:
+        u = heapq.heappop(heap)   <span class="cm"># always pick smallest!</span>
+        order.append(u)
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                heapq.heappush(heap, v)
+
+    <span class="kw">return</span> order
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="divider"></div>
+
+  <!-- PATTERN 7 -->
+  <div class="pattern-box">
+    <div class="pattern-title">Pattern 7</div>
+    <h3>💎 DP on DAG with State (Multi-Dimensional DP)</h3>
+    <p>
+      Sometimes dp[node] is not a single number but a tuple or dictionary. 
+      Example: dp[node] = (max_score, min_steps) — you want max score with fewest steps as tiebreaker.
+      Or dp[node][mask] for bitmask DP on DAG.
+    </p>
+  </div>
+
+<pre><code><span class="cm"># Bitmask DP on DAG — all subsets must be completed</span>
+<span class="cm"># Example: jobs with prerequisites, want min cost to do all</span>
+<span class="kw">def</span> <span class="fn">bitmask_dag_dp</span>(n, prerequisites, cost):
+    <span class="cm"># dp[mask] = min cost to complete exactly the jobs in 'mask'</span>
+    dp = [float(<span class="str">'inf'</span>)] * (<span class="num">1</span> << n)
+    dp[<span class="num">0</span>] = <span class="num">0</span>
+
+    <span class="kw">for</span> mask <span class="kw">in</span> range(<span class="num">1</span> << n):
+        <span class="kw">if</span> dp[mask] == float(<span class="str">'inf'</span>): <span class="kw">continue</span>
+        <span class="kw">for</span> job <span class="kw">in</span> range(n):
+            <span class="kw">if</span> mask & (<span class="num">1</span> << job): <span class="kw">continue</span>  <span class="cm"># already done</span>
+            <span class="cm"># Check all prerequisites are in mask</span>
+            prereq_mask = prerequisites[job]
+            <span class="kw">if</span> (mask & prereq_mask) == prereq_mask:
+                new_mask = mask | (<span class="num">1</span> << job)
+                dp[new_mask] = min(dp[new_mask], dp[mask] + cost[job])
+
+    <span class="kw">return</span> dp[(<span class="num">1</span> << n) - <span class="num">1</span>]  <span class="cm"># all jobs done</span>
+<span class="lang-label">Python</span></code></pre>
+</div>
+
+<!-- ─── SECTION 5: REUSABLE TEMPLATE ─── -->
+<div class="section" id="template">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>The Reusable Template 📋</h2>
+  </div>
+
+  <p>
+    Here's your copy-paste, fill-in-the-blank template for 90% of Topo Sort + DP problems.
+    The only things you change are: <strong>the DP recurrence</strong> and <strong>the DP initialization</strong>.
+  </p>
+
+<pre><code><span class="cm">################################</span>
+<span class="cm"># TOPO SORT + DP  —  Master Template</span>
+<span class="cm">################################</span>
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">topo_dp</span>(n, edges,
+             init_dp,         <span class="cm"># function(node) -> initial dp value</span>
+             update_dp,       <span class="cm"># function(dp, u, v) -> updates dp[v] using dp[u]</span>
+             edge_weight=<span class="kw">None</span> <span class="cm"># optional: {(u,v): weight}</span>
+             ):
+    <span class="cm"># ── 1. Build graph ──────────────────────────────</span>
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    <span class="cm"># ── 2. Initialize DP ────────────────────────────</span>
+    dp = [<span class="fn">init_dp</span>(i) <span class="kw">for</span> i <span class="kw">in</span> range(n)]
+
+    <span class="cm"># ── 3. Kahn's BFS ───────────────────────────────</span>
+    q = deque([i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>])
+    processed = <span class="num">0</span>
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        processed += <span class="num">1</span>
+
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="cm"># ── 4. YOUR DP RECURRENCE HERE ──────────────</span>
+            <span class="fn">update_dp</span>(dp, u, v)   <span class="cm"># e.g. dp[v] = max(dp[v], dp[u] + 1)</span>
+
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="cm"># ── 5. Check for cycle ──────────────────────────</span>
+    <span class="kw">if</span> processed != n:
+        <span class="kw">return</span> <span class="kw">None</span>   <span class="cm"># cycle detected!</span>
+
+    <span class="kw">return</span> dp
+
+<span class="cm">###############################################</span>
+<span class="cm"># Concrete usage examples:</span>
+<span class="cm">###############################################</span>
+
+<span class="cm"># 1. Longest path</span>
+dp = <span class="fn">topo_dp</span>(n, edges,
+             init_dp=<span class="kw">lambda</span> i: node_value[i],
+             update_dp=<span class="kw">lambda</span> dp, u, v: dp.__setitem__(v, max(dp[v], dp[u] + node_value[v])))
+
+<span class="cm"># 2. Count paths from source</span>
+dp = <span class="fn">topo_dp</span>(n, edges,
+             init_dp=<span class="kw">lambda</span> i: <span class="num">1</span> <span class="kw">if</span> i == source <span class="kw">else</span> <span class="num">0</span>,
+             update_dp=<span class="kw">lambda</span> dp, u, v: dp.__setitem__(v, dp[v] + dp[u]))
+
+<span class="cm"># 3. Shortest path (min cost)</span>
+dp = <span class="fn">topo_dp</span>(n, edges,
+             init_dp=<span class="kw">lambda</span> i: <span class="num">0</span> <span class="kw">if</span> i == source <span class="kw">else</span> float(<span class="str">'inf'</span>),
+             update_dp=<span class="kw">lambda</span> dp, u, v: dp.__setitem__(v, min(dp[v], dp[u] + cost[(u,v)])))
+<span class="lang-label">Python</span></code></pre>
+
+  <h3>The Even Simpler "Just Code It" Template</h3>
+  <p>For interviews, just write this directly — no abstraction needed:</p>
+
+<pre><code><span class="cm"># ── INTERVIEW-READY TOPO + DP ──────────────────</span>
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">solve</span>():
+    n = ...              <span class="cm"># number of nodes</span>
+    edges = [...]        <span class="cm"># list of (u, v) directed edges</span>
+
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    <span class="cm"># ► Change this line per problem</span>
+    dp = [... <span class="kw">for</span> _ <span class="kw">in</span> range(n)]  <span class="cm"># 0, 1, float('inf'), etc.</span>
+
+    q = deque(i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>)
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="cm"># ► Change this line per problem</span>
+            dp[v] = max(dp[v], dp[u] + <span class="num">1</span>)   <span class="cm"># or min, or +=, etc.</span>
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="kw">return</span> max(dp)   <span class="cm"># or dp[target], or sum(dp), etc.</span>
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="callout green">
+    <div class="callout-title">📝 Template Customization Checklist</div>
+    <strong>1. What are nodes?</strong> (tasks, courses, characters in a sequence)<br/>
+    <strong>2. What are edges?</strong> (A must come before B, A → B means "A enables B")<br/>
+    <strong>3. What does dp[v] mean?</strong> (longest path to v, min cost, num paths, etc.)<br/>
+    <strong>4. What's the base case?</strong> (dp[source]=1, dp[i]=weight[i], dp[i]=0)<br/>
+    <strong>5. What's the recurrence?</strong> (max? min? sum? And using dp[u] or dp[u]+w?)<br/>
+    <strong>6. What's the answer?</strong> (max(dp), dp[target], sum(dp), etc.)
+  </div>
+</div>
+
+<!-- ─── SECTION 6: LEETCODE PROBLEMS ─── -->
+<div class="section" id="leetcode">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>LeetCode Problems 🟡</h2>
+  </div>
+
+  <!-- EASY -->
+  <h3>Easy — Build the Foundation</h3>
+
+  <div class="q-card">
+    <span class="q-badge easy">Easy</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 207</span> — Course Schedule</h5>
+      <p>Given n courses and prerequisites, can you finish all courses? Classic cycle detection via Kahn's. If topo sort processes all n nodes → yes. Otherwise a cycle exists → no.</p>
+      <div class="q-tags">
+        <span class="q-tag">Cycle Detection</span>
+        <span class="q-tag">Kahn's BFS</span>
+        <span class="q-tag">In-degree</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge easy">Easy</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 997</span> — Find the Town Judge</h5>
+      <p>In-degree / out-degree problem. The judge has in-degree = n-1 (everyone trusts them) and out-degree = 0 (trusts nobody). Topo-sort intuition applied to trust relationships.</p>
+      <div class="q-tags">
+        <span class="q-tag">In-degree</span>
+        <span class="q-tag">Out-degree</span>
+        <span class="q-tag">Graph Modeling</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDIUM -->
+  <h3>Medium — Core Pattern</h3>
+
+  <div class="q-card">
+    <span class="q-badge med">Medium</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 210</span> — Course Schedule II</h5>
+      <p>Return the actual topological order, or [] if impossible. Direct application of Kahn's algorithm. dp here is just the order of processing.</p>
+      <div class="q-tags">
+        <span class="q-tag">Topo Sort</span>
+        <span class="q-tag">BFS</span>
+        <span class="q-tag">Must Know</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">Medium</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 1557</span> — Minimum Number of Vertices to Reach All Nodes</h5>
+      <p>Find the smallest set of vertices from which all nodes are reachable. Answer = all nodes with in-degree 0! If a node has in-degree 0, nothing points to it, so it must be in our set.</p>
+      <div class="q-tags">
+        <span class="q-tag">In-degree 0</span>
+        <span class="q-tag">Graph Theory</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">Medium</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 1462</span> — Course Schedule IV</h5>
+      <p>For each query (u, v), is u a prerequisite of v? Topo sort + reachability (bitset DP). dp[v] = set of all ancestors of v. Build this in topo order.</p>
+      <div class="q-tags">
+        <span class="q-tag">Topo Sort</span>
+        <span class="q-tag">Reachability DP</span>
+        <span class="q-tag">Bitset</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">Medium</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 329</span> — Longest Increasing Path in a Matrix</h5>
+      <p>Each cell is a node; edge from (r,c) to neighbor if neighbor's value is greater. Implicit DAG! dp[cell] = longest increasing path starting from that cell. Memoized DFS works perfectly.</p>
+      <div class="q-tags">
+        <span class="q-tag">Implicit DAG</span>
+        <span class="q-tag">Memoized DFS</span>
+        <span class="q-tag">Longest Path</span>
+        <span class="q-tag">⭐ FAANG Favorite</span>
+      </div>
+    </div>
+  </div>
+
+<pre><code><span class="cm"># LC 329 — Longest Increasing Path in Matrix</span>
+<span class="kw">def</span> <span class="fn">longestIncreasingPath</span>(matrix):
+    <span class="kw">if not</span> matrix: <span class="kw">return</span> <span class="num">0</span>
+    m, n = len(matrix), len(matrix[<span class="num">0</span>])
+    dirs = [(<span class="num">0</span>,<span class="num">1</span>),(<span class="num">0</span>,-<span class="num">1</span>),(<span class="num">1</span>,<span class="num">0</span>),(-<span class="num">1</span>,<span class="num">0</span>)]
+
+    <span class="kw">from</span> functools <span class="kw">import</span> lru_cache
+
+    <span class="kw">@lru_cache</span>(maxsize=<span class="kw">None</span>)
+    <span class="kw">def</span> <span class="fn">dp</span>(r, c):
+        best = <span class="num">1</span>
+        <span class="kw">for</span> dr, dc <span class="kw">in</span> dirs:
+            nr, nc = r+dr, c+dc
+            <span class="kw">if</span> <span class="num">0</span> <= nr < m <span class="kw">and</span> <span class="num">0</span> <= nc < n <span class="kw">and</span> matrix[nr][nc] > matrix[r][c]:
+                best = max(best, <span class="fn">dp</span>(nr, nc) + <span class="num">1</span>)  <span class="cm"># DAG edge: smaller → larger</span>
+        <span class="kw">return</span> best
+
+    <span class="kw">return</span> max(<span class="fn">dp</span>(r,c) <span class="kw">for</span> r <span class="kw">in</span> range(m) <span class="kw">for</span> c <span class="kw">in</span> range(n))
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="q-card">
+    <span class="q-badge med">Medium</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 1203</span> — Sort Items by Groups Respecting Dependencies</h5>
+      <p>Two-level topological sort: sort items within groups, then sort groups. Build two DAGs (item-level and group-level), run topo sort on both. Very tricky to model correctly — great practice.</p>
+      <div class="q-tags">
+        <span class="q-tag">Multi-level Topo</span>
+        <span class="q-tag">Graph Modeling</span>
+        <span class="q-tag">Hard Medium</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">Medium</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 802</span> — Find Eventual Safe States</h5>
+      <p>A node is "safe" if every path from it eventually ends at a terminal node (no cycle). Reverse the edges and find all nodes from which terminals are reachable via topo sort.</p>
+      <div class="q-tags">
+        <span class="q-tag">Reverse Graph</span>
+        <span class="q-tag">Topo Sort</span>
+        <span class="q-tag">Safety DP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HARD -->
+  <h3>Hard — Full Pattern Application</h3>
+
+  <div class="q-card">
+    <span class="q-badge hard">Hard</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 2050</span> — Parallel Courses III</h5>
+      <p>Each course has a time to complete. You can take multiple courses simultaneously if prerequisites are met. Find minimum time to complete all. This is EXACTLY the Critical Path Method / project scheduling problem. dp[v] = max(dp[all prereqs]) + time[v].</p>
+      <div class="q-tags">
+        <span class="q-tag">Critical Path</span>
+        <span class="q-tag">Topo + DP</span>
+        <span class="q-tag">Scheduling</span>
+        <span class="q-tag">⭐ Must Do</span>
+      </div>
+    </div>
+  </div>
+
+<pre><code><span class="cm"># LC 2050 — Parallel Courses III</span>
+<span class="kw">def</span> <span class="fn">minimumTime</span>(n, relations, time):
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n+<span class="num">1</span>)]
+    in_deg = [<span class="num">0</span>] * (n+<span class="num">1</span>)
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> relations:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    <span class="cm"># dp[i] = earliest time course i CAN FINISH</span>
+    dp = [<span class="num">0</span>] * (n+<span class="num">1</span>)
+
+    q = deque(i <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">1</span>, n+<span class="num">1</span>) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>)
+    <span class="kw">for</span> node <span class="kw">in</span> q: dp[node] = time[node-<span class="num">1</span>]  <span class="cm"># no prereqs</span>
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="cm"># v can start only after u finishes</span>
+            dp[v] = max(dp[v], dp[u] + time[v-<span class="num">1</span>])
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="kw">return</span> max(dp[<span class="num">1</span>:n+<span class="num">1</span>])
+<span class="lang-label">Python</span></code></pre>
+
+  <div class="q-card">
+    <span class="q-badge hard">Hard</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 1916</span> — Count Ways to Build Rooms in an Ant Colony</h5>
+      <p>Tree DP (tree is a DAG!). Count the number of valid build orders for rooms where each room's parent must be built first. dp[v] = (subtree_size[v]-1)! / product(subtree_size[child]!) using combinatorics.</p>
+      <div class="q-tags">
+        <span class="q-tag">Tree = DAG</span>
+        <span class="q-tag">Combinatorics</span>
+        <span class="q-tag">Counting Paths</span>
+        <span class="q-tag">Modular Arithmetic</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge hard">Hard</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 1591</span> — Strange Printer II</h5>
+      <p>Model as a DAG where color A must be printed before color B if A's rectangle contains B. Cycle = impossible. Topo sort tells you if a valid print order exists.</p>
+      <div class="q-tags">
+        <span class="q-tag">Graph Modeling</span>
+        <span class="q-tag">Cycle Detection</span>
+        <span class="q-tag">Rectangle Overlap</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge hard">Hard</span>
+    <div class="q-info">
+      <h5><span class="platform-lc">LC 1857</span> — Largest Color Value in a Directed Graph</h5>
+      <p>dp[node][color] = max count of 'color' on any path ending at node. If cycle exists return -1. Classic topo + DP with multi-dimensional DP array.</p>
+      <div class="q-tags">
+        <span class="q-tag">2D DP on DAG</span>
+        <span class="q-tag">Cycle Detection</span>
+        <span class="q-tag">Max Frequency on Path</span>
+        <span class="q-tag">⭐ Must Do</span>
+      </div>
+    </div>
+  </div>
+
+<pre><code><span class="cm"># LC 1857 — Largest Color Value in Directed Graph</span>
+<span class="kw">def</span> <span class="fn">largestPathValue</span>(colors, edges):
+    n = len(colors)
+    adj = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    in_deg = [<span class="num">0</span>] * n
+
+    <span class="kw">for</span> u, v <span class="kw">in</span> edges:
+        adj[u].append(v)
+        in_deg[v] += <span class="num">1</span>
+
+    <span class="cm"># dp[node][c] = max occurrences of color c on any path ending at node</span>
+    dp = [[<span class="num">0</span>] * <span class="num">26</span> <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+
+    q = deque(i <span class="kw">for</span> i <span class="kw">in</span> range(n) <span class="kw">if</span> in_deg[i] == <span class="num">0</span>)
+    <span class="kw">for</span> node <span class="kw">in</span> q:
+        dp[node][ord(colors[node]) - ord(<span class="str">'a'</span>)] = <span class="num">1</span>
+
+    processed = <span class="num">0</span>
+    ans = <span class="num">1</span>
+
+    <span class="kw">while</span> q:
+        u = q.popleft()
+        processed += <span class="num">1</span>
+        ans = max(ans, max(dp[u]))
+
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            c = ord(colors[v]) - ord(<span class="str">'a'</span>)
+            <span class="kw">for</span> color <span class="kw">in</span> range(<span class="num">26</span>):
+                dp[v][color] = max(dp[v][color], dp[u][color] + (color == c))
+            in_deg[v] -= <span class="num">1</span>
+            <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+                q.append(v)
+
+    <span class="kw">return</span> -<span class="num">1</span> <span class="kw">if</span> processed != n <span class="kw">else</span> ans
+<span class="lang-label">Python</span></code></pre>
+</div>
+
+<!-- ─── SECTION 7: CODEFORCES ─── -->
+<div class="section" id="codeforces">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Codeforces Problems 🔵</h2>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge easy">800</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 510C</span> — Fox and Names</h5>
+      <p>Given a sorted dictionary in an alien language, find the ordering of characters. Build a graph where char A → char B if A must come before B (from comparing adjacent words). Run topo sort — if cycle, print "Impossible."</p>
+      <div class="q-tags">
+        <span class="q-tag">Alien Dictionary Pattern</span>
+        <span class="q-tag">Char DAG</span>
+        <span class="q-tag">Topo Sort</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge easy">1200</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 919D</span> — Substring</h5>
+      <p>DAG is given. Each node has a label (a-z). Find the maximum frequency of any letter on any path. dp[node][char] = max frequency of 'char' on paths ending at node. Exact same pattern as LC 1857!</p>
+      <div class="q-tags">
+        <span class="q-tag">Topo + 2D DP</span>
+        <span class="q-tag">Max on Path</span>
+        <span class="q-tag">Classic CF</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">1400</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 500E</span> — New Year Domino</h5>
+      <p>Dominoes fall in a chain. Model as DAG. For each domino, find the gap between it and the next batch. Topo sort + DP propagation. Requires careful modeling of when one domino can topple another.</p>
+      <div class="q-tags">
+        <span class="q-tag">Simulation</span>
+        <span class="q-tag">Interval Overlap</span>
+        <span class="q-tag">Stack + Topo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">1600</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 193E</span> — Heaven Configuration</h5>
+      <p>Find the longest path in a DAG with constraints on what can follow what. Pure longest path DP in topological order. Excellent clean practice problem.</p>
+      <div class="q-tags">
+        <span class="q-tag">Longest Path DAG</span>
+        <span class="q-tag">Classic</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge med">1700</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 825F</span> — String Compression</h5>
+      <p>After modeling as a DAG, count the number of distinct topological orderings modulo a prime. dp[v] = number of paths × combinatorial factor for merging orderings of subtrees.</p>
+      <div class="q-tags">
+        <span class="q-tag">Counting Topo Orders</span>
+        <span class="q-tag">Combinatorics</span>
+        <span class="q-tag">Modular DP</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge hard">1900</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 1442D</span> — Sum</h5>
+      <p>DAG nodes have values. You can traverse edges. Maximize the sum you collect. Classic max-weight path on DAG = topo sort + dp[v] = max(dp[u] + value[v]).</p>
+      <div class="q-tags">
+        <span class="q-tag">Max Weight Path</span>
+        <span class="q-tag">Topo DP</span>
+        <span class="q-tag">Edge Traversal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge hard">2000</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 269D</span> — Maximum Number of Edges</h5>
+      <p>Given a DAG, add maximum edges without creating cycles. The answer is related to topo layers and the structure of the existing graph. Topo sort reveals the layer structure needed.</p>
+      <div class="q-tags">
+        <span class="q-tag">DAG Layers</span>
+        <span class="q-tag">Edge Counting</span>
+        <span class="q-tag">Topo Levels</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <span class="q-badge hard">2200</span>
+    <div class="q-info">
+      <h5><span class="platform-cf">CF 721E</span> — Road to Home</h5>
+      <p>Find the path with maximum number of "good" transitions using topo sort on the DAG formed by valid transitions between cities. dp[v] = best score arriving at city v.</p>
+      <div class="q-tags">
+        <span class="q-tag">Transition DAG</span>
+        <span class="q-tag">Longest Path Variant</span>
+        <span class="q-tag">Score DP</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SECTION 8: INTERVIEW QUESTIONS ─── -->
+<div class="section" id="interview">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>Famous Interview Questions 🎯</h2>
+  </div>
+
+  <p>These are the questions that appear again and again in FAANG/MAANG and top startup interviews. Know these cold.</p>
+
+  <h3>🏆 The Top 10 Interview Problems</h3>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Problem</th><th>Company</th><th>Pattern</th><th>Key Insight</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1</strong></td>
+        <td>Course Schedule I & II<br/><small style="color:#8890aa">LC 207, 210</small></td>
+        <td>Google, Meta, Amazon</td>
+        <td>Cycle detection / Topo order</td>
+        <td>Process count = n means no cycle</td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td>Longest Increasing Path in Matrix<br/><small style="color:#8890aa">LC 329</small></td>
+        <td>Google, Microsoft</td>
+        <td>Memoized DFS on implicit DAG</td>
+        <td>Matrix cell = node; neighbor if larger = edge</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td>Alien Dictionary<br/><small style="color:#8890aa">LC 269 (Premium)</small></td>
+        <td>Meta, Amazon, Apple</td>
+        <td>Build char-DAG + topo sort</td>
+        <td>Compare adjacent words to get ordering edges</td>
+      </tr>
+      <tr>
+        <td><strong>4</strong></td>
+        <td>Largest Color Value in Directed Graph<br/><small style="color:#8890aa">LC 1857</small></td>
+        <td>Google</td>
+        <td>2D DP on DAG + cycle check</td>
+        <td>dp[node][color] tracks max freq on any path</td>
+      </tr>
+      <tr>
+        <td><strong>5</strong></td>
+        <td>Minimum Time to Complete All Tasks<br/><small style="color:#8890aa">LC 2050</small></td>
+        <td>Amazon, Meta</td>
+        <td>Critical Path Method</td>
+        <td>dp[v] = max(dp[prereqs]) + time[v]</td>
+      </tr>
+      <tr>
+        <td><strong>6</strong></td>
+        <td>Task Scheduling (General)</td>
+        <td>All FAANG</td>
+        <td>Topo sort for valid ordering</td>
+        <td>Model constraints as directed edges</td>
+      </tr>
+      <tr>
+        <td><strong>7</strong></td>
+        <td>Build System Ordering<br/><small style="color:#8890aa">Design question</small></td>
+        <td>Google, Meta</td>
+        <td>Topo sort application</td>
+        <td>"How does Make/Gradle decide what to build first?"</td>
+      </tr>
+      <tr>
+        <td><strong>8</strong></td>
+        <td>Minimum Height Trees<br/><small style="color:#8890aa">LC 310</small></td>
+        <td>Google</td>
+        <td>Reverse topo (peel leaves)</td>
+        <td>Iteratively remove leaf nodes = finding centroid</td>
+      </tr>
+      <tr>
+        <td><strong>9</strong></td>
+        <td>Reconstruct Itinerary<br/><small style="color:#8890aa">LC 332</small></td>
+        <td>Uber, Airbnb</td>
+        <td>Eulerian path (modified topo)</td>
+        <td>Hierholzer's algorithm with lex ordering</td>
+      </tr>
+      <tr>
+        <td><strong>10</strong></td>
+        <td>Number of Ways to Reorder Array to Get Same BST<br/><small style="color:#8890aa">LC 1569</small></td>
+        <td>Google</td>
+        <td>Tree DAG + Counting</td>
+        <td>Combinatorics on tree structure via topo DP</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The Alien Dictionary Problem — Fully Solved</h3>
+  <p>This is the #1 most asked topo sort interview problem. Here's the complete solution:</p>
+
+<pre><code><span class="cm"># Alien Dictionary — Full Solution</span>
+<span class="kw">def</span> <span class="fn">alienOrder</span>(words):
+    <span class="cm"># Step 1: Collect all unique chars</span>
+    adj = {c: set() <span class="kw">for</span> word <span class="kw">in</span> words <span class="kw">for</span> c <span class="kw">in</span> word}
+
+    <span class="cm"># Step 2: Compare adjacent words to find ordering</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(len(words) - <span class="num">1</span>):
+        w1, w2 = words[i], words[i+<span class="num">1</span>]
+        min_len = min(len(w1), len(w2))
+
+        <span class="cm"># Edge case: "abc" before "ab" is IMPOSSIBLE</span>
+        <span class="kw">if</span> len(w1) > len(w2) <span class="kw">and</span> w1[:min_len] == w2[:min_len]:
+            <span class="kw">return</span> <span class="str">""</span>
+
+        <span class="kw">for</span> j <span class="kw">in</span> range(min_len):
+            <span class="kw">if</span> w1[j] != w2[j]:
+                adj[w1[j]].add(w2[j])   <span class="cm"># w1[j] must come before w2[j]</span>
+                <span class="kw">break</span>
+
+    <span class="cm"># Step 3: Topo sort via DFS with cycle detection</span>
+    <span class="cm"># visited: 0=unvisited, 1=in stack (cycle!), 2=done</span>
+    visited = {}
+    result = []
+
+    <span class="kw">def</span> <span class="fn">dfs</span>(c):
+        <span class="kw">if</span> c <span class="kw">in</span> visited:
+            <span class="kw">return</span> visited[c] == <span class="num">2</span>  <span class="cm"># True if already done, False if cycle</span>
+        visited[c] = <span class="num">1</span>             <span class="cm"># mark as in-progress</span>
+        <span class="kw">for</span> nei <span class="kw">in</span> adj[c]:
+            <span class="kw">if not</span> <span class="fn">dfs</span>(nei): <span class="kw">return</span> <span class="kw">False</span>  <span class="cm"># cycle!</span>
+        visited[c] = <span class="num">2</span>             <span class="cm"># mark as done</span>
+        result.append(c)
+        <span class="kw">return</span> <span class="kw">True</span>
+
+    <span class="kw">for</span> c <span class="kw">in</span> adj:
+        <span class="kw">if not</span> <span class="fn">dfs</span>(c): <span class="kw">return</span> <span class="str">""</span>
+
+    <span class="kw">return</span> <span class="str">""</span>.join(reversed(result))  <span class="cm"># reverse DFS topo</span>
+
+<span class="cm"># Time: O(C) where C = total chars across all words</span>
+<span class="cm"># Space: O(1) since at most 26 chars</span>
+<span class="lang-label">Python</span></code></pre>
+</div>
+
+<!-- ─── SECTION 9: PITFALLS ─── -->
+<div class="section" id="mistakes">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2>Common Pitfalls & How to Avoid Them 🐛</h2>
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">❌ Pitfall 1: Forgetting to Check for Cycles</div>
+    <strong>The bug:</strong> Running topo sort on a graph that might have cycles without checking.<br/>
+    <strong>The fix:</strong> Always check if <code>processed_count == n</code> in Kahn's. If not, there's a cycle → return -1, [], or "Impossible".
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">❌ Pitfall 2: Wrong DP Initialization</div>
+    <strong>The bug:</strong> Setting dp[v] = 0 when it should be dp[v] = -infinity (for max) or dp[v] = infinity (for min).<br/>
+    <strong>The fix:</strong> For longest path, init dp[source] = weight[source], and all others start at their own weight (not 0). For shortest path, init non-source as float('inf').
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">❌ Pitfall 3: Not Including the Node's Own Value</div>
+    <strong>The bug:</strong> dp[v] = max(dp[u]) instead of max(dp[u] + value[v]).<br/>
+    <strong>The fix:</strong> Remember dp[v] usually means "best path ending AT v", so v's own value must be included.
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">❌ Pitfall 4: Direction Confusion</div>
+    <strong>The bug:</strong> Building edges in the wrong direction. Edge should go from prerequisite → dependent, not the other way.<br/>
+    <strong>The fix:</strong> Always verify: "If A must be done before B, the edge is A → B."
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">❌ Pitfall 5: Not Handling Disconnected Graphs</div>
+    <strong>The bug:</strong> Only starting DFS/BFS from node 0, missing disconnected components.<br/>
+    <strong>The fix:</strong> In Kahn's, push ALL in-degree-0 nodes initially. In DFS, loop over all nodes and start dfs if unvisited.
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">❌ Pitfall 6: Updating DP Before or After Decrementing In-degree</div>
+    <strong>The bug:</strong> Incorrect order of updating DP vs decrementing in-degree.<br/>
+    <strong>The fix:</strong> The correct order is: (1) update dp[v] using dp[u], then (2) decrement in_deg[v], then (3) if in_deg[v]==0, push to queue.
+  </div>
+
+  <h3>The Correct Order of Operations (Always)</h3>
+
+<pre><code><span class="cm"># ALWAYS do it in THIS order:</span>
+<span class="kw">while</span> q:
+    u = q.popleft()       <span class="cm"># 1. Pop current node</span>
+    result.append(u)      <span class="cm"># 2. (Optional) record it</span>
+    <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+        dp[v] = ...       <span class="cm"># 3. Update DP FIRST</span>
+        in_deg[v] -= <span class="num">1</span>   <span class="cm"># 4. Decrement in-degree</span>
+        <span class="kw">if</span> in_deg[v] == <span class="num">0</span>:
+            q.append(v)   <span class="cm"># 5. Push when ready</span>
+<span class="lang-label">Python</span></code></pre>
+
+  <!-- RECOGNITION GUIDE -->
+  <h3>🔍 Problem Recognition Guide</h3>
+  <p>How to immediately recognize a Topo Sort + DP problem in an interview:</p>
+
+  <table>
+    <thead>
+      <tr><th>Signal in Problem</th><th>What It Means</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>"A must come before B"</td>
+        <td>Dependency = DAG edge</td>
+        <td>Build DAG, run topo sort</td>
+      </tr>
+      <tr>
+        <td>"Can you complete all tasks?"</td>
+        <td>Cycle detection</td>
+        <td>Kahn's + check processed count</td>
+      </tr>
+      <tr>
+        <td>"Minimum time / cost"</td>
+        <td>Shortest path on DAG</td>
+        <td>Topo + min DP</td>
+      </tr>
+      <tr>
+        <td>"Maximum score / length"</td>
+        <td>Longest path on DAG</td>
+        <td>Topo + max DP</td>
+      </tr>
+      <tr>
+        <td>"How many ways?"</td>
+        <td>Count paths in DAG</td>
+        <td>Topo + sum DP</td>
+      </tr>
+      <tr>
+        <td>"Strictly increasing/decreasing sequence"</td>
+        <td>Implicit DAG (LIS-type)</td>
+        <td>Build implicit DAG, longest path</td>
+      </tr>
+      <tr>
+        <td>"Grid with values, can only move to larger cells"</td>
+        <td>Matrix = implicit DAG</td>
+        <td>Memoized DFS (LC 329 pattern)</td>
+      </tr>
+      <tr>
+        <td>"Sorted order of characters / alphabet"</td>
+        <td>Alien dictionary pattern</td>
+        <td>Build char-DAG from adjacent words</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- COMPLEXITY -->
+  <h3>📈 Time & Space Complexity</h3>
+
+  <table>
+    <thead>
+      <tr><th>Operation</th><th>Time</th><th>Space</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Kahn's Topo Sort</td>
+        <td>O(V + E)</td>
+        <td>O(V + E)</td>
+        <td>V = vertices, E = edges</td>
+      </tr>
+      <tr>
+        <td>DFS Topo Sort</td>
+        <td>O(V + E)</td>
+        <td>O(V) stack</td>
+        <td>Recursion depth = V worst case</td>
+      </tr>
+      <tr>
+        <td>Topo + DP (single value)</td>
+        <td>O(V + E)</td>
+        <td>O(V)</td>
+        <td>dp is 1D array of size V</td>
+      </tr>
+      <tr>
+        <td>Topo + 2D DP (LC 1857)</td>
+        <td>O(V × 26 + E × 26)</td>
+        <td>O(V × 26)</td>
+        <td>26 = alphabet size</td>
+      </tr>
+      <tr>
+        <td>Bitmask DP on DAG</td>
+        <td>O(2^n × n)</td>
+        <td>O(2^n)</td>
+        <td>Only feasible for n ≤ 20</td>
+      </tr>
+      <tr>
+        <td>Memoized DFS</td>
+        <td>O(V + E)</td>
+        <td>O(V) memo + O(V) stack</td>
+        <td>Each state computed once</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── FINAL SUMMARY ─── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2>The Mental Model — Remember This 🧲</h2>
+  </div>
+
+  <div class="pattern-box">
+    <div class="pattern-title">The 5-Second Mental Check</div>
+    <h3>"Are there dependencies? Then there's a DAG. Is there an optimization? Then there's DP. DAG + DP = Topo Sort + DP."</h3>
+    <p>
+      Every time you see "A before B" with "maximize/minimize/count something," 
+      your brain should immediately jump to: build the DAG, run topo sort, propagate DP values forward.
+      Two changes to the template: initialization and recurrence. That's it.
+    </p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🔨</div>
+      <h4>Build the DAG</h4>
+      <p>Model every "A before B" constraint as a directed edge A → B. Nodes are your items/tasks/courses.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <h4>Define dp[node]</h4>
+      <p>What does the best answer look like when you're AT this node? Length? Cost? Count? Score?</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔁</div>
+      <h4>Write the Recurrence</h4>
+      <p>dp[v] = max/min/sum over all u→v of (dp[u] + something). This is the only line that changes per problem.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">✅</div>
+      <h4>Extract the Answer</h4>
+      <p>max(dp), dp[target], sum(dp), or check for cycles (len != n → return -1).</p>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-title">🎓 Study Order Recommendation</div>
+    <strong>Week 1:</strong> LC 207 → LC 210 → LC 210 variant (find ALL topo orders) → understand Kahn's cold.<br/>
+    <strong>Week 2:</strong> LC 329 (implicit DAG, memoization) → LC 2050 (CPM scheduling) → LC 1857 (2D DP).<br/>
+    <strong>Week 3:</strong> LC 269 (Alien Dictionary) → CF 510C → CF 919D → practice recognizing patterns.<br/>
+    <strong>Week 4:</strong> Mix hard problems. By now the pattern should feel automatic.
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+  // Smooth scroll for nav links
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Highlight current section in nav
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.style.color = '');
+        const match = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (match) match.style.color = 'var(--accent2)';
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

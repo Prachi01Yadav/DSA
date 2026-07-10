@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condensation Graph — Shrinking Kingdoms Into Dots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#05030F;
+    --bg-panel:#0D0724;
+    --bg-card:#120B29;
+    --bg-card2:#1A0E3A;
+    --border:#2E2158;
+    --border-soft:#3A2E66;
+    --text-main:#F1EAFF;
+    --text-dim:#A79AD1;
+    --text-faint:#7E6FAE;
+    --amber:#FFB454;
+    --mint:#4FD1C5;
+    --pink:#F0629A;
+    --blue:#7C9CFF;
+    --lime:#B6FF6B;
+    --red:#FF6B6B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:radial-gradient(circle at 20% 0%, #150a30 0%, var(--bg-deep) 55%);
+    color:var(--text-main);
+    font-family:'Inter',sans-serif;
+    line-height:1.65;
+    padding:0 0 120px 0;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:0 32px;}
+  header.hero{
+    padding:90px 32px 60px 32px;
+    max-width:920px;
+    margin:0 auto;
+    border-bottom:1px solid var(--border);
+  }
+  .eyebrow{
+    display:flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px; letter-spacing:0.14em;
+    color:var(--pink); text-transform:uppercase;
+    margin-bottom:22px;
+  }
+  .eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--pink); box-shadow:0 0 10px var(--pink);}
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:44px;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    max-width:820px;
+  }
+  .subtitle{
+    margin-top:22px;
+    font-size:18px;
+    color:var(--text-dim);
+    max-width:640px;
+  }
+  section{padding:64px 0;}
+  section.tight{padding:44px 0;}
+  .kicker{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--mint);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:16px;
+  }
+  .kicker .dot{width:6px; height:6px; border-radius:50%; background:var(--mint); box-shadow:0 0 8px var(--mint);}
+  h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:29px;
+    margin-bottom:20px;
+    letter-spacing:-0.01em;
+  }
+  p{color:var(--text-dim); font-size:16.5px; margin-bottom:16px;}
+  p b, li b{color:var(--text-main); font-weight:600;}
+  p i, li i{color:var(--amber); font-style:italic;}
+  .lead{font-size:18px; color:var(--text-main);}
+  ul, ol{color:var(--text-dim); font-size:16.5px; padding-left:22px; margin-bottom:16px;}
+  li{margin-bottom:8px;}
+  code{
+    font-family:'JetBrains Mono',monospace;
+    background:var(--bg-card2);
+    border:1px solid var(--border-soft);
+    padding:2px 7px;
+    border-radius:5px;
+    font-size:14.5px;
+    color:var(--lime);
+  }
+  .panel{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:32px;
+    margin:28px 0;
+  }
+  .panel-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-bottom:18px;
+  }
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+  }
+  @media(max-width:720px){ .two-col{grid-template-columns:1fr;} h1{font-size:32px;} header.hero{padding:64px 24px 44px 24px;} }
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:26px;
+  }
+  .card h3{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:18px;
+    margin-bottom:10px;
+    font-weight:600;
+  }
+  .card.orange h3{color:var(--amber);}
+  .card.mint h3{color:var(--mint);}
+  .step-row{
+    display:flex; gap:18px; align-items:flex-start;
+    padding:20px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .step-row:last-child{border-bottom:none;}
+  .step-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    color:var(--bg-deep);
+    background:var(--mint);
+    width:30px; height:30px;
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    font-weight:600;
+  }
+  .step-content h4{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:17px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:var(--text-main);
+  }
+  .step-content p{margin-bottom:0; font-size:15.5px;}
+  .callout{
+    border-left:3px solid var(--pink);
+    background:linear-gradient(90deg, rgba(240,98,154,0.08), transparent);
+    padding:18px 22px;
+    border-radius:0 10px 10px 0;
+    margin:24px 0;
+  }
+  .callout p{color:var(--text-main); margin-bottom:0; font-size:16px;}
+  .callout .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--pink);
+    margin-bottom:8px;
+    display:block;
+  }
+  .warn{
+    border-left:3px solid var(--amber);
+    background:linear-gradient(90deg, rgba(255,180,84,0.08), transparent);
+  }
+  .warn .label{color:var(--amber);}
+  svg{width:100%; height:auto; display:block;}
+  .fig-caption{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    color:var(--text-faint);
+    text-align:center;
+    margin-top:14px;
+  }
+  table{width:100%; border-collapse:collapse; margin:20px 0; font-size:15px;}
+  th, td{
+    padding:12px 14px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+  th{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+  }
+  td{color:var(--text-dim);}
+  td b{color:var(--text-main);}
+  .planet-tag{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:24px; height:24px;
+    border-radius:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    font-weight:600;
+    color:var(--bg-deep);
+    background:var(--blue);
+  }
+  .kingdom-a .planet-tag{background:var(--amber);}
+  .kingdom-b .planet-tag{background:var(--mint);}
+  footer{
+    max-width:920px; margin:0 auto; padding:60px 32px 0 32px;
+    color:var(--text-faint);
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    border-top:1px solid var(--border);
+    margin-top:40px;
+    padding-top:32px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow"><span class="dot"></span>THE MECHANISM, PART 2</div>
+  <h1>Shrinking kingdoms into dots: the condensation graph</h1>
+  <p class="subtitle">Once you've found the kingdoms (SCCs), there's one more picture worth drawing — squash every kingdom down to a single dot. What's left is always simple, always clean, and it's the key to a whole family of harder problems.</p>
+</header>
+
+<div class="wrap">
+
+<section>
+  <div class="kicker"><span class="dot"></span>Start here</div>
+  <h2>What "condensing" even means</h2>
+  <p class="lead">Take your galaxy. Every planet that belongs to the same kingdom — meaning every planet in that group can reach every other planet in that same group — gets squashed into one single dot.</p>
+  <p>That's it. That's the whole operation. You're not deleting information about <i>which</i> planets are in which kingdom — you're just zooming the camera out so far that an entire kingdom looks like one point, the same way a whole city looks like one dot on a map of the country.</p>
+
+  <div class="callout">
+    <span class="label">Plain english</span>
+    <p>Condensation graph = "what does the map look like if I stop caring about individual planets, and only care about which <b>kingdom</b> connects to which <b>kingdom</b>?"</p>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="kicker"><span class="dot"></span>Our example</div>
+  <h2>Let's reuse the 5-planet galaxy</h2>
+  <p>Same teleporters as before:</p>
+  <div class="panel">
+    <div class="panel-title">Teleporters (directed edges)</div>
+    <p style="color:var(--text-main); font-family:'JetBrains Mono',monospace; font-size:15px; margin-bottom:0;">
+      1 → 2 &nbsp;&nbsp; 2 → 3 &nbsp;&nbsp; 3 → 1 &nbsp;&nbsp; 3 → 4 &nbsp;&nbsp; 4 → 5 &nbsp;&nbsp; 5 → 4
+    </p>
+  </div>
+  <p>We already worked out the kingdoms by hand: <b>Kingdom A = {1, 2, 3}</b> and <b>Kingdom B = {4, 5}</b>.</p>
+
+  <div id="fig1"></div>
+  <p class="fig-caption">FIG 1 — the original galaxy, colored by kingdom</p>
+</section>
+
+<section>
+  <div class="kicker"><span class="dot"></span>The squash</div>
+  <h2>Now squash each kingdom into one dot</h2>
+  <p>Forget the individual planets for a second. Ask only: <b>does any teleporter leave Kingdom A and land somewhere in Kingdom B?</b> Look at our 6 teleporters one at a time:</p>
+
+  <table>
+    <thead><tr><th>Teleporter</th><th>From kingdom</th><th>To kingdom</th><th>Counts as a cross-kingdom edge?</th></tr></thead>
+    <tbody>
+      <tr><td><code>1 → 2</code></td><td>A</td><td>A</td><td>No — stays inside A</td></tr>
+      <tr><td><code>2 → 3</code></td><td>A</td><td>A</td><td>No — stays inside A</td></tr>
+      <tr><td><code>3 → 1</code></td><td>A</td><td>A</td><td>No — stays inside A</td></tr>
+      <tr><td><code>3 → 4</code></td><td>A</td><td>B</td><td><b style="color:var(--lime)">Yes</b> — crosses from A to B</td></tr>
+      <tr><td><code>4 → 5</code></td><td>B</td><td>B</td><td>No — stays inside B</td></tr>
+      <tr><td><code>5 → 4</code></td><td>B</td><td>B</td><td>No — stays inside B</td></tr>
+    </tbody>
+  </table>
+
+  <p>Only <b>one</b> teleporter actually crosses a kingdom boundary: <code>3 → 4</code>. So in the squashed picture, there's exactly one arrow: <b>Kingdom A → Kingdom B</b>.</p>
+
+  <div id="fig2"></div>
+  <p class="fig-caption">FIG 2 — the condensation graph: two kingdoms, one arrow</p>
+</section>
+
+<section>
+  <div class="kicker"><span class="dot"></span>Why this matters</div>
+  <h2>The squashed picture is always boringly simple</h2>
+  <p>Here's the one fact that makes this whole idea worth learning: <b>the condensation graph never has a cycle.</b> It's always a DAG (a graph where arrows only ever point "forward", never loop back).</p>
+
+  <div class="callout">
+    <span class="label">Why no cycles are possible</span>
+    <p>If Kingdom A → Kingdom B → Kingdom A were somehow possible, then any planet in A could reach any planet in B, and any planet in B could reach back to any planet in A — which by definition means A and B were never two separate kingdoms in the first place. They'd have already been merged into one. So by the time you're looking at the condensation graph, guaranteed, no cycles remain.</p>
+  </div>
+
+  <p>This is exactly the "shrink the kingdoms, get a clean DAG" idea from before — except now you're seeing it drawn out, not just described.</p>
+</section>
+
+<section>
+  <div class="kicker"><span class="dot"></span>How to actually build it in code</div>
+  <h2>Three simple steps</h2>
+
+  <div class="panel">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Label every planet with its kingdom number</h4>
+        <p>Run Kosaraju's (or Tarjan's) exactly like before. Every planet gets a <code>comp[planet]</code> value — which kingdom it belongs to. You already have this from the SCC code.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Walk every original teleporter, once each</h4>
+        <p>For each teleporter <code>u → v</code>, check <code>comp[u]</code> and <code>comp[v]</code>. If they're different kingdoms, that's a cross-kingdom edge — add an edge <code>comp[u] → comp[v]</code> in your new, smaller graph. If they're the same kingdom, skip it — it's an internal teleporter, it doesn't matter for the condensation graph.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>(Optional) remove duplicate edges</h4>
+        <p>If two different planets in Kingdom A both point into Kingdom B, you'll try to add the edge <code>A → B</code> twice. Depending on the problem, you may want to only keep it once — use a <code>Set</code> or check for duplicates before adding.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="background:var(--bg-card2);">
+    <div class="panel-title">Minimal code sketch</div>
+    <pre style="font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--text-main); white-space:pre-wrap; line-height:1.7;">List&lt;List&lt;Integer&gt;&gt; condensed = new ArrayList&lt;&gt;();
+for (int i = 0; i &lt;= kingdomCount; i++) condensed.add(new ArrayList&lt;&gt;());
+
+for (int i = 0; i &lt; m; i++) {
+    int cu = comp[edgeU[i]];
+    int cv = comp[edgeV[i]];
+    if (cu != cv) {
+        condensed.get(cu).add(cv);
+    }
+}</pre>
+  </div>
+</section>
+
+<section>
+  <div class="kicker"><span class="dot"></span>What it's used for</div>
+  <h2>Why bother squashing at all?</h2>
+  <p>Because a huge number of hard graph problems become easy once you realize: <i>"the messy cyclic part only happens inside a kingdom — the part between kingdoms is always a clean DAG."</i> Once you have a DAG, you unlock tools that don't work on graphs with cycles:</p>
+
+  <div class="two-col">
+    <div class="card orange">
+      <h3>Topological order</h3>
+      <p>DAGs can always be laid out left-to-right so every arrow points forward. This is exactly what let us decide "which kingdom needs a new road built into it" in the Reachability problem — a kingdom with zero incoming arrows in the condensation graph can never be reached without adding one.</p>
+    </div>
+    <div class="card mint">
+      <h3>DP on a DAG</h3>
+      <p>Once cycles are gone, you can safely run dynamic programming over the condensation graph — process kingdoms in topological order, and by the time you reach one, every kingdom that feeds into it is already finished.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="label">The pattern to remember</span>
+    <p>Any time a problem gives you a directed graph with cycles and asks something that "should" need a DAG (shortest path counts, reachability, longest chain, minimum edges to add) — the first move is almost always: <b>find the SCCs, condense, then solve the easy DAG version.</b></p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  KOSARAJU'S ALGORITHM — PART 2 · CONDENSATION GRAPHS
+</footer>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+
+// FIG 1: original galaxy colored by kingdom
+const fig1 = `
+<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7E6FAE"/>
+    </marker>
+  </defs>
+  <!-- kingdom A boundary -->
+  <rect x="30" y="30" width="270" height="200" rx="24" fill="#FFB454" fill-opacity="0.07" stroke="#FFB454" stroke-opacity="0.35" stroke-dasharray="6 6"/>
+  <text x="50" y="55" font-family="JetBrains Mono, monospace" font-size="12" fill="#FFB454" letter-spacing="1">KINGDOM A</text>
+
+  <!-- kingdom B boundary -->
+  <rect x="420" y="70" width="250" height="120" rx="24" fill="#4FD1C5" fill-opacity="0.07" stroke="#4FD1C5" stroke-opacity="0.35" stroke-dasharray="6 6"/>
+  <text x="440" y="95" font-family="JetBrains Mono, monospace" font-size="12" fill="#4FD1C5" letter-spacing="1">KINGDOM B</text>
+
+  <!-- edges inside A -->
+  <path d="M 110 90 L 190 90" stroke="#7E6FAE" stroke-width="2" marker-end="url(#arrow1)" fill="none"/>
+  <path d="M 210 110 L 140 190" stroke="#7E6FAE" stroke-width="2" marker-end="url(#arrow1)" fill="none"/>
+  <path d="M 120 180 L 85 115" stroke="#7E6FAE" stroke-width="2" marker-end="url(#arrow1)" fill="none"/>
+
+  <!-- cross edge 3 -> 4 -->
+  <path d="M 240 145 L 460 140" stroke="#B6FF6B" stroke-width="2.5" marker-end="url(#arrow1)" fill="none"/>
+
+  <!-- edges inside B -->
+  <path d="M 520 110 L 620 130" stroke="#7E6FAE" stroke-width="2" marker-end="url(#arrow1)" fill="none"/>
+  <path d="M 615 150 L 535 130" stroke="#7E6FAE" stroke-width="2" marker-end="url(#arrow1)" fill="none"/>
+
+  <!-- planet nodes A -->
+  <circle cx="90" cy="90" r="22" fill="#120B29" stroke="#FFB454" stroke-width="2.5"/>
+  <text x="90" y="96" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" fill="#F1EAFF" font-weight="600">1</text>
+
+  <circle cx="220" cy="105" r="22" fill="#120B29" stroke="#FFB454" stroke-width="2.5"/>
+  <text x="220" y="111" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" fill="#F1EAFF" font-weight="600">2</text>
+
+  <circle cx="130" cy="195" r="22" fill="#120B29" stroke="#FFB454" stroke-width="2.5"/>
+  <text x="130" y="201" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" fill="#F1EAFF" font-weight="600">3</text>
+
+  <!-- planet nodes B -->
+  <circle cx="505" cy="100" r="22" fill="#120B29" stroke="#4FD1C5" stroke-width="2.5"/>
+  <text x="505" y="106" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" fill="#F1EAFF" font-weight="600">4</text>
+
+  <circle cx="635" cy="150" r="22" fill="#120B29" stroke="#4FD1C5" stroke-width="2.5"/>
+  <text x="635" y="156" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" fill="#F1EAFF" font-weight="600">5</text>
+
+  <text x="320" y="130" font-family="JetBrains Mono, monospace" font-size="11" fill="#B6FF6B">only bridge</text>
+</svg>`;
+
+// FIG 2: condensation graph, two dots
+const fig2 = `
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow2" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L11,4 z" fill="#B6FF6B"/>
+    </marker>
+  </defs>
+  <path d="M 250 100 L 430 100" stroke="#B6FF6B" stroke-width="3" marker-end="url(#arrow2)" fill="none"/>
+
+  <circle cx="170" cy="100" r="70" fill="#120B29" stroke="#FFB454" stroke-width="3"/>
+  <text x="170" y="92" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="15" fill="#FFB454" font-weight="600" letter-spacing="0.5">KINGDOM</text>
+  <text x="170" y="115" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="22" fill="#F1EAFF" font-weight="700">A</text>
+  <text x="170" y="135" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#7E6FAE">{1, 2, 3}</text>
+
+  <circle cx="530" cy="100" r="70" fill="#120B29" stroke="#4FD1C5" stroke-width="3"/>
+  <text x="530" y="92" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="15" fill="#4FD1C5" font-weight="600" letter-spacing="0.5">KINGDOM</text>
+  <text x="530" y="115" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="22" fill="#F1EAFF" font-weight="700">B</text>
+  <text x="530" y="135" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#7E6FAE">{4, 5}</text>
+
+  <text x="340" y="80" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#B6FF6B">one arrow, no cycle possible</text>
+</svg>`;
+
+document.getElementById('fig1').innerHTML = fig1;
+document.getElementById('fig2').innerHTML = fig2;
+</script>
+
+</body>
+</html>

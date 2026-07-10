@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strong Connectivity — Why Two Flights Are Enough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #060B14;
+    --panel: #0E1626;
+    --panel-2: #121D33;
+    --line: #24324B;
+    --text: #EAF1FB;
+    --muted: #8CA0C4;
+    --cyan: #4FD1C5;
+    --magenta: #F0629A;
+    --amber: #FFB454;
+    --red: #FF6B6B;
+    --radius: 14px;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: radial-gradient(circle at 15% 0%, #0A1220 0%, var(--bg) 45%) fixed;
+    color: var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0 0 .4em; letter-spacing:-0.01em; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  a{ color: var(--cyan); }
+  section{ max-width: 980px; margin: 0 auto; padding: 72px 24px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 16px;
+  }
+  .eyebrow::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background: var(--amber); box-shadow: 0 0 10px var(--amber);
+    animation: beacon 1.6s ease-in-out infinite;
+  }
+  @keyframes beacon{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width: 1100px;
+    padding-top: 90px;
+    text-align:left;
+    position: relative;
+  }
+  .board{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.12em;
+    color:#dff5f1;
+    background: #05100E;
+    border:1px solid #17352F;
+    padding:8px 14px;
+    border-radius: 6px;
+    margin-bottom: 22px;
+  }
+  .board b{ color: var(--cyan); }
+  .hero h1{
+    font-size: clamp(34px, 5.4vw, 58px);
+    max-width: 16ch;
+    line-height:1.08;
+  }
+  .hero p.lead{
+    max-width: 62ch;
+    font-size: 18px;
+    color: var(--muted);
+  }
+  .ticket{
+    margin-top: 36px;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    max-width: 640px;
+    position: relative;
+  }
+  .ticket::before, .ticket::after{
+    content:""; position:absolute; top:50%; width:20px; height:20px;
+    background: var(--bg); border-radius:50%; transform: translateY(-50%);
+  }
+  .ticket::before{ left:-10px; } .ticket::after{ right:-10px; }
+  .ticket h3{ font-size:15px; color: var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px;}
+  .ticket .io{ font-family:'JetBrains Mono',monospace; font-size:14px; white-space:pre; overflow-x:auto; color:#cfe0ff; }
+  .ticket .io .comment{ color: var(--muted); }
+
+  /* ---------- GENERIC PANEL/CARD ---------- */
+  .panel{
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+  }
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
+  .grid3{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
+  @media (max-width: 760px){ .grid2, .grid3{ grid-template-columns: 1fr; } }
+
+  /* ---------- NAIVE VS INSIGHT ---------- */
+  .bad{ border-color: rgba(255,107,107,.35); }
+  .bad h3{ color: var(--red); }
+  .good{ border-color: rgba(79,209,197,.35); }
+  .good h3{ color: var(--cyan); }
+
+  .insight-box{
+    background: radial-gradient(circle at 0% 0%, rgba(255,180,84,.12), transparent 60%), var(--panel);
+    border: 1px solid rgba(255,180,84,.35);
+    border-radius: var(--radius);
+    padding: 34px;
+    text-align:left;
+  }
+  .insight-box .tag{ color: var(--amber); font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.15em; text-transform:uppercase;}
+  .insight-box p.claim{
+    font-family:'Space Grotesk', sans-serif;
+    font-size: clamp(20px, 2.6vw, 27px);
+    line-height:1.35;
+    margin: 12px 0 0;
+  }
+  .insight-box .claim b{ color: var(--amber); }
+
+  /* ---------- DEMO ---------- */
+  .demo-wrap{
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    overflow:hidden;
+  }
+  .demo-head{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;
+    padding: 18px 22px; border-bottom: 1px solid var(--line);
+  }
+  .demo-head .toggles{ display:flex; gap:8px; flex-wrap:wrap; }
+  button{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    padding: 9px 14px;
+    cursor:pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  button:hover{ border-color: var(--cyan); }
+  button:active{ transform: scale(.97); }
+  button.primary{ background: var(--cyan); color:#062521; border-color:var(--cyan); font-weight:700; }
+  button.primary:hover{ filter: brightness(1.08); }
+  button[disabled]{ opacity:.45; cursor:not-allowed; }
+  button.active-graph{ border-color: var(--amber); color: var(--amber); }
+
+  .demo-body{ display:grid; grid-template-columns: 1.35fr 1fr; gap:0; }
+  @media (max-width: 760px){ .demo-body{ grid-template-columns: 1fr; } }
+  .svg-area{ padding: 18px; border-right:1px solid var(--line); }
+  @media (max-width: 760px){ .svg-area{ border-right:none; border-bottom:1px solid var(--line); } }
+  .svg-area svg{ width:100%; height:auto; display:block; }
+
+  .node circle{ fill: var(--panel-2); stroke: var(--line); stroke-width:2; transition: fill .35s, stroke .35s, filter .35s; }
+  .node text{ font-family:'JetBrains Mono',monospace; font-weight:700; fill: var(--text); font-size:17px; pointer-events:none; }
+  .node.hub circle{ stroke: var(--amber); stroke-width:3; filter: drop-shadow(0 0 6px rgba(255,180,84,.55)); }
+  .node.node-cyan circle{ fill: rgba(79,209,197,.16); stroke: var(--cyan); }
+  .node.node-both circle{ fill: rgba(255,180,84,.20); stroke: var(--amber); filter: drop-shadow(0 0 10px rgba(255,180,84,.55)); }
+  .node.node-missing circle{ stroke: var(--red); stroke-width:3; animation: ringpulse 1s ease-in-out infinite; }
+  @keyframes ringpulse{ 0%,100%{ filter: drop-shadow(0 0 2px rgba(255,107,107,.3)); } 50%{ filter: drop-shadow(0 0 12px rgba(255,107,107,.8)); } }
+
+  .edge{ stroke: var(--line); stroke-width: 2; transition: stroke .35s; }
+  .edge-cyan{ stroke: var(--cyan); stroke-width:2.5; }
+  .edge-magenta{ stroke: var(--magenta); stroke-width:2.5; }
+  .edge-both{ stroke: var(--amber); stroke-width:2.5; }
+  .no-route{ stroke: var(--red); stroke-width:2.5; stroke-dasharray:6 6; }
+
+  .side{ padding: 20px 22px; display:flex; flex-direction:column; gap:16px; }
+  .phase-label{ font-family:'JetBrains Mono',monospace; font-size:13px; color: var(--muted); min-height: 34px; }
+  .phase-label b{ color: var(--text); }
+  .legend{ display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--muted); }
+  .legend span.dot{ display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px; vertical-align:middle; }
+  .legend .g{ background:var(--line);} .legend .c{ background:var(--cyan);} .legend .m{ background:var(--magenta);} .legend .a{ background:var(--amber);} .legend .r{ background:var(--red);}
+
+  .banner{
+    border-radius: 10px; padding: 16px 18px; font-family:'JetBrains Mono',monospace;
+    border:1px solid var(--line); background: var(--panel-2);
+  }
+  .banner.yes{ border-color: rgba(79,209,197,.5); }
+  .banner.no{ border-color: rgba(255,107,107,.5); }
+  .banner .stamp{ font-size: 15px; font-weight:700; letter-spacing:.05em; }
+  .banner.yes .stamp{ color: var(--cyan); }
+  .banner.no .stamp{ color: var(--red); }
+  .banner p{ margin: 8px 0 0; font-family:'Inter',sans-serif; font-size:14px; color: var(--muted); }
+  .banner[hidden]{ display:none; }
+
+  /* ---------- PROOF ---------- */
+  .proof-step{ display:flex; gap:16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .proof-step:last-child{ border-bottom:none; }
+  .proof-step .num{
+    font-family:'JetBrains Mono',monospace; color: var(--amber); font-weight:700; font-size:14px;
+    min-width: 28px;
+  }
+  .proof-step h4{ margin:0 0 6px; font-family:'Space Grotesk',sans-serif; font-size:17px; }
+  .proof-step p{ margin:0; color: var(--muted); font-size:15px; }
+
+  /* ---------- COMPLEXITY BARS ---------- */
+  .bar-row{ margin-bottom: 18px; }
+  .bar-row .label{ display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); margin-bottom:6px;}
+  .bar-track{ background: var(--panel-2); border-radius: 6px; height: 14px; overflow:hidden; border:1px solid var(--line); }
+  .bar-fill{ height:100%; border-radius:6px 0 0 6px; }
+  .bar-fill.slow{ width: 96%; background: linear-gradient(90deg, #7a2f2f, var(--red)); }
+  .bar-fill.fast{ width: 6%; background: linear-gradient(90deg, #1f5f57, var(--cyan)); }
+
+  /* ---------- CODE ---------- */
+  .code-tabs{ display:flex; gap:8px; margin-bottom: 12px; }
+  .code-tab{ padding:8px 14px; }
+  .code-tab.active{ border-color: var(--cyan); color: var(--cyan); }
+  pre.codebox{
+    background:#070E1A; border:1px solid var(--line); border-radius:10px;
+    padding: 20px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13.5px;
+    line-height:1.65; color:#D6E3FA; position:relative;
+  }
+  pre.codebox .c{ color: #6C8AB8; }
+  .code-panel{ display:none; }
+  .code-panel.active{ display:block; }
+  .copy-btn{ position:absolute; top:12px; right:12px; padding:6px 10px; font-size:11px; }
+
+  /* ---------- FACTS ---------- */
+  .fact{ background: var(--panel); border:1px solid var(--line); border-radius: var(--radius); padding:22px; }
+  .fact .fn{ font-family:'JetBrains Mono',monospace; color: var(--amber); font-size:12px; letter-spacing:.1em; }
+  .fact h4{ font-family:'Space Grotesk',sans-serif; font-size:16px; margin: 8px 0; }
+  .fact p{ color: var(--muted); font-size:14.5px; margin:0; }
+
+  /* ---------- PRACTICE LINKS ---------- */
+  .plink{
+    display:block; background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; text-decoration:none; color: var(--text); transition: border-color .15s, transform .1s;
+  }
+  .plink:hover{ border-color: var(--cyan); transform: translateY(-2px); }
+  .plink .src{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color: var(--muted); }
+  .plink h4{ font-family:'Space Grotesk',sans-serif; margin:6px 0; font-size:16px; }
+  .plink p{ margin:0; font-size:13.5px; color: var(--muted); }
+  .plink-group{ margin-bottom: 30px; }
+  .plink-group h3{ font-size:14px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:14px;}
+
+  footer{ text-align:center; padding: 40px 24px 70px; color: var(--muted); font-size:13px; font-family:'JetBrains Mono',monospace;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="board">STATUS: <b>CHECKING NETWORK</b> · GRAPH THEORY · ONE-WAY ROUTES</div>
+  <h1>Can every city reach every other city?</h1>
+  <p class="lead">A directed graph, a yes/no question, and a trick so efficient it feels like cheating: you never compare two cities to each other directly — you only ever look at <b>one</b> city, twice.</p>
+
+  <div class="ticket">
+    <h3>The problem, restated as a boarding pass</h3>
+    <div class="io"><span class="comment">// input</span>
+n cities, m one-way flights (a → b)
+
+<span class="comment">// output</span>
+YES                      <span class="comment">if every city reaches every other city</span>
+NO
+a b                      <span class="comment">any pair where a cannot reach b</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Where most people start</div>
+  <h2>The honest-but-slow idea</h2>
+  <p style="color:var(--muted); max-width:70ch;">
+    "All cities reach all cities" sounds like it's about <em>pairs</em> of cities. So the obvious plan is: for every city, run a search (BFS/DFS) and see if it reaches everyone else. If every city passes, print YES.
+  </p>
+  <div class="grid2" style="margin-top:22px;">
+    <div class="panel bad">
+      <h3>Why it's too slow</h3>
+      <p style="color:var(--muted); font-size:14.5px;">
+        Each search costs O(n + m). Doing one <em>per city</em> costs O(n · (n + m)). With n up to 100,000 and m up to 200,000, that's on the order of <span class="mono">10¹⁰</span> operations — far past what runs in a couple of seconds.
+      </p>
+    </div>
+    <div class="panel bad">
+      <h3>Why it's the wrong shape</h3>
+      <p style="color:var(--muted); font-size:14.5px;">
+        You'd be proving <span class="mono">n²</span> individual facts ("A reaches B", "A reaches C", …) when the question only needs one global fact: is this whole graph <em>one</em> tightly-knit group?
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">The reframe</div>
+  <h2>You don't need n cities. You need one.</h2>
+  <div class="insight-box">
+    <div class="tag">Key insight</div>
+    <p class="claim">
+      Pick <b>any one city</b> — say City 1 — and ask two questions instead of a million:<br>
+      1) Can City 1 <b>reach</b> every other city?<br>
+      2) Can every other city <b>reach back to</b> City 1?
+    </p>
+    <p style="color:var(--muted); margin-top:16px; font-size:15px; max-width:65ch;">
+      If both answers are "yes," the whole network is fully connected — <em>guaranteed</em>, with zero further checking. That's the entire algorithm: two searches, from one node, instead of n searches from n nodes. This turns an O(n·(n+m)) problem into an O(n+m) one.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">See it fly</div>
+  <h2>The control tower simulator</h2>
+  <p style="color:var(--muted); max-width:70ch;">City 1 is the control tower (amber ring). Run the check and watch two sweeps happen: an <span style="color:var(--cyan)">outbound</span> sweep (can the tower reach everyone?) and an <span style="color:var(--magenta)">inbound</span> sweep (can everyone get back to the tower?).</p>
+
+  <div class="demo-wrap" style="margin-top:22px;">
+    <div class="demo-head">
+      <div class="toggles">
+        <button id="btn-connected" class="active-graph" onclick="selectGraph('connected')">Fully connected network</button>
+        <button id="btn-broken" onclick="selectGraph('broken')">Network with a missing link</button>
+      </div>
+      <button id="btn-run" class="primary" onclick="runCheck()">▶ Run check</button>
+    </div>
+    <div class="demo-body">
+      <div class="svg-area" id="svg-area"></div>
+      <div class="side">
+        <div class="phase-label" id="phase-label">Press <b>Run check</b> to start the simulation.</div>
+        <div class="legend">
+          <div><span class="dot g"></span>Not checked yet</div>
+          <div><span class="dot c"></span>Reachable <em>from</em> the tower (outbound confirmed)</div>
+          <div><span class="dot a"></span>Round trip confirmed — reaches the tower <em>and</em> is reached by it</div>
+          <div><span class="dot r"></span>The missing route — proof of "NO"</div>
+        </div>
+        <div class="banner" id="banner" hidden>
+          <div class="stamp" id="banner-stamp"></div>
+          <p id="banner-text"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">The proof</div>
+  <h2>Why checking one city is enough to prove it for all of them</h2>
+  <p style="color:var(--muted); max-width:70ch;">This isn't a heuristic or an approximation — it's an exact, airtight equivalence. Here's the chain of logic, one link at a time.</p>
+
+  <div class="panel" style="margin-top:22px;">
+    <div class="proof-step">
+      <div class="num">01</div>
+      <div><h4>Pick any city, call it the hub.</h4><p>It doesn't have to be City 1 — any city works, because strong connectivity is a property of the <em>whole graph</em>, not of any single city.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">02</div>
+      <div><h4>Suppose the hub can reach everyone, and everyone can reach the hub.</h4><p>Take any two cities A and B, chosen completely at random. We want to know: can A reach B?</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">03</div>
+      <div><h4>Route A through the hub.</h4><p>A can reach the hub (given). The hub can reach B (given). Glue those two flight paths together — A → hub → B — and you have a valid route from A to B, even if no direct flight exists.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">04</div>
+      <div><h4>A and B were arbitrary.</h4><p>Since this argument works for <em>any</em> pair you could name, every city can reach every other city. The graph is strongly connected — full stop.</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">05</div>
+      <div><h4>The converse is trivial.</h4><p>If the graph really is strongly connected, then in particular the hub can reach everyone and everyone can reach the hub — that's just a special case of "everyone reaches everyone."</p></div>
+    </div>
+    <div class="proof-step">
+      <div class="num">06</div>
+      <div><h4>So the two statements are equivalent.</h4><p><b>"The whole graph is strongly connected"</b> and <b>"one chosen city has full outbound and inbound reachability"</b> mean exactly the same thing. You only need to verify the second one, and it only takes two graph traversals.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:24px;">
+    <div class="panel">
+      <h3 style="font-size:16px;">The "inbound" trick: reverse the graph</h3>
+      <p style="color:var(--muted); font-size:14.5px;">Checking "can everyone reach the hub" directly would mean running a search <em>backwards</em> from every city — expensive again. Instead, flip every edge (a→b becomes b→a) and run <em>one forward</em> search from the hub on this reversed graph. Reaching a city in the reversed graph means that city could originally reach the hub. One flip turns an "everyone-to-one" question into a cheap "one-to-everyone" search.</p>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:16px;">The proof of "NO" is free</h3>
+      <p style="color:var(--muted); font-size:14.5px;">The problem doesn't just want YES/NO — it wants a witness pair when the answer is NO. You get this for nothing: whichever city the search never reaches <em>is</em> the counter-example. If the outbound sweep misses city X, print "hub X". If the inbound sweep misses city X, print "X hub". No extra computation required.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Putting it together</div>
+  <h2>The algorithm, in four lines</h2>
+  <div class="panel">
+    <ol style="color:var(--muted); font-size:15px; padding-left:20px; margin:0;">
+      <li style="margin-bottom:10px;">Build the flight graph, and a second copy with every flight reversed.</li>
+      <li style="margin-bottom:10px;">BFS from city 1 on the original graph. If any city is unvisited, print <span class="mono">NO</span> and <span class="mono">1 &lt;missing city&gt;</span>.</li>
+      <li style="margin-bottom:10px;">BFS from city 1 on the reversed graph. If any city is unvisited, print <span class="mono">NO</span> and <span class="mono">&lt;missing city&gt; 1</span>.</li>
+      <li>Otherwise, print <span class="mono">YES</span>.</li>
+    </ol>
+  </div>
+
+  <h3 style="margin-top:36px; font-size:18px;">Why this is fast enough</h3>
+  <div class="bar-row">
+    <div class="label"><span>Naive: search from every city — O(n · (n + m))</span><span>~10¹⁰ ops at n = 10⁵</span></div>
+    <div class="bar-track"><div class="bar-fill slow"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="label"><span>Hub trick: search from one city, twice — O(n + m)</span><span>~3×10⁵ ops</span></div>
+    <div class="bar-track"><div class="bar-fill fast"></div></div>
+  </div>
+  <p style="color:var(--muted); font-size:14px; max-width:65ch;">Both traversals together still only touch each city and each flight a constant number of times — so the total work barely grows even as the network gets huge.</p>
+</section>
+
+<section>
+  <div class="eyebrow">Implementation</div>
+  <h2>Clean, iterative BFS — no recursion, no surprises</h2>
+  <p style="color:var(--muted); max-width:70ch;">BFS (not recursive DFS) avoids stack-overflow risk on long chains of cities, which matters once n reaches 100,000.</p>
+
+  <div class="code-tabs">
+    <button class="code-tab active" onclick="showCode('cpp')">C++</button>
+    <button class="code-tab" onclick="showCode('py')">Python</button>
+  </div>
+
+  <div id="code-cpp" class="code-panel active">
+    <pre class="codebox"><button class="copy-btn" onclick="copyCode('code-cpp',this)">Copy</button><code><span class="c">// CSES 1682 - Flight Routes Check</span>
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m;
+vector&lt;int&gt; adj[100001], radj[100001];
+bool vis[100001];
+
+void bfs(vector&lt;int&gt; graph[], int start) {
+    fill(vis + 1, vis + n + 1, false);
+    queue&lt;int&gt; q;
+    q.push(start);
+    vis[start] = true;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (int v : graph[u])
+            if (!vis[v]) { vis[v] = true; q.push(v); }
+    }
+}
+
+int main() {
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 0; i &lt; m; i++) {
+        int a, b; cin &gt;&gt; a &gt;&gt; b;
+        adj[a].push_back(b);
+        radj[b].push_back(a);   <span class="c">// build the reversed graph while reading input</span>
+    }
+
+    bfs(adj, 1);                 <span class="c">// phase 1: outbound</span>
+    for (int i = 1; i &lt;= n; i++)
+        if (!vis[i]) { cout &lt;&lt; "NO\n" &lt;&lt; 1 &lt;&lt; " " &lt;&lt; i &lt;&lt; "\n"; return 0; }
+
+    bfs(radj, 1);                <span class="c">// phase 2: inbound</span>
+    for (int i = 1; i &lt;= n; i++)
+        if (!vis[i]) { cout &lt;&lt; "NO\n" &lt;&lt; i &lt;&lt; " " &lt;&lt; 1 &lt;&lt; "\n"; return 0; }
+
+    cout &lt;&lt; "YES\n";
+}</code></pre>
+  </div>
+
+  <div id="code-py" class="code-panel">
+    <pre class="codebox"><button class="copy-btn" onclick="copyCode('code-py',this)">Copy</button><code><span class="c"># CSES 1682 - Flight Routes Check</span>
+import sys
+from collections import deque
+
+def main():
+    data = sys.stdin.buffer.read().split()
+    idx = 0
+    n = int(data[idx]); idx += 1
+    m = int(data[idx]); idx += 1
+
+    adj  = [[] for _ in range(n + 1)]
+    radj = [[] for _ in range(n + 1)]
+    for _ in range(m):
+        a = int(data[idx]); idx += 1
+        b = int(data[idx]); idx += 1
+        adj[a].append(b)
+        radj[b].append(a)          <span class="c"># reversed graph, built for free</span>
+
+    def bfs(graph, start):
+        vis = [False] * (n + 1)
+        vis[start] = True
+        q = deque([start])
+        while q:
+            u = q.popleft()
+            for v in graph[u]:
+                if not vis[v]:
+                    vis[v] = True
+                    q.append(v)
+        return vis
+
+    vis1 = bfs(adj, 1)              <span class="c"># phase 1: outbound</span>
+    for i in range(1, n + 1):
+        if not vis1[i]:
+            print("NO"); print(1, i); return
+
+    vis2 = bfs(radj, 1)             <span class="c"># phase 2: inbound</span>
+    for i in range(1, n + 1):
+        if not vis2[i]:
+            print("NO"); print(i, 1); return
+
+    print("YES")
+
+main()</code></pre>
+  </div>
+
+  <p style="color:var(--muted); font-size:14px; margin-top:16px;">Both solutions run in O(n + m) time and space — comfortably inside CSES's limits (n ≤ 10⁵, m ≤ 2×10⁵). Self-loops and duplicate flights don't break anything; a single-city network (n = 1) is trivially "YES".</p>
+</section>
+
+<section>
+  <div class="eyebrow">Things that make this click</div>
+  <h2>Facts worth remembering</h2>
+  <div class="grid3" style="margin-top:22px;">
+    <div class="fact">
+      <div class="fn">01</div>
+      <h4>Real airlines do this on purpose</h4>
+      <p>Hub-and-spoke networks (Atlanta for Delta, Dubai for Emirates) exist for exactly this reason: routing every city through a small number of hubs guarantees connectivity with far fewer routes than connecting every city to every other one directly.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">02</div>
+      <h4>Undirected graphs don't need this trick</h4>
+      <p>In an undirected graph, one flight both ways is automatic — one BFS from any node is enough to prove full connectivity. Directed graphs "pay a 2× tax" precisely because direction matters, which is why we need outbound <em>and</em> inbound checks.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">03</div>
+      <h4>The hub choice is arbitrary</h4>
+      <p>You could run this exact check starting from city 7, or city 4,213 — any city gives the correct answer, because the property being tested belongs to the whole graph, not to whichever node you happened to pick.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">04</div>
+      <h4>It's half of a famous algorithm</h4>
+      <p>This is essentially one round of Kosaraju's algorithm (S. Rao Kosaraju, 1978) for finding <em>all</em> strongly connected components in a graph — this problem just needs to confirm there's exactly one component covering everyone.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">05</div>
+      <h4>Reversing costs nothing extra</h4>
+      <p>You don't need a separate pass to build the reversed graph — while reading each flight (a, b), push it into the forward list and push (b, a) into the reverse list in the same line of code.</p>
+    </div>
+    <div class="fact">
+      <div class="fn">06</div>
+      <h4>Recursion can betray you here</h4>
+      <p>A recursive DFS can blow the call stack on a graph shaped like one long chain of 100,000 cities. BFS with an explicit queue (as used above) never has this problem.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="panel" style="background: linear-gradient(180deg, var(--panel), var(--panel-2));">
+    <div class="eyebrow" style="margin-bottom:10px;">Where this pattern goes next</div>
+    <h3 style="font-size:20px;">From "is it one group?" to "what are all the groups?"</h3>
+    <p style="color:var(--muted); font-size:15px; max-width:70ch;">
+      This problem asks a yes/no question about the <em>entire</em> graph. The natural next step is: what if the graph <em>isn't</em> one strongly connected group — can you find the actual sub-groups (strongly connected components) where mutual reachability holds? That's <b>Kosaraju's</b> or <b>Tarjan's</b> algorithm, and it reuses the same reversed-graph idea, just applied more carefully across every unvisited node instead of just one hub.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Keep flying</div>
+  <h2>Practice this pattern</h2>
+
+  <div class="plink-group" style="margin-top:26px;">
+    <h3>Origin problem</h3>
+    <a class="plink" href="https://cses.fi/problemset/task/1682" target="_blank" rel="noopener">
+      <div class="src">CSES 1682</div>
+      <h4>Flight Routes Check</h4>
+      <p>The exact problem this page explains — two BFS traversals from one hub city.</p>
+    </a>
+  </div>
+
+  <div class="plink-group">
+    <h3>Codeforces</h3>
+    <div class="grid2">
+      <a class="plink" href="https://codeforces.com/problemset/problem/999/E" target="_blank" rel="noopener">
+        <div class="src">Codeforces 999E</div>
+        <h4>Reachability from the Capital</h4>
+        <p>Same "reach from one source" idea, extended: find the minimum number of new roads so every city becomes reachable from a capital.</p>
+      </a>
+      <a class="plink" href="https://codeforces.com/problemset/problem/22/E" target="_blank" rel="noopener">
+        <div class="src">Codeforces 22E</div>
+        <h4>Scheme</h4>
+        <p>Add the minimum number of extra calls so a rumor reaches everyone no matter who starts it — a direct strong-connectivity construction problem.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="plink-group">
+    <h3>LeetCode</h3>
+    <div class="grid2">
+      <a class="plink" href="https://leetcode.com/problems/minimum-number-of-vertices-to-reach-all-nodes/" target="_blank" rel="noopener">
+        <div class="src">LeetCode 1557</div>
+        <h4>Minimum Number of Vertices to Reach All Nodes</h4>
+        <p>Same "which nodes can act as a hub" reasoning, applied to a DAG instead of a general directed graph.</p>
+      </a>
+      <a class="plink" href="https://leetcode.com/problems/course-schedule-iv/" target="_blank" rel="noopener">
+        <div class="src">LeetCode 1462</div>
+        <h4>Course Schedule IV</h4>
+        <p>Straight reachability queries on a directed graph — good warm-up for BFS/DFS reachability before tackling strong connectivity.</p>
+      </a>
+      <a class="plink" href="https://leetcode.com/problems/number-of-operations-to-make-network-connected/" target="_blank" rel="noopener">
+        <div class="src">LeetCode 1319</div>
+        <h4>Number of Operations to Make Network Connected</h4>
+        <p>The undirected cousin of this problem — a nice contrast for seeing exactly what "direction" costs you.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>MADE FOR THE 2AM "WAIT, THAT'S ALL IT TAKES?" MOMENT</footer>
+
+<script>
+  const N = 6;
+  const NODE_R = 28;
+  const CENTER = { x: 300, y: 230 };
+  const RADIUS = 165;
+  const positions = Array.from({length: N}, (_, i) => {
+    const angle = (-90 + i * 60) * Math.PI / 180;
+    return { x: CENTER.x + RADIUS * Math.cos(angle), y: CENTER.y + RADIUS * Math.sin(angle) };
+  });
+
+  const GRAPHS = {
+    connected: [[1,2],[2,3],[3,4],[4,5],[5,6],[6,1],[2,5],[4,1]],
+    broken:    [[1,2],[2,3],[3,4],[4,5],[5,6],[2,5],[4,1]]
+  };
+
+  const svgArea   = document.getElementById('svg-area');
+  const phaseLbl  = document.getElementById('phase-label');
+  const banner    = document.getElementById('banner');
+  const bannerStamp = document.getElementById('banner-stamp');
+  const bannerText  = document.getElementById('banner-text');
+  const runBtn    = document.getElementById('btn-run');
+  const btnConnected = document.getElementById('btn-connected');
+  const btnBroken     = document.getElementById('btn-broken');
+
+  let currentGraph = 'connected';
+  let edges = GRAPHS.connected;
+  let adjF = [], adjR = [];
+
+  function buildAdj(edgeList){
+    const fwd = Array.from({length: N+1}, () => []);
+    const rev = Array.from({length: N+1}, () => []);
+    edgeList.forEach(([a,b]) => { fwd[a].push(b); rev[b].push(a); });
+    return { fwd, rev };
+  }
+
+  function edgeCoords(a, b){
+    const pa = positions[a-1], pb = positions[b-1];
+    const dx = pb.x - pa.x, dy = pb.y - pa.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx/dist, uy = dy/dist;
+    return {
+      x1: pa.x + ux*NODE_R, y1: pa.y + uy*NODE_R,
+      x2: pb.x - ux*(NODE_R+8), y2: pb.y - uy*(NODE_R+8)
+    };
+  }
+
+  function renderGraph(edgeList){
+    const edgesHTML = edgeList.map(([a,b]) => {
+      const c = edgeCoords(a,b);
+      return `<line id="e-${a}-${b}" class="edge" x1="${c.x1}" y1="${c.y1}" x2="${c.x2}" y2="${c.y2}" marker-end="url(#arrow-gray)"></line>`;
+    }).join('');
+
+    const nodesHTML = positions.map((p, i) => {
+      const num = i + 1;
+      const hubClass = num === 1 ? ' hub' : '';
+      return `<g id="n-${num}" class="node${hubClass}">
+        <circle cx="${p.x}" cy="${p.y}" r="${NODE_R}"></circle>
+        <text x="${p.x}" y="${p.y+6}" text-anchor="middle">${num}</text>
+      </g>`;
+    }).join('');
+
+    svgArea.innerHTML = `
+    <svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#3A4A66"></path>
+        </marker>
+        <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4FD1C5"></path>
+        </marker>
+        <marker id="arrow-magenta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#F0629A"></path>
+        </marker>
+        <marker id="arrow-both" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#FFB454"></path>
+        </marker>
+      </defs>
+      <g class="edges-layer">${edgesHTML}</g>
+      <g class="nodes-layer">${nodesHTML}</g>
+    </svg>`;
+  }
+
+  function resetVisual(){
+    document.querySelectorAll('.node').forEach(n => n.classList.remove('node-cyan','node-both','node-missing'));
+    document.querySelectorAll('.edge').forEach(e => {
+      e.classList.remove('edge-cyan','edge-magenta','edge-both');
+      e.setAttribute('marker-end','url(#arrow-gray)');
+    });
+    document.querySelectorAll('.no-route').forEach(el => el.remove());
+    banner.hidden = true;
+    phaseLbl.innerHTML = 'Press <b>Run check</b> to start the simulation.';
+  }
+
+  function selectGraph(name){
+    currentGraph = name;
+    edges = GRAPHS[name];
+    const built = buildAdj(edges);
+    adjF = built.fwd; adjR = built.rev;
+    renderGraph(edges);
+    resetVisual();
+    btnConnected.classList.toggle('active-graph', name === 'connected');
+    btnBroken.classList.toggle('active-graph', name === 'broken');
+  }
+
+  function bfs(graph, start){
+    const visited = new Array(N+1).fill(false);
+    const parent = {};
+    const order = [];
+    visited[start] = true;
+    const queue = [start];
+    let qi = 0;
+    while(qi < queue.length){
+      const u = queue[qi++];
+      order.push(u);
+      for(const v of graph[u]){
+        if(!visited[v]){
+          visited[v] = true;
+          parent[v] = u;
+          queue.push(v);
+        }
+      }
+    }
+    return { order, parent, visited };
+  }
+
+  function litEdge(a, b, phase){
+    const el = document.getElementById(`e-${a}-${b}`);
+    if(!el) return;
+    const other = phase === 'cyan' ? 'edge-magenta' : 'edge-cyan';
+    if(el.classList.contains(other)){
+      el.classList.remove(other);
+      el.classList.add('edge-both');
+      el.setAttribute('marker-end','url(#arrow-both)');
+    } else {
+      el.classList.add(phase === 'cyan' ? 'edge-cyan' : 'edge-magenta');
+      el.setAttribute('marker-end', phase === 'cyan' ? 'url(#arrow-cyan)' : 'url(#arrow-magenta)');
+    }
+  }
+
+  function litNode(num, cls){
+    const el = document.getElementById(`n-${num}`);
+    if(el) el.classList.add(cls);
+  }
+
+  function reducedMotion(){
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  function wait(ms){ return new Promise(res => setTimeout(res, reducedMotion() ? 0 : ms)); }
+
+  async function animateForward(order, parent){
+    for(const num of order){
+      if(num === 1) continue;
+      const p = parent[num];
+      litEdge(p, num, 'cyan');
+      litNode(num, 'node-cyan');
+      await wait(480);
+    }
+  }
+
+  async function animateReverse(order, parent){
+    for(const num of order){
+      if(num === 1) continue;
+      const p = parent[num];
+      litEdge(num, p, 'magenta');
+      litNode(num, 'node-both');
+      await wait(480);
+    }
+  }
+
+  function showBanner(kind, pair, text){
+    banner.hidden = false;
+    banner.classList.remove('yes','no');
+    banner.classList.add(kind === 'YES' ? 'yes' : 'no');
+    bannerStamp.textContent = kind === 'YES' ? '✓ APPROVED — ALL ROUTES OPEN' : `✕ GROUNDED — ${pair}`;
+    bannerText.textContent = text;
+  }
+
+  function markMissing(hub, missing, direction){
+    litNode(missing, 'node-missing');
+    const c = edgeCoords(direction === 'out' ? hub : missing, direction === 'out' ? missing : hub);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('class','no-route');
+    line.setAttribute('x1', c.x1); line.setAttribute('y1', c.y1);
+    line.setAttribute('x2', c.x2); line.setAttribute('y2', c.y2);
+    document.querySelector('.edges-layer').appendChild(line);
+  }
+
+  function setButtonsDisabled(disabled){
+    runBtn.disabled = disabled;
+    btnConnected.disabled = disabled;
+    btnBroken.disabled = disabled;
+  }
+
+  async function runCheck(){
+    resetVisual();
+    setButtonsDisabled(true);
+    const hub = 1;
+
+    phaseLbl.innerHTML = '<b>Phase 1 — Outbound:</b> can the tower reach every city?';
+    const fwd = bfs(adjF, hub);
+    await animateForward(fwd.order, fwd.parent);
+
+    if(fwd.order.length < N){
+      const missing = [...Array(N).keys()].map(i=>i+1).find(i => !fwd.visited[i]);
+      markMissing(hub, missing, 'out');
+      showBanner('NO', `1 → ${missing}`, `City ${missing} never received an outbound flight from the tower — there is no route 1 → ${missing}. The network is not fully connected.`);
+      setButtonsDisabled(false);
+      return;
+    }
+
+    await wait(400);
+    phaseLbl.innerHTML = '<b>Phase 2 — Inbound:</b> can every city get back to the tower?';
+    const rev = bfs(adjR, hub);
+    await animateReverse(rev.order, rev.parent);
+
+    if(rev.order.length < N){
+      const missing = [...Array(N).keys()].map(i=>i+1).find(i => !rev.visited[i]);
+      markMissing(hub, missing, 'in');
+      showBanner('NO', `${missing} → 1`, `City ${missing} has no route back to the tower — there is no path ${missing} → 1. The network is not fully connected.`);
+      setButtonsDisabled(false);
+      return;
+    }
+
+    phaseLbl.innerHTML = '<b>Done.</b> Every city reaches the tower, and the tower reaches every city.';
+    showBanner('YES', '', 'Every city can reach the tower, and the tower can reach every city — so any city can reach any other city by routing through it.');
+    setButtonsDisabled(false);
+  }
+
+  function showCode(which){
+    document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.code-tab[onclick="showCode('${which}')"]`).classList.add('active');
+    document.getElementById(`code-${which}`).classList.add('active');
+  }
+
+  function copyCode(id, btn){
+    const code = document.getElementById(id).querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const old = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  }
+
+  selectGraph('connected');
+</script>
+
+</body>
+</html>

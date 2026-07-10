@@ -1,0 +1,1863 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0/1 BFS — From Zero to Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0F1B2D;
+    --navy2:  #162236;
+    --navy3:  #1E3050;
+    --teal:   #00D4AA;
+    --teal2:  #00A882;
+    --amber:  #FFB347;
+    --red:    #FF6B6B;
+    --slate:  #E8EDF5;
+    --muted:  #8A9BB5;
+    --card:   #162236;
+    --border: #253A58;
+    --code-bg:#0A1422;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--navy);
+    color: var(--slate);
+    display: flex;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--navy2);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    padding-bottom: 2rem;
+  }
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-logo {
+    padding: 1.5rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--teal);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-logo p { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+  .sidebar-time {
+    margin: 0.75rem 1.25rem;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    color: var(--teal);
+  }
+  .sidebar-time strong { display: block; font-size: 0.8rem; margin-bottom: 2px; }
+
+  .nav-section { padding: 0.75rem 1.25rem 0.25rem; }
+  .nav-section-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    color: #8A9BB5;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+  }
+  .nav-link:hover { background: rgba(0,212,170,0.08); color: var(--teal); }
+  .nav-link.active { background: rgba(0,212,170,0.12); color: var(--teal); font-weight: 600; }
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .nav-link.active .nav-dot { background: var(--teal); }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    max-width: 900px;
+    padding: 2.5rem 2.5rem 6rem;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--navy3) 0%, #0F2040 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,212,170,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(0,212,170,0.12);
+    border: 1px solid rgba(0,212,170,0.3);
+    color: var(--teal);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.75rem;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 span { color: var(--teal); }
+  .hero p { color: var(--muted); max-width: 520px; font-size: 0.95rem; }
+
+  .time-chips {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .chip {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.78rem;
+  }
+  .chip span { color: var(--amber); font-weight: 600; }
+
+  /* ── CANVAS ANIMATION ── */
+  #bfs-canvas {
+    display: block;
+    width: 100%;
+    max-width: 860px;
+    height: 180px;
+    border-radius: 12px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 1.5rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--teal);
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .section h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--amber);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card p, .card li { color: #C5D0E0; font-size: 0.9rem; line-height: 1.75; }
+  .card ul { padding-left: 1.25rem; margin-top: 0.5rem; }
+  .card li { margin-bottom: 0.3rem; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+  .callout-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .callout.tip   { background: rgba(0,212,170,0.07); border: 1px solid rgba(0,212,170,0.2); }
+  .callout.warn  { background: rgba(255,179,71,0.07); border: 1px solid rgba(255,179,71,0.2); }
+  .callout.think { background: rgba(255,107,107,0.07); border: 1px solid rgba(255,107,107,0.2); }
+  .callout.tip   .callout-icon { color: var(--teal); }
+  .callout.warn  .callout-icon { color: var(--amber); }
+  .callout.think .callout-icon { color: var(--red); }
+  .callout p { color: #C5D0E0; line-height: 1.7; }
+  .callout strong { color: var(--slate); }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+  }
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--teal);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .code-title { font-size: 0.78rem; color: var(--muted); }
+  pre {
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #C5D0E0;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* syntax colors */
+  .kw  { color: #569CD6; }
+  .ty  { color: #4EC9B0; }
+  .cm  { color: #6A9955; font-style: italic; }
+  .st  { color: #CE9178; }
+  .nm  { color: #B5CEA8; }
+  .fn  { color: #DCDCAA; }
+  .op  { color: #D4D4D4; }
+  .cmt { color: #608B4E; font-style: italic; }
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+  .cmp-table th {
+    background: rgba(0,212,170,0.1);
+    color: var(--teal);
+    padding: 0.6rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .cmp-table td {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    color: #C5D0E0;
+    vertical-align: top;
+  }
+  .cmp-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .good { color: var(--teal); }
+  .bad  { color: var(--red); }
+
+  /* ── STEP VISUAL ── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1rem 0;
+  }
+  .step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .step-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .step-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(0,212,170,0.15);
+    border: 2px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--teal);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-connector {
+    width: 2px;
+    background: var(--border);
+    flex: 1;
+    min-height: 16px;
+    margin: 3px 0;
+  }
+  .step-body {
+    padding-bottom: 1.25rem;
+    flex: 1;
+  }
+  .step-body h4 { font-size: 0.9rem; font-weight: 600; color: var(--slate); margin-bottom: 0.3rem; }
+  .step-body p  { font-size: 0.85rem; color: #8A9BB5; line-height: 1.65; }
+
+  /* ── PROBLEM CARDS ── */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .problem-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: block;
+  }
+  .problem-card:hover {
+    border-color: var(--teal);
+    background: rgba(0,212,170,0.05);
+    transform: translateY(-2px);
+  }
+  .prob-platform {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .prob-platform.lc  { color: #FFA116; }
+  .prob-platform.cf  { color: #1890FF; }
+  .prob-platform.sp  { color: var(--teal); }
+  .problem-card h4 { font-size: 0.88rem; font-weight: 600; color: var(--slate); margin-bottom: 0.3rem; }
+  .problem-card p  { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+  .diff {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    margin-top: 0.4rem;
+  }
+  .diff.easy   { background: rgba(0,212,170,0.15); color: var(--teal); }
+  .diff.medium { background: rgba(255,179,71,0.15); color: var(--amber); }
+  .diff.hard   { background: rgba(255,107,107,0.15); color: var(--red); }
+
+  /* ── DEQUE VISUAL ── */
+  .deque-visual {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+  }
+  .deque-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    margin-right: 0.75rem;
+  }
+  .deque-items {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    justify-content: center;
+  }
+  .deque-item {
+    width: 48px; height: 48px;
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--teal);
+    position: relative;
+  }
+  .deque-item:first-child { border-radius: 8px 0 0 8px; }
+  .deque-item:last-child  { border-radius: 0 8px 8px 0; }
+  .deque-item.special {
+    background: rgba(255,179,71,0.15);
+    border-color: rgba(255,179,71,0.4);
+    color: var(--amber);
+  }
+  .deque-arrow {
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 0 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .deque-end-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin: 0 0.5rem;
+    text-align: center;
+  }
+
+  /* ── GRAPH VISUAL ── */
+  .graph-svg-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  /* highlight span */
+  .hl-teal  { color: var(--teal); font-weight: 600; }
+  .hl-amber { color: var(--amber); font-weight: 600; }
+  .hl-red   { color: var(--red); font-weight: 600; }
+
+  /* ── COMPLEXITY BADGE ── */
+  .complexity {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--amber);
+    margin: 0.3rem 0.3rem 0.3rem 0;
+  }
+  .complexity span { color: var(--muted); font-family: 'Inter', sans-serif; font-size: 0.75rem; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main    { margin-left: 0; padding: 1.5rem 1rem 4rem; }
+    .problem-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--amber));
+    transform-origin: left;
+    transform: scaleX(0);
+    z-index: 200;
+    transition: transform 0.1s;
+  }
+  .section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h2>0/1 BFS Guide</h2>
+    <p>Graph Shortest Path · Java</p>
+  </div>
+  <div class="sidebar-time">
+    <strong>⏱ Total study time</strong>
+    ~6–8 hours (read + code + problems)
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Foundation</div>
+    <a class="nav-link" href="#s0"><div class="nav-dot"></div>What is this guide?</a>
+    <a class="nav-link" href="#s1"><div class="nav-dot"></div>Graph Refresher</a>
+    <a class="nav-link" href="#s2"><div class="nav-dot"></div>Normal BFS first</a>
+    <a class="nav-link" href="#s3"><div class="nav-dot"></div>The 0/1 BFS Idea</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Core Mechanics</div>
+    <a class="nav-link" href="#s4"><div class="nav-dot"></div>The Deque Trick</a>
+    <a class="nav-link" href="#s5"><div class="nav-dot"></div>Step-by-step trace</a>
+    <a class="nav-link" href="#s6"><div class="nav-dot"></div>Full Java Code</a>
+    <a class="nav-link" href="#s7"><div class="nav-dot"></div>Why not Dijkstra?</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Patterns & Tricks</div>
+    <a class="nav-link" href="#s8"><div class="nav-dot"></div>Grid Problems</a>
+    <a class="nav-link" href="#s9"><div class="nav-dot"></div>Virtual Nodes</a>
+    <a class="nav-link" href="#s10"><div class="nav-dot"></div>State Graphs</a>
+    <a class="nav-link" href="#s11"><div class="nav-dot"></div>Edge Reversal</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Advanced</div>
+    <a class="nav-link" href="#s12"><div class="nav-dot"></div>Advanced Examples</a>
+    <a class="nav-link" href="#s13"><div class="nav-dot"></div>Common Mistakes</a>
+    <a class="nav-link" href="#s14"><div class="nav-dot"></div>Practice Problems</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero" id="s0">
+    <div class="hero-tag">Graph Algorithm · Java · Complete Guide</div>
+    <h1>Master <span>0/1 BFS</span><br>From Zero to Hero</h1>
+    <p>You'll learn one of the most elegant tricks in competitive programming — finding the shortest path in a graph where edges cost either 0 or 1. No fancy math. Just clear thinking and a deque.</p>
+    <div class="time-chips">
+      <div class="chip">Foundation <span>~1.5 hrs</span></div>
+      <div class="chip">Core Mechanics <span>~2 hrs</span></div>
+      <div class="chip">Patterns <span>~2 hrs</span></div>
+      <div class="chip">Practice <span>~2–3 hrs</span></div>
+    </div>
+  </div>
+
+  <!-- ANIMATED CANVAS -->
+  <canvas id="bfs-canvas"></canvas>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 1 — GRAPH REFRESHER
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Quick Graph Refresher</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Foundation · ~20 min</div>
+
+    <div class="card">
+      <h3>🗺️ Think of a city's road network</h3>
+      <p>A <strong>graph</strong> is just a bunch of <strong>nodes</strong> (also called vertices) connected by <strong>edges</strong>. Picture Delhi: intersections are nodes, and roads between them are edges. If every road is one-way, it's a <em>directed</em> graph. If roads go both ways, it's <em>undirected</em>.</p>
+      <ul>
+        <li>Each edge can have a <strong>weight</strong> — think of it as the time to travel that road.</li>
+        <li>The <strong>shortest path</strong> from A to B is the path with the lowest total weight.</li>
+        <li>In 0/1 BFS, every edge has weight <strong>either 0 or 1</strong>. Nothing else.</li>
+      </ul>
+    </div>
+
+    <div class="graph-svg-wrap">
+      <svg viewBox="0 0 620 180" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- edges -->
+        <line x1="80" y1="90" x2="200" y2="50"  stroke="#253A58" stroke-width="2"/>
+        <line x1="80" y1="90" x2="200" y2="130" stroke="#253A58" stroke-width="2"/>
+        <line x1="200" y1="50"  x2="350" y2="50"  stroke="#253A58" stroke-width="2"/>
+        <line x1="200" y1="130" x2="350" y2="130" stroke="#253A58" stroke-width="2"/>
+        <line x1="350" y1="50"  x2="500" y2="90"  stroke="#253A58" stroke-width="2"/>
+        <line x1="350" y1="130" x2="500" y2="90"  stroke="#253A58" stroke-width="2"/>
+        <!-- weight labels -->
+        <text x="130" y="58"  fill="#FFB347" font-size="11">w=1</text>
+        <text x="130" y="122" fill="#00D4AA" font-size="11">w=0</text>
+        <text x="265" y="42"  fill="#FFB347" font-size="11">w=1</text>
+        <text x="265" y="148" fill="#00D4AA" font-size="11">w=0</text>
+        <text x="420" y="58"  fill="#00D4AA" font-size="11">w=0</text>
+        <text x="420" y="122" fill="#FFB347" font-size="11">w=1</text>
+        <!-- nodes -->
+        <circle cx="80"  cy="90"  r="22" fill="#162236" stroke="#00D4AA" stroke-width="2"/>
+        <circle cx="200" cy="50"  r="22" fill="#162236" stroke="#253A58" stroke-width="2"/>
+        <circle cx="200" cy="130" r="22" fill="#162236" stroke="#253A58" stroke-width="2"/>
+        <circle cx="350" cy="50"  r="22" fill="#162236" stroke="#253A58" stroke-width="2"/>
+        <circle cx="350" cy="130" r="22" fill="#162236" stroke="#253A58" stroke-width="2"/>
+        <circle cx="500" cy="90"  r="22" fill="#162236" stroke="#FFB347" stroke-width="2"/>
+        <!-- node labels -->
+        <text x="80"  y="94"  text-anchor="middle" fill="#00D4AA" font-size="12" font-weight="bold">S</text>
+        <text x="200" y="54"  text-anchor="middle" fill="#8A9BB5" font-size="11">A</text>
+        <text x="200" y="134" text-anchor="middle" fill="#8A9BB5" font-size="11">B</text>
+        <text x="350" y="54"  text-anchor="middle" fill="#8A9BB5" font-size="11">C</text>
+        <text x="350" y="134" text-anchor="middle" fill="#8A9BB5" font-size="11">D</text>
+        <text x="500" y="94"  text-anchor="middle" fill="#FFB347" font-size="12" font-weight="bold">T</text>
+        <!-- best path highlight -->
+        <line x1="80" y1="90" x2="200" y2="130" stroke="#00D4AA" stroke-width="2.5" stroke-dasharray="5,3" opacity="0.7"/>
+        <line x1="200" y1="130" x2="350" y2="130" stroke="#00D4AA" stroke-width="2.5" stroke-dasharray="5,3" opacity="0.7"/>
+        <line x1="350" y1="130" x2="500" y2="90"  stroke="#00D4AA" stroke-width="2.5" stroke-dasharray="5,3" opacity="0.7"/>
+        <text x="310" y="170" text-anchor="middle" fill="#00D4AA" font-size="10">Best path: S→B→D→T  (total cost = 0+0+1 = 1)</text>
+      </svg>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <p><strong>Key insight:</strong> In the above graph, the best path from S to T is NOT the one with fewest edges. It's the one with lowest total weight. That's why we need a smart algorithm — not just counting hops.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 2 — NORMAL BFS
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Normal BFS — The Starting Point</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Foundation · ~25 min</div>
+
+    <div class="card">
+      <h3>🚶 What BFS does (in plain English)</h3>
+      <p>Normal BFS uses a <strong>queue</strong> and explores nodes level by level — first all neighbors at distance 1, then all at distance 2, and so on. This works perfectly when every edge has the <strong>same cost</strong> (like cost = 1).</p>
+      <p style="margin-top:0.75rem;">Think of it like ripples in water. You drop a stone (start node). Ripples spread outward, all at the same speed, one ring at a time.</p>
+    </div>
+
+    <p style="color:var(--muted); font-size:0.88rem; margin-bottom:0.5rem;">Here's the classic BFS for unweighted graphs:</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">Normal BFS — unweighted graph</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="ty">NormalBFS</span> {
+
+    <span class="cmt">// Graph represented as adjacency list</span>
+    <span class="kw">static</span> <span class="ty">List</span>&lt;<span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt;&gt; graph;
+
+    <span class="kw">static int</span>[] <span class="fn">bfs</span>(<span class="kw">int</span> start, <span class="kw">int</span> n) {
+        <span class="kw">int</span>[] dist = <span class="kw">new int</span>[n];
+        <span class="ty">Arrays</span>.<span class="fn">fill</span>(dist, <span class="ty">Integer</span>.MAX_VALUE);
+        dist[start] = <span class="nm">0</span>;
+
+        <span class="ty">Queue</span>&lt;<span class="ty">Integer</span>&gt; queue = <span class="kw">new</span> <span class="ty">LinkedList</span>&lt;&gt;();
+        queue.<span class="fn">add</span>(start);
+
+        <span class="kw">while</span> (!queue.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span> node = queue.<span class="fn">poll</span>();   <span class="cmt">// Take from front</span>
+
+            <span class="kw">for</span> (<span class="kw">int</span> neighbor : graph.<span class="fn">get</span>(node)) {
+                <span class="kw">if</span> (dist[neighbor] == <span class="ty">Integer</span>.MAX_VALUE) {
+                    dist[neighbor] = dist[node] + <span class="nm">1</span>;  <span class="cmt">// Every edge costs 1</span>
+                    queue.<span class="fn">add</span>(neighbor);
+                }
+            }
+        }
+        <span class="kw">return</span> dist;
+    }
+}</pre>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <p><strong>The problem:</strong> Normal BFS assumes all edges cost exactly 1. The moment some edges cost 0 and others cost 1, BFS breaks — it can give wrong answers. That's where 0/1 BFS comes in.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 3 — THE 0/1 BFS IDEA
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>The 0/1 BFS Idea — The "Aha" Moment</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Foundation · ~30 min</div>
+
+    <div class="card">
+      <h3>🎟️ Real World Example: Delhi Metro with Free Transfers</h3>
+      <p>Imagine you're navigating the Delhi Metro. Most legs of your journey cost <strong>₹1</strong> (one station to next). But at certain stations, there's a <strong>free transfer</strong> — you can switch lines or take a moving walkway for ₹0.</p>
+      <p style="margin-top:0.5rem;">Your goal: reach Connaught Place from your home station with the minimum fare.</p>
+      <ul style="margin-top:0.5rem;">
+        <li>Normal edge → costs <span class="hl-amber">1</span> (regular station hop)</li>
+        <li>Special edge → costs <span class="hl-teal">0</span> (free transfer / walkway)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>❓ Why does normal BFS fail here?</h3>
+      <p>Normal BFS processes nodes in order of <em>number of edges</em>, not total cost. Suppose:</p>
+      <ul>
+        <li>Path A → B takes 3 edges of cost 0 each → total cost = <span class="hl-teal">0</span></li>
+        <li>Path A → C takes 1 edge of cost 1 → total cost = <span class="hl-amber">1</span></li>
+      </ul>
+      <p style="margin-top:0.5rem;">Normal BFS would explore C before it fully explores B (because C is "closer" in edges). But B is actually cheaper! This gives wrong answers.</p>
+    </div>
+
+    <div class="callout think">
+      <div class="callout-icon">🧠</div>
+      <p><strong>The key insight:</strong> When you take a 0-cost edge, you should be at the <strong>same "level"</strong> as before — you haven't paid anything extra. So the neighbor via a 0-edge should be processed <em>before</em> any 1-edge neighbors. This is the core trick.</p>
+    </div>
+
+    <div class="card">
+      <h3>🎯 The Rule in One Line</h3>
+      <p>When moving to a neighbor:</p>
+      <ul>
+        <li>If edge weight = <span class="hl-teal">0</span> → add neighbor to the <strong>front</strong> of the deque (process it soon!)</li>
+        <li>If edge weight = <span class="hl-amber">1</span> → add neighbor to the <strong>back</strong> of the deque (it's costlier, do later)</li>
+      </ul>
+      <p style="margin-top:0.5rem;">This keeps our deque sorted by cost automatically. No sorting needed. No priority queue. Just a deque!</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 4 — THE DEQUE TRICK
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>The Deque Trick — How it Works</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Core Mechanics · ~25 min</div>
+
+    <div class="card">
+      <h3>📦 What is a Deque?</h3>
+      <p>A <strong>deque</strong> (double-ended queue) is like a queue, but you can add or remove from <em>both ends</em>. Think of it as a tube of chips — you can put chips in from either side and take them out from either side.</p>
+    </div>
+
+    <!-- Deque Visual -->
+    <div style="color: var(--muted); font-size:0.8rem; margin-bottom:0.3rem;">📌 Deque state after processing node A (dist=2):</div>
+    <div class="deque-visual">
+      <div class="deque-end-label">FRONT<br>(pop here)</div>
+      <div class="deque-items">
+        <div class="deque-item special" title="0-cost neighbor, added to front">X</div>
+        <div class="deque-item special" title="0-cost neighbor, added to front">Y</div>
+        <div class="deque-item">B</div>
+        <div class="deque-item">C</div>
+        <div class="deque-item">D</div>
+      </div>
+      <div class="deque-end-label">BACK<br>(push 1-edges)</div>
+    </div>
+    <p style="font-size:0.78rem; color:var(--muted); margin: -0.5rem 0 1rem;">X and Y are 0-cost neighbors of A, pushed to front. B, C, D are 1-cost neighbors, pushed to back.</p>
+
+    <div class="card">
+      <h3>🔑 The invariant (fancy word, simple idea)</h3>
+      <p>At any point, the deque only contains nodes with <strong>at most 2 different distances</strong>: the current minimum distance, and current + 1. All 0-cost neighbors stay at the same cost level, so they sit at the front. All 1-cost neighbors go to the back.</p>
+      <p style="margin-top:0.5rem;">This means when we pop from the front, we always get the node with the <strong>smallest known distance</strong> — just like a priority queue, but faster and simpler!</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div>
+        <div class="step-body">
+          <h4>Initialize</h4>
+          <p>Set dist[start] = 0, dist[all others] = ∞. Add start to deque.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line"><div class="step-dot">2</div><div class="step-connector"></div></div>
+        <div class="step-body">
+          <h4>Pop from front</h4>
+          <p>Take the node with smallest current distance from the front of the deque.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line"><div class="step-dot">3</div><div class="step-connector"></div></div>
+        <div class="step-body">
+          <h4>Check all neighbors</h4>
+          <p>For each neighbor, compute: newDist = dist[current] + edge_weight (0 or 1).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line"><div class="step-dot">4</div><div class="step-connector"></div></div>
+        <div class="step-body">
+          <h4>Update if better</h4>
+          <p>If newDist &lt; dist[neighbor], update it. If edge was 0 → push to <strong>front</strong>. If edge was 1 → push to <strong>back</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line"><div class="step-dot">5</div></div>
+        <div class="step-body">
+          <h4>Repeat until deque is empty</h4>
+          <p>When the deque is empty, dist[] contains shortest distances from start to all nodes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 5 — STEP-BY-STEP TRACE
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Step-by-Step Trace — Watch it Run</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Core Mechanics · ~30 min</div>
+
+    <div class="card">
+      <h3>🎬 The Scenario: Shortest trip from 0 to 4</h3>
+      <p>Here's a small graph. Edges marked with cost. Let's trace 0/1 BFS by hand.</p>
+    </div>
+
+    <div class="graph-svg-wrap">
+      <svg viewBox="0 0 580 200" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- edges -->
+        <line x1="80" y1="100" x2="220" y2="50"  stroke="#253A58" stroke-width="2"/>
+        <line x1="80" y1="100" x2="220" y2="150" stroke="#253A58" stroke-width="2"/>
+        <line x1="220" y1="50"  x2="360" y2="100" stroke="#253A58" stroke-width="2"/>
+        <line x1="220" y1="150" x2="360" y2="100" stroke="#253A58" stroke-width="2"/>
+        <line x1="360" y1="100" x2="490" y2="100" stroke="#253A58" stroke-width="2"/>
+        <!-- weight labels with colors -->
+        <rect x="132" y="55"  width="24" height="16" rx="3" fill="#162236" stroke="#FFB347" stroke-width="1"/>
+        <text x="144" y="67" text-anchor="middle" fill="#FFB347" font-size="10" font-weight="bold">1</text>
+        <rect x="132" y="112" width="24" height="16" rx="3" fill="#162236" stroke="#00D4AA" stroke-width="1"/>
+        <text x="144" y="124" text-anchor="middle" fill="#00D4AA" font-size="10" font-weight="bold">0</text>
+        <rect x="278" y="58"  width="24" height="16" rx="3" fill="#162236" stroke="#00D4AA" stroke-width="1"/>
+        <text x="290" y="70" text-anchor="middle" fill="#00D4AA" font-size="10" font-weight="bold">0</text>
+        <rect x="278" y="138" width="24" height="16" rx="3" fill="#162236" stroke="#FFB347" stroke-width="1"/>
+        <text x="290" y="150" text-anchor="middle" fill="#FFB347" font-size="10" font-weight="bold">1</text>
+        <rect x="413" y="83"  width="24" height="16" rx="3" fill="#162236" stroke="#FFB347" stroke-width="1"/>
+        <text x="425" y="95" text-anchor="middle" fill="#FFB347" font-size="10" font-weight="bold">1</text>
+        <!-- nodes -->
+        <circle cx="80"  cy="100" r="24" fill="#0A1422" stroke="#00D4AA" stroke-width="2.5"/>
+        <circle cx="220" cy="50"  r="24" fill="#0A1422" stroke="#253A58" stroke-width="2"/>
+        <circle cx="220" cy="150" r="24" fill="#0A1422" stroke="#253A58" stroke-width="2"/>
+        <circle cx="360" cy="100" r="24" fill="#0A1422" stroke="#253A58" stroke-width="2"/>
+        <circle cx="490" cy="100" r="24" fill="#0A1422" stroke="#FFB347" stroke-width="2.5"/>
+        <!-- labels -->
+        <text x="80"  y="104" text-anchor="middle" fill="#00D4AA" font-size="13" font-weight="bold">0</text>
+        <text x="220" y="54"  text-anchor="middle" fill="#8A9BB5" font-size="13">1</text>
+        <text x="220" y="154" text-anchor="middle" fill="#8A9BB5" font-size="13">2</text>
+        <text x="360" y="104" text-anchor="middle" fill="#8A9BB5" font-size="13">3</text>
+        <text x="490" y="104" text-anchor="middle" fill="#FFB347" font-size="13" font-weight="bold">4</text>
+        <!-- legend -->
+        <rect x="30" y="170" width="12" height="12" rx="2" fill="#FFB347" opacity="0.6"/>
+        <text x="48" y="181" fill="#8A9BB5" font-size="10">cost=1</text>
+        <rect x="100" y="170" width="12" height="12" rx="2" fill="#00D4AA" opacity="0.6"/>
+        <text x="118" y="181" fill="#8A9BB5" font-size="10">cost=0</text>
+      </svg>
+    </div>
+
+    <div class="card">
+      <h3>📋 Trace table — every step</h3>
+      <table class="cmp-table" style="font-size:0.8rem;">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Pop node</th>
+            <th>dist[]</th>
+            <th>Deque after step</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Start</td>
+            <td>—</td>
+            <td>[<span class="good">0</span>, ∞, ∞, ∞, ∞]</td>
+            <td>[0]</td>
+            <td>Initialize, add node 0</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>0</td>
+            <td>[0, <span class="bad">1</span>, <span class="good">0</span>, ∞, ∞]</td>
+            <td>[<span style="color:var(--teal)">2</span>, 1]</td>
+            <td>0→1 (cost 1, back), 0→2 (cost 0, <strong>front</strong>)</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>[0, <span class="bad">1</span>, 0, <span class="bad">1</span>, ∞]</td>
+            <td>[1, 3]</td>
+            <td>2→3 (cost 1, back). dist[1] already 1, no update.</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>1</td>
+            <td>[0, 1, 0, <span class="good">1</span>, ∞]</td>
+            <td>[3]</td>
+            <td>1→3 (cost 0): newDist = 1+0 = 1 = dist[3], no improvement.</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>3</td>
+            <td>[0, 1, 0, 1, <span class="good">2</span>]</td>
+            <td>[]</td>
+            <td>3→4 (cost 1): dist[4] = 1+1 = 2. Push to back.</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>4</td>
+            <td>[0, 1, 0, 1, 2]</td>
+            <td>[]</td>
+            <td>No unvisited neighbors. Done!</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.75rem; font-size:0.85rem; color:var(--muted);">Shortest path from 0 to 4 = <span class="hl-teal">2</span> (path: 0 → 2 → 3 → 4, cost = 0+1+1 = 2). Notice node 2 was put in front because it had a 0-cost edge, and was processed before node 1 even though we discovered both at step 1!</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 6 — FULL JAVA CODE
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Full Java Code — The Template</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Core Mechanics · ~35 min</div>
+
+    <p style="color:var(--muted); font-size:0.88rem; margin-bottom:1rem;">This is the template you'll use for almost every 0/1 BFS problem. Read every comment carefully.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">0/1 BFS — Complete Template (Graph with edge weights 0 or 1)</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="ty">ZeroOneBFS</span> {
+
+    <span class="cmt">// Edge class to store neighbor and its weight (0 or 1)</span>
+    <span class="kw">static class</span> <span class="ty">Edge</span> {
+        <span class="kw">int</span> to, weight;
+        <span class="ty">Edge</span>(<span class="kw">int</span> to, <span class="kw">int</span> weight) {
+            <span class="kw">this</span>.to = to;
+            <span class="kw">this</span>.weight = weight;
+        }
+    }
+
+    <span class="kw">static int</span>[] <span class="fn">zeroOneBFS</span>(<span class="ty">List</span>&lt;<span class="ty">List</span>&lt;<span class="ty">Edge</span>&gt;&gt; graph, <span class="kw">int</span> start, <span class="kw">int</span> n) {
+
+        <span class="cmt">// dist[i] = shortest distance from 'start' to node i</span>
+        <span class="kw">int</span>[] dist = <span class="kw">new int</span>[n];
+        <span class="ty">Arrays</span>.<span class="fn">fill</span>(dist, <span class="ty">Integer</span>.MAX_VALUE);
+        dist[start] = <span class="nm">0</span>;
+
+        <span class="cmt">// Deque: double-ended queue. Acts like a queue but
+        // lets us push to FRONT (for 0-cost edges)</span>
+        <span class="ty">Deque</span>&lt;<span class="ty">Integer</span>&gt; dq = <span class="kw">new</span> <span class="ty">ArrayDeque</span>&lt;&gt;();
+        dq.<span class="fn">addFirst</span>(start);   <span class="cmt">// Add start to front (or back, doesn't matter)</span>
+
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span> node = dq.<span class="fn">pollFirst</span>();  <span class="cmt">// Always pop from front</span>
+
+            <span class="kw">for</span> (<span class="ty">Edge</span> edge : graph.<span class="fn">get</span>(node)) {
+                <span class="kw">int</span> neighbor = edge.to;
+                <span class="kw">int</span> newDist  = dist[node] + edge.weight;
+
+                <span class="kw">if</span> (newDist &lt; dist[neighbor]) {
+                    dist[neighbor] = newDist;
+
+                    <span class="kw">if</span> (edge.weight == <span class="nm">0</span>) {
+                        <span class="cmt">// Free edge! Push to FRONT — same cost level</span>
+                        dq.<span class="fn">addFirst</span>(neighbor);
+                    } <span class="kw">else</span> {
+                        <span class="cmt">// Costs 1. Push to BACK — higher cost level</span>
+                        dq.<span class="fn">addLast</span>(neighbor);
+                    }
+                }
+            }
+        }
+
+        <span class="kw">return</span> dist;
+    }
+
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span> n = <span class="nm">5</span>;  <span class="cmt">// 5 nodes: 0, 1, 2, 3, 4</span>
+        <span class="ty">List</span>&lt;<span class="ty">List</span>&lt;<span class="ty">Edge</span>&gt;&gt; graph = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) graph.<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;());
+
+        <span class="cmt">// Add edges: (from, to, weight)</span>
+        graph.<span class="fn">get</span>(<span class="nm">0</span>).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(<span class="nm">1</span>, <span class="nm">1</span>));  <span class="cmt">// 0→1, cost 1</span>
+        graph.<span class="fn">get</span>(<span class="nm">0</span>).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(<span class="nm">2</span>, <span class="nm">0</span>));  <span class="cmt">// 0→2, cost 0 (free!)</span>
+        graph.<span class="fn">get</span>(<span class="nm">1</span>).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(<span class="nm">3</span>, <span class="nm">0</span>));  <span class="cmt">// 1→3, cost 0</span>
+        graph.<span class="fn">get</span>(<span class="nm">2</span>).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(<span class="nm">3</span>, <span class="nm">1</span>));  <span class="cmt">// 2→3, cost 1</span>
+        graph.<span class="fn">get</span>(<span class="nm">3</span>).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(<span class="nm">4</span>, <span class="nm">1</span>));  <span class="cmt">// 3→4, cost 1</span>
+
+        <span class="kw">int</span>[] dist = <span class="fn">zeroOneBFS</span>(graph, <span class="nm">0</span>, n);
+
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+            <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"dist[0→"</span> + i + <span class="st">"] = "</span> + dist[i]);
+        }
+        <span class="cmt">// Output:
+        // dist[0→0] = 0
+        // dist[0→1] = 1
+        // dist[0→2] = 0
+        // dist[0→3] = 1
+        // dist[0→4] = 2</span>
+    }
+}</pre>
+    </div>
+
+    <div class="card">
+      <h3>📌 Key Java points to remember</h3>
+      <ul>
+        <li>Use <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">ArrayDeque</code> — it's faster than <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">LinkedList</code> in Java</li>
+        <li><code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">addFirst()</code> = push to front (for 0-cost edges)</li>
+        <li><code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">addLast()</code> = push to back (for 1-cost edges)</li>
+        <li><code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">pollFirst()</code> = pop from front (always)</li>
+        <li>Initialize dist[] with <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">Integer.MAX_VALUE</code>, not -1 (we compare with &lt;)</li>
+        <li>You <strong>can</strong> re-add nodes to the deque if you find a shorter path — this is normal!</li>
+      </ul>
+    </div>
+
+    <div style="margin: 1rem 0;">
+      <span class="complexity">O(V + E) <span>Time</span></span>
+      <span class="complexity">O(V + E) <span>Space</span></span>
+    </div>
+    <p style="font-size:0.85rem; color:var(--muted);">V = number of nodes, E = number of edges. Same complexity as normal BFS — but handles 0/1 weights correctly.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 7 — WHY NOT DIJKSTRA?
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Why Not Just Use Dijkstra?</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Core Mechanics · ~15 min</div>
+
+    <table class="cmp-table">
+      <thead>
+        <tr><th>Aspect</th><th>0/1 BFS</th><th>Dijkstra</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Time Complexity</td>
+          <td class="good">O(V + E)</td>
+          <td class="bad">O((V + E) log V)</td>
+        </tr>
+        <tr>
+          <td>Data structure</td>
+          <td class="good">ArrayDeque (simple)</td>
+          <td class="bad">PriorityQueue (heavier)</td>
+        </tr>
+        <tr>
+          <td>Edge weights</td>
+          <td>Only 0 or 1</td>
+          <td>Any non-negative</td>
+        </tr>
+        <tr>
+          <td>Code complexity</td>
+          <td class="good">Simple</td>
+          <td>More boilerplate</td>
+        </tr>
+        <tr>
+          <td>Competitive edge</td>
+          <td class="good">Faster in practice for 0/1 graphs</td>
+          <td>General purpose</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <p><strong>The rule of thumb:</strong> If all edge weights are 0 or 1 — use 0/1 BFS. It's faster, simpler, and won't TLE where Dijkstra might. If weights are arbitrary non-negative integers — use Dijkstra.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 8 — GRID PROBLEMS
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Pattern #1 — Grid Problems</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Patterns · ~35 min</div>
+
+    <div class="card">
+      <h3>🗺️ Real Example: Battlefield Navigation</h3>
+      <p>You're controlling a soldier on a grid. '.' is an open field (free to walk through, cost 0 from edge to edge within open area). '#' is a wall — you <strong>can't</strong> go there. '*' is a minefield — you can cross but it costs 1 HP (treat as cost 1). Find minimum HP lost to reach the bottom-right corner from the top-left.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <p><strong>Grid → Graph:</strong> Every cell is a node. Moving to an adjacent cell is an edge. The weight of that edge is 0 if the destination is safe, 1 if it's a minefield. This maps directly to 0/1 BFS!</p>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">0/1 BFS on a Grid</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="ty">GridZeroOneBFS</span> {
+
+    <span class="kw">static int</span>[] dx = {<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">-1</span>};  <span class="cmt">// 4 directions</span>
+    <span class="kw">static int</span>[] dy = {<span class="nm">1</span>, <span class="nm">-1</span>, <span class="nm">0</span>, <span class="nm">0</span>};
+
+    <span class="kw">public static int</span> <span class="fn">minCost</span>(<span class="ty">char</span>[][] grid) {
+        <span class="kw">int</span> rows = grid.length;
+        <span class="kw">int</span> cols = grid[<span class="nm">0</span>].length;
+
+        <span class="kw">int</span>[][] dist = <span class="kw">new int</span>[rows][cols];
+        <span class="kw">for</span> (<span class="kw">int</span>[] row : dist) <span class="ty">Arrays</span>.<span class="fn">fill</span>(row, <span class="ty">Integer</span>.MAX_VALUE);
+        dist[<span class="nm">0</span>][<span class="nm">0</span>] = <span class="nm">0</span>;
+
+        <span class="ty">Deque</span>&lt;<span class="kw">int</span>[]&gt; dq = <span class="kw">new</span> <span class="ty">ArrayDeque</span>&lt;&gt;();
+        dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{<span class="nm">0</span>, <span class="nm">0</span>});
+
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span>[] cur = dq.<span class="fn">pollFirst</span>();
+            <span class="kw">int</span> r = cur[<span class="nm">0</span>], c = cur[<span class="nm">1</span>];
+
+            <span class="kw">for</span> (<span class="kw">int</span> d = <span class="nm">0</span>; d &lt; <span class="nm">4</span>; d++) {
+                <span class="kw">int</span> nr = r + dx[d];
+                <span class="kw">int</span> nc = c + dy[d];
+
+                <span class="cmt">// Check bounds and avoid walls</span>
+                <span class="kw">if</span> (nr &lt; <span class="nm">0</span> || nr &gt;= rows || nc &lt; <span class="nm">0</span> || nc &gt;= cols) <span class="kw">continue</span>;
+                <span class="kw">if</span> (grid[nr][nc] == <span class="st">'#'</span>) <span class="kw">continue</span>;
+
+                <span class="cmt">// Minefield costs 1, open field costs 0</span>
+                <span class="kw">int</span> w = (grid[nr][nc] == <span class="st">'*'</span>) ? <span class="nm">1</span> : <span class="nm">0</span>;
+                <span class="kw">int</span> newDist = dist[r][c] + w;
+
+                <span class="kw">if</span> (newDist &lt; dist[nr][nc]) {
+                    dist[nr][nc] = newDist;
+                    <span class="kw">if</span> (w == <span class="nm">0</span>) {
+                        dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{nr, nc});  <span class="cmt">// Free! Front.</span>
+                    } <span class="kw">else</span> {
+                        dq.<span class="fn">addLast</span>(<span class="kw">new int</span>[]{nr, nc});   <span class="cmt">// Cost 1. Back.</span>
+                    }
+                }
+            }
+        }
+
+        <span class="kw">return</span> dist[rows - <span class="nm">1</span>][cols - <span class="nm">1</span>];
+    }
+
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">char</span>[][] grid = {
+            {<span class="st">'.'</span>, <span class="st">'.'</span>, <span class="st">'*'</span>},
+            {<span class="st">'*'</span>, <span class="st">'.'</span>, <span class="st">'.'</span>},
+            {<span class="st">'.'</span>, <span class="st">'*'</span>, <span class="st">'.'</span>}
+        };
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="fn">minCost</span>(grid));  <span class="cmt">// Output: 0 (path exists with no mines)</span>
+    }
+}</pre>
+    </div>
+
+    <div class="card">
+      <h3>🔍 What makes a problem a "grid 0/1 BFS"?</h3>
+      <ul>
+        <li>You're on a 2D grid, moving in 4 (or 8) directions</li>
+        <li>Some cells/moves are "free" (cost 0) and some have a cost of 1</li>
+        <li>You want the minimum cost path from one cell to another</li>
+        <li>Common framings: minimum obstacles to remove, minimum walls to break, minimum HP lost</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 9 — VIRTUAL NODES
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Pattern #2 — Virtual Nodes Trick</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Patterns · ~30 min</div>
+
+    <div class="card">
+      <h3>🎒 Real Example: Teleportation System</h3>
+      <p>You're in a city. Moving between adjacent intersections costs 1. But there are special <strong>teleporters</strong>: from certain spots, you can teleport to ANY other teleporter for free (cost 0). How do you model this efficiently?</p>
+      <p style="margin-top:0.5rem;">If you have 100 teleporters, connecting every pair would be 100×100 = 10,000 edges. Too slow!</p>
+    </div>
+
+    <div class="card">
+      <h3>💡 The Virtual Node Trick</h3>
+      <p>Instead of connecting every teleporter to every other, create ONE virtual node that represents the "teleporter network." Then:</p>
+      <ul>
+        <li>Each teleporter → virtual node: edge weight = <span class="hl-teal">0</span> (entering the network is free)</li>
+        <li>Virtual node → each teleporter: edge weight = <span class="hl-teal">0</span> (exiting is also free)</li>
+      </ul>
+      <p style="margin-top:0.5rem;">Now instead of O(T²) edges for T teleporters, you only have O(T) edges! And the total cost of using any teleporter is still 0.</p>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">Virtual Node — Teleporter Example</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="ty">VirtualNodeBFS</span> {
+
+    <span class="kw">static class</span> <span class="ty">Edge</span> {
+        <span class="kw">int</span> to, w;
+        <span class="ty">Edge</span>(<span class="kw">int</span> to, <span class="kw">int</span> w) { <span class="kw">this</span>.to = to; <span class="kw">this</span>.w = w; }
+    }
+
+    <span class="kw">public static int</span> <span class="fn">minCost</span>(<span class="kw">int</span> n, <span class="kw">int</span>[][] roads, <span class="kw">int</span>[] teleporters,
+                                <span class="kw">int</span> src, <span class="kw">int</span> dst) {
+        <span class="cmt">// Nodes 0..n-1 are real nodes
+        // Node 'n' is the VIRTUAL teleporter hub node</span>
+        <span class="kw">int</span> virtualNode = n;
+        <span class="kw">int</span> total = n + <span class="nm">1</span>;
+
+        <span class="ty">List</span>&lt;<span class="ty">List</span>&lt;<span class="ty">Edge</span>&gt;&gt; graph = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; total; i++) graph.<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;());
+
+        <span class="cmt">// Regular roads cost 1</span>
+        <span class="kw">for</span> (<span class="kw">int</span>[] road : roads) {
+            graph.<span class="fn">get</span>(road[<span class="nm">0</span>]).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(road[<span class="nm">1</span>], <span class="nm">1</span>));
+            graph.<span class="fn">get</span>(road[<span class="nm">1</span>]).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(road[<span class="nm">0</span>], <span class="nm">1</span>));
+        }
+
+        <span class="cmt">// Connect each teleporter ↔ virtual node (cost 0)</span>
+        <span class="kw">for</span> (<span class="kw">int</span> t : teleporters) {
+            graph.<span class="fn">get</span>(t).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(virtualNode, <span class="nm">0</span>));  <span class="cmt">// Enter hub</span>
+            graph.<span class="fn">get</span>(virtualNode).<span class="fn">add</span>(<span class="kw">new</span> <span class="ty">Edge</span>(t, <span class="nm">0</span>));       <span class="cmt">// Exit hub</span>
+        }
+
+        <span class="cmt">// Standard 0/1 BFS from here</span>
+        <span class="kw">int</span>[] dist = <span class="kw">new int</span>[total];
+        <span class="ty">Arrays</span>.<span class="fn">fill</span>(dist, <span class="ty">Integer</span>.MAX_VALUE);
+        dist[src] = <span class="nm">0</span>;
+
+        <span class="ty">Deque</span>&lt;<span class="ty">Integer</span>&gt; dq = <span class="kw">new</span> <span class="ty">ArrayDeque</span>&lt;&gt;();
+        dq.<span class="fn">addFirst</span>(src);
+
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span> u = dq.<span class="fn">pollFirst</span>();
+            <span class="kw">for</span> (<span class="ty">Edge</span> e : graph.<span class="fn">get</span>(u)) {
+                <span class="kw">int</span> nd = dist[u] + e.w;
+                <span class="kw">if</span> (nd &lt; dist[e.to]) {
+                    dist[e.to] = nd;
+                    <span class="kw">if</span> (e.w == <span class="nm">0</span>) dq.<span class="fn">addFirst</span>(e.to);
+                    <span class="kw">else</span>            dq.<span class="fn">addLast</span>(e.to);
+                }
+            }
+        }
+
+        <span class="kw">return</span> dist[dst] == <span class="ty">Integer</span>.MAX_VALUE ? -<span class="nm">1</span> : dist[dst];
+    }
+}</pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <p><strong>Virtual nodes</strong> are a powerful general technique. You add "fake" nodes to the graph that don't exist in the original problem, but make the graph much easier to represent. This is used in advanced problems with groups, layers, or shared resources.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 10 — STATE GRAPHS
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Pattern #3 — State Graphs (Multi-dimensional BFS)</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Patterns · ~35 min</div>
+
+    <div class="card">
+      <h3>🔐 Real Example: Laser Gate with One Shield</h3>
+      <p>You're navigating a grid. Some cells have laser gates — you can pass through them, but it costs 1 activation. BUT you have one <strong>shield</strong>. If you use the shield, one laser gate is free. You want to reach the exit with minimum activations.</p>
+      <p style="margin-top:0.5rem;">Key insight: your <strong>state</strong> isn't just your position (row, col). It also includes whether you've used the shield or not. So state = (row, col, shieldUsed).</p>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">State Graph — Grid with One Free Pass</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="ty">StateGraphBFS</span> {
+
+    <span class="kw">static int</span>[] dx = {<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">-1</span>};
+    <span class="kw">static int</span>[] dy = {<span class="nm">1</span>, <span class="nm">-1</span>, <span class="nm">0</span>, <span class="nm">0</span>};
+
+    <span class="kw">public static int</span> <span class="fn">minActivations</span>(<span class="kw">int</span>[][] grid) {
+        <span class="kw">int</span> rows = grid.length, cols = grid[<span class="nm">0</span>].length;
+
+        <span class="cmt">// dist[r][c][shield] = min cost to reach (r,c)
+        //   with shield=0 (unused) or shield=1 (used)</span>
+        <span class="kw">int</span>[][][] dist = <span class="kw">new int</span>[rows][cols][<span class="nm">2</span>];
+        <span class="kw">for</span> (<span class="kw">int</span>[][] layer : dist)
+            <span class="kw">for</span> (<span class="kw">int</span>[] row : layer) <span class="ty">Arrays</span>.<span class="fn">fill</span>(row, <span class="ty">Integer</span>.MAX_VALUE);
+        dist[<span class="nm">0</span>][<span class="nm">0</span>][<span class="nm">0</span>] = <span class="nm">0</span>;  <span class="cmt">// Start at (0,0), shield not used</span>
+
+        <span class="cmt">// Deque stores: {row, col, shieldUsed}</span>
+        <span class="ty">Deque</span>&lt;<span class="kw">int</span>[]&gt; dq = <span class="kw">new</span> <span class="ty">ArrayDeque</span>&lt;&gt;();
+        dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>});
+
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span>[] cur = dq.<span class="fn">pollFirst</span>();
+            <span class="kw">int</span> r = cur[<span class="nm">0</span>], c = cur[<span class="nm">1</span>], shield = cur[<span class="nm">2</span>];
+
+            <span class="kw">for</span> (<span class="kw">int</span> d = <span class="nm">0</span>; d &lt; <span class="nm">4</span>; d++) {
+                <span class="kw">int</span> nr = r + dx[d], nc = c + dy[d];
+                <span class="kw">if</span> (nr &lt; <span class="nm">0</span> || nr &gt;= rows || nc &lt; <span class="nm">0</span> || nc &gt;= cols) <span class="kw">continue</span>;
+
+                <span class="kw">boolean</span> isGate = (grid[nr][nc] == <span class="nm">1</span>);  <span class="cmt">// 1 = laser gate</span>
+
+                <span class="cmt">// Option A: Enter without shield (always possible)</span>
+                <span class="kw">int</span> cost = isGate ? <span class="nm">1</span> : <span class="nm">0</span>;
+                <span class="kw">int</span> nd = dist[r][c][shield] + cost;
+                <span class="kw">if</span> (nd &lt; dist[nr][nc][shield]) {
+                    dist[nr][nc][shield] = nd;
+                    <span class="kw">if</span> (cost == <span class="nm">0</span>) dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{nr, nc, shield});
+                    <span class="kw">else</span>           dq.<span class="fn">addLast</span>(<span class="kw">new int</span>[]{nr, nc, shield});
+                }
+
+                <span class="cmt">// Option B: Use shield at a gate (only if shield not used yet)</span>
+                <span class="kw">if</span> (isGate && shield == <span class="nm">0</span>) {
+                    <span class="cmt">// Shield makes this gate free! Cost = 0.</span>
+                    <span class="kw">int</span> nd2 = dist[r][c][<span class="nm">0</span>];  <span class="cmt">// no extra cost</span>
+                    <span class="kw">if</span> (nd2 &lt; dist[nr][nc][<span class="nm">1</span>]) {  <span class="cmt">// shield=1 means it's used now</span>
+                        dist[nr][nc][<span class="nm">1</span>] = nd2;
+                        dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{nr, nc, <span class="nm">1</span>});  <span class="cmt">// free, front!</span>
+                    }
+                }
+            }
+        }
+
+        <span class="kw">int</span> r = rows - <span class="nm">1</span>, c = cols - <span class="nm">1</span>;
+        <span class="kw">return</span> <span class="ty">Math</span>.<span class="fn">min</span>(dist[r][c][<span class="nm">0</span>], dist[r][c][<span class="nm">1</span>]);
+    }
+}</pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <p><strong>The State Graph pattern:</strong> When you have some "resource" that changes your options (shield, key, fuel, turns remaining), make it part of your state. State = (position + resource status). This creates a new, larger graph — but it's still 0/1 BFS underneath.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 11 — EDGE REVERSAL / RECONSTRUCTION
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2>Pattern #4 — Path Reconstruction</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Patterns · ~20 min</div>
+
+    <div class="card">
+      <h3>🔁 Getting the actual path, not just the distance</h3>
+      <p>So far we've been finding the shortest <em>distance</em>. But often you also need to know the actual <strong>path</strong> (which nodes to visit). The trick is simple: maintain a <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">prev[]</code> array that records, for each node, where we came from to get the best distance.</p>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">0/1 BFS with Path Reconstruction</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="ty">PathReconstruction</span> {
+
+    <span class="kw">static class</span> <span class="ty">Edge</span> {
+        <span class="kw">int</span> to, w;
+        <span class="ty">Edge</span>(<span class="kw">int</span> to, <span class="kw">int</span> w) { <span class="kw">this</span>.to = to; <span class="kw">this</span>.w = w; }
+    }
+
+    <span class="kw">static</span> <span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt; <span class="fn">shortestPath</span>(<span class="ty">List</span>&lt;<span class="ty">List</span>&lt;<span class="ty">Edge</span>&gt;&gt; graph,
+                                         <span class="kw">int</span> src, <span class="kw">int</span> dst, <span class="kw">int</span> n) {
+        <span class="kw">int</span>[] dist = <span class="kw">new int</span>[n];
+        <span class="kw">int</span>[] prev = <span class="kw">new int</span>[n];  <span class="cmt">// prev[i] = where we came from to reach i</span>
+        <span class="ty">Arrays</span>.<span class="fn">fill</span>(dist, <span class="ty">Integer</span>.MAX_VALUE);
+        <span class="ty">Arrays</span>.<span class="fn">fill</span>(prev, -<span class="nm">1</span>);
+        dist[src] = <span class="nm">0</span>;
+
+        <span class="ty">Deque</span>&lt;<span class="ty">Integer</span>&gt; dq = <span class="kw">new</span> <span class="ty">ArrayDeque</span>&lt;&gt;();
+        dq.<span class="fn">addFirst</span>(src);
+
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span> u = dq.<span class="fn">pollFirst</span>();
+            <span class="kw">for</span> (<span class="ty">Edge</span> e : graph.<span class="fn">get</span>(u)) {
+                <span class="kw">int</span> nd = dist[u] + e.w;
+                <span class="kw">if</span> (nd &lt; dist[e.to]) {
+                    dist[e.to] = nd;
+                    prev[e.to] = u;  <span class="cmt">// Record: we came to e.to from u</span>
+                    <span class="kw">if</span> (e.w == <span class="nm">0</span>) dq.<span class="fn">addFirst</span>(e.to);
+                    <span class="kw">else</span>           dq.<span class="fn">addLast</span>(e.to);
+                }
+            }
+        }
+
+        <span class="cmt">// Reconstruct path by tracing back from dst to src</span>
+        <span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt; path = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+        <span class="kw">if</span> (dist[dst] == <span class="ty">Integer</span>.MAX_VALUE) <span class="kw">return</span> path;  <span class="cmt">// No path</span>
+
+        <span class="kw">for</span> (<span class="kw">int</span> v = dst; v != -<span class="nm">1</span>; v = prev[v]) {
+            path.<span class="fn">add</span>(v);
+        }
+        <span class="ty">Collections</span>.<span class="fn">reverse</span>(path);
+        <span class="kw">return</span> path;
+    }
+}</pre>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 12 — ADVANCED EXAMPLES
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2>Advanced Examples — Putting It All Together</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Advanced · ~45 min</div>
+
+    <div class="card">
+      <h3>🏙️ Example A: Minimum Cost to Reach Office (LeetCode-style)</h3>
+      <p><strong>Problem:</strong> You're on a grid. You can move in 4 directions. Moving to an adjacent cell costs 0 if you move in the cell's "sign direction" (each cell has an arrow pointing one direction), and 1 if you change direction. Find minimum cost to reach bottom-right corner.</p>
+      <p style="margin-top:0.5rem;">This is exactly <strong>LeetCode 1368 — Minimum Cost to Make at Least One Valid Path in a Grid</strong>!</p>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">JAVA</span>
+        <span class="code-title">LC 1368 — Minimum Cost to Make Valid Path in Grid</span>
+      </div>
+      <pre><span class="kw">import</span> java.util.*;
+
+<span class="kw">class</span> <span class="ty">Solution</span> {
+    <span class="cmt">// Directions: 1=right, 2=left, 3=down, 4=up</span>
+    <span class="kw">int</span>[] dr = {<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, -<span class="nm">1</span>};
+    <span class="kw">int</span>[] dc = {<span class="nm">1</span>, -<span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">0</span>};
+
+    <span class="kw">public int</span> <span class="fn">minCost</span>(<span class="kw">int</span>[][] grid) {
+        <span class="kw">int</span> R = grid.length, C = grid[<span class="nm">0</span>].length;
+        <span class="kw">int</span>[][] dist = <span class="kw">new int</span>[R][C];
+        <span class="kw">for</span> (<span class="kw">int</span>[] row : dist) <span class="ty">Arrays</span>.<span class="fn">fill</span>(row, <span class="ty">Integer</span>.MAX_VALUE);
+        dist[<span class="nm">0</span>][<span class="nm">0</span>] = <span class="nm">0</span>;
+
+        <span class="ty">Deque</span>&lt;<span class="kw">int</span>[]&gt; dq = <span class="kw">new</span> <span class="ty">ArrayDeque</span>&lt;&gt;();
+        dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{<span class="nm">0</span>, <span class="nm">0</span>});
+
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>()) {
+            <span class="kw">int</span>[] cur = dq.<span class="fn">pollFirst</span>();
+            <span class="kw">int</span> r = cur[<span class="nm">0</span>], c = cur[<span class="nm">1</span>];
+
+            <span class="kw">for</span> (<span class="kw">int</span> d = <span class="nm">0</span>; d &lt; <span class="nm">4</span>; d++) {
+                <span class="kw">int</span> nr = r + dr[d], nc = c + dc[d];
+                <span class="kw">if</span> (nr &lt; <span class="nm">0</span> || nr &gt;= R || nc &lt; <span class="nm">0</span> || nc &gt;= C) <span class="kw">continue</span>;
+
+                <span class="cmt">// If moving in the arrow's direction: cost 0
+                // Otherwise: cost 1 (need to change the sign)</span>
+                <span class="kw">int</span> w = (grid[r][c] - <span class="nm">1</span> == d) ? <span class="nm">0</span> : <span class="nm">1</span>;
+                <span class="kw">int</span> nd = dist[r][c] + w;
+
+                <span class="kw">if</span> (nd &lt; dist[nr][nc]) {
+                    dist[nr][nc] = nd;
+                    <span class="kw">if</span> (w == <span class="nm">0</span>) dq.<span class="fn">addFirst</span>(<span class="kw">new int</span>[]{nr, nc});
+                    <span class="kw">else</span>          dq.<span class="fn">addLast</span>(<span class="kw">new int</span>[]{nr, nc});
+                }
+            }
+        }
+
+        <span class="kw">return</span> dist[R - <span class="nm">1</span>][C - <span class="nm">1</span>];
+    }
+}</pre>
+    </div>
+
+    <div class="card">
+      <h3>💰 Example B: Minimum Robberies to Escape (Codeforces style)</h3>
+      <p><strong>Problem:</strong> You're a thief escaping a city. You can move between districts. Moving through some checkpoints requires bribing a guard (costs 1). Others are unguarded (cost 0). Find minimum bribes needed to escape.</p>
+      <p style="margin-top:0.5rem;">This is just standard graph 0/1 BFS! Model each district as a node, unguarded crossings as 0-weight edges, guarded ones as 1-weight edges. Run 0/1 BFS from your starting district to the escape node.</p>
+    </div>
+
+    <div class="card">
+      <h3>🔄 Example C: Minimum Changes to Make String Palindrome-adjacent</h3>
+      <p><strong>Problem:</strong> You have a string of characters on a graph path. Moving forward along the path costs 0 if the characters already match (palindrome condition). It costs 1 if you need to change one character. Find minimum changes.</p>
+      <p style="margin-top:0.5rem;">Here, each "node" is an index in the string, and the 0/1 edge weight is determined by character comparison. 0/1 BFS finds the minimum total changes needed.</p>
+    </div>
+
+    <div class="callout think">
+      <div class="callout-icon">🧠</div>
+      <p><strong>Advanced recognition skill:</strong> The hardest part of 0/1 BFS problems is recognizing them. Key signals — (1) you want a "minimum something," (2) the thing you're minimizing only goes up by 0 or 1 at each step, (3) you're traversing a graph or grid. When you see these three together, think 0/1 BFS immediately.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 13 — COMMON MISTAKES
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2>Common Mistakes — Don't Fall Into These</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Advanced · ~20 min</div>
+
+    <div class="card">
+      <h3>❌ Mistake 1: Using a visited[] array like normal BFS</h3>
+      <p>In normal BFS (unweighted), once you visit a node, you never revisit it. In 0/1 BFS, you <strong>can</strong> update a node's distance multiple times! Using visited[] will skip these updates and give wrong answers.</p>
+      <p style="margin-top:0.5rem;"><strong>Fix:</strong> Instead of checking visited[], check <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">if (newDist &lt; dist[neighbor])</code>. Only update when you find a shorter path.</p>
+    </div>
+
+    <div class="card">
+      <h3>❌ Mistake 2: Pushing to wrong end of deque</h3>
+      <p>Remember: 0-cost edges → <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">addFirst()</code>. 1-cost edges → <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">addLast()</code>. Getting these backwards gives completely wrong distances. Double-check your edge weights and which end you're pushing to.</p>
+    </div>
+
+    <div class="card">
+      <h3>❌ Mistake 3: Not initializing dist[] to MAX_VALUE</h3>
+      <p>If you initialize to 0 or -1, the condition <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">if (newDist &lt; dist[neighbor])</code> might not work correctly. Always fill with <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">Integer.MAX_VALUE</code> and set dist[source] = 0.</p>
+    </div>
+
+    <div class="card">
+      <h3>❌ Mistake 4: Using 0/1 BFS when weights aren't 0 or 1</h3>
+      <p>0/1 BFS ONLY works when all edge weights are exactly 0 or 1. If you have weights like 2, 3, or 5, use Dijkstra or Bellman-Ford. Using 0/1 BFS with other weights gives wrong answers silently — dangerous!</p>
+    </div>
+
+    <div class="card">
+      <h3>❌ Mistake 5: Forgetting to update dist before pushing to deque</h3>
+      <p>Always update <code style="color:var(--teal); font-family: JetBrains Mono, monospace; font-size:0.85em">dist[neighbor] = newDist</code> BEFORE pushing neighbor to the deque. If you push first and update later, other threads of BFS might process neighbor with the old (wrong) distance.</p>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <p><strong>Pro tip for debugging:</strong> If your 0/1 BFS gives wrong answers, first check: are all your edge weights really 0 or 1? Are you using addFirst/addLast correctly? Are you missing visited[] and using dist comparison instead?</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 14 — PRACTICE PROBLEMS
+       ════════════════════════════════════════════ -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <h2>Practice Problems — Go Sharpen Your Skills</h2>
+    </div>
+    <div class="section-badge"><div class="badge-dot"></div> Practice · ~2–3 hrs each session</div>
+
+    <div class="card" style="margin-bottom:1.5rem;">
+      <h3>🟢 Beginner — Get comfortable with the template</h3>
+    </div>
+    <div class="problem-grid">
+      <a class="problem-card" href="https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/" target="_blank">
+        <div class="prob-platform lc">LeetCode</div>
+        <h4>1368. Min Cost to Make Valid Path in Grid</h4>
+        <p>Classic 0/1 BFS on a grid with directional arrows. The perfect first problem.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+      <a class="problem-card" href="https://leetcode.com/problems/minimum-obstacle-removal-to-reach-corner/" target="_blank">
+        <div class="prob-platform lc">LeetCode</div>
+        <h4>2290. Minimum Obstacle Removal</h4>
+        <p>Grid with 0s (free) and 1s (obstacles). Remove minimum obstacles. Textbook 0/1 BFS.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/1063/B" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 1063B — Labyrinth</h4>
+        <p>Navigate a grid with limited left-moves allowed. Classic 0/1 BFS application.</p>
+        <span class="diff medium">Medium</span>
+      </a>
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/877/D" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 877D — Olya and Energy Drinks</h4>
+        <p>Path on a number line with 0/1 cost structure. Great for understanding deque invariant.</p>
+        <span class="diff medium">Medium</span>
+      </a>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem; margin-top:1.5rem;">
+      <h3>🟡 Intermediate — Apply patterns</h3>
+    </div>
+    <div class="problem-grid">
+      <a class="problem-card" href="https://leetcode.com/problems/minimum-weighted-subgraph-with-the-required-paths/" target="_blank">
+        <div class="prob-platform lc">LeetCode</div>
+        <h4>2203. Minimum Weighted Subgraph</h4>
+        <p>Directed graph, find paths that meet at a node. Combines 0/1 BFS with graph thinking.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/1442/C" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 1442C — Graph Transpositions</h4>
+        <p>Edge reversal with 0/1 cost. Tests understanding of when 0/1 BFS applies.</p>
+        <span class="diff medium">Medium</span>
+      </a>
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/59/E" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 59E — Shortest Path</h4>
+        <p>Edges with 0 cost (teleport) and 1 cost. Classic problem, great for intuition building.</p>
+        <span class="diff medium">Medium</span>
+      </a>
+      <a class="problem-card" href="https://leetcode.com/problems/modify-graph-edge-weights/" target="_blank">
+        <div class="prob-platform lc">LeetCode</div>
+        <h4>2699. Modify Graph Edge Weights</h4>
+        <p>Adjust -1 weight edges to achieve a target shortest path. Clever 0/1 BFS insight needed.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem; margin-top:1.5rem;">
+      <h3>🔴 Advanced — State graphs + virtual nodes</h3>
+    </div>
+    <div class="problem-grid">
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/821/D" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 821D — Okabe and City</h4>
+        <p>Grid with electric connections (0-cost). Must use virtual nodes or BFS efficiently.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/653/E" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 653E — Bear and Forgotten Tree</h4>
+        <p>Tree + special nodes pattern. 0/1 BFS as a subroutine in a bigger solution.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+      <a class="problem-card" href="https://codeforces.com/problemset/problem/196/E" target="_blank">
+        <div class="prob-platform cf">Codeforces</div>
+        <h4>CF 196E — Opening Portals</h4>
+        <p>Multiple sources, portal network. Requires virtual node trick + MST. Advanced!</p>
+        <span class="diff hard">Hard</span>
+      </a>
+      <a class="problem-card" href="https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/" target="_blank">
+        <div class="prob-platform lc">LeetCode</div>
+        <h4>1293. Shortest Path with Obstacles (k removals)</h4>
+        <p>State graph: (row, col, removals_left). Naturally extends 0/1 BFS with state.</p>
+        <span class="diff hard">Hard</span>
+      </a>
+    </div>
+
+    <div class="callout tip" style="margin-top:1.5rem;">
+      <div class="callout-icon">🎯</div>
+      <p><strong>Study strategy:</strong> Start with LC 2290 (the most direct 0/1 BFS problem). Then do LC 1368. After that, try CF 1063B. Each one teaches you something new about applying the template. Don't skip problems — each one builds a muscle you'll need for harder ones.</p>
+    </div>
+
+    <div class="card" style="margin-top:1.5rem;">
+      <h3>📋 Summary — What you've learned</h3>
+      <ul>
+        <li><strong>What 0/1 BFS is:</strong> Finding shortest paths in graphs where every edge costs 0 or 1</li>
+        <li><strong>Why it works:</strong> The deque trick keeps nodes sorted by cost without a priority queue</li>
+        <li><strong>Core rule:</strong> 0-cost → addFirst(), 1-cost → addLast(), always pollFirst()</li>
+        <li><strong>Patterns:</strong> Grid problems, virtual nodes, state graphs, path reconstruction</li>
+        <li><strong>Complexity:</strong> O(V + E) — same as normal BFS, much better than Dijkstra for 0/1 graphs</li>
+        <li><strong>Common mistakes:</strong> visited[] array, wrong deque end, weights not actually 0/1</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; margin-top:2rem; padding: 1.5rem; background: rgba(0,212,170,0.05); border: 1px solid rgba(0,212,170,0.15); border-radius:12px;">
+      <div style="font-size:1.4rem; margin-bottom:0.5rem;">🎉</div>
+      <p style="color:var(--teal); font-weight:600; font-size:0.95rem;">You now know everything about 0/1 BFS.</p>
+      <p style="color:var(--muted); font-size:0.82rem; margin-top:0.3rem;">Go solve those problems. The algorithm will click the moment you code it yourself.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollTop / docHeight;
+  document.getElementById('progress-bar').style.transform = `scaleX(${progress})`;
+
+  // Active nav link
+  const sections = document.querySelectorAll('.section[id]');
+  const links = document.querySelectorAll('.nav-link');
+  let currentId = '';
+  sections.forEach(s => {
+    if (s.getBoundingClientRect().top <= 120) currentId = s.id;
+  });
+  links.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + currentId);
+  });
+});
+
+// Canvas animation — animated 0/1 BFS visualization
+const canvas = document.getElementById('bfs-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+canvas.height = 180 * window.devicePixelRatio;
+ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+const W = canvas.offsetWidth, H = 180;
+
+// Graph definition
+const nodes = [
+  {x: 80,  y: 90,  label: 'S', color: '#00D4AA'},
+  {x: 210, y: 45,  label: 'A', color: '#8A9BB5'},
+  {x: 210, y: 135, label: 'B', color: '#8A9BB5'},
+  {x: 350, y: 45,  label: 'C', color: '#8A9BB5'},
+  {x: 350, y: 135, label: 'D', color: '#8A9BB5'},
+  {x: 480, y: 90,  label: 'T', color: '#FFB347'},
+];
+const edges = [
+  {a: 0, b: 1, w: 1}, {a: 0, b: 2, w: 0},
+  {a: 1, b: 3, w: 0}, {a: 2, b: 3, w: 1},
+  {a: 1, b: 4, w: 1}, {a: 2, b: 4, w: 0},
+  {a: 3, b: 5, w: 1}, {a: 4, b: 5, w: 0},
+];
+
+let visitedEdge = new Array(edges.length).fill(false);
+let visitedNode = new Array(nodes.length).fill(false);
+let activeNode = 0;
+let step = 0;
+let frame = 0;
+
+// BFS order for animation
+const bfsOrder = [0, 2, 1, 4, 3, 5];
+const bfsEdgeOrder = [1, 0, 5, 2, 6, 7];
+
+function drawGraph() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background subtle grid
+  ctx.strokeStyle = 'rgba(37,58,88,0.3)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // Edges
+  edges.forEach((e, i) => {
+    const a = nodes[e.a], b = nodes[e.b];
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineWidth = visitedEdge[i] ? 2.5 : 1.5;
+    ctx.strokeStyle = visitedEdge[i]
+      ? (e.w === 0 ? 'rgba(0,212,170,0.8)' : 'rgba(255,179,71,0.8)')
+      : 'rgba(37,58,88,0.8)';
+    ctx.stroke();
+
+    // Weight label
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    ctx.fillStyle = e.w === 0 ? '#00D4AA' : '#FFB347';
+    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(e.w, mx + (my < 90 ? -8 : 8), my + (my < 90 ? -4 : 14));
+  });
+
+  // Nodes
+  nodes.forEach((n, i) => {
+    const isActive = i === bfsOrder[Math.min(step, bfsOrder.length - 1)];
+    const isVisited = visitedNode[i];
+    const pulse = isActive ? 0.15 * Math.sin(frame * 0.12) : 0;
+
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 22 + pulse * 4, 0, Math.PI * 2);
+    ctx.fillStyle = isVisited ? 'rgba(0,212,170,0.12)' : 'rgba(10,20,34,0.9)';
+    ctx.fill();
+    ctx.strokeStyle = isActive ? '#FFB347' : (isVisited ? '#00D4AA' : '#253A58');
+    ctx.lineWidth = isActive ? 2.5 : 2;
+    ctx.stroke();
+
+    ctx.fillStyle = isActive ? '#FFB347' : (isVisited ? '#00D4AA' : '#8A9BB5');
+    ctx.font = 'bold 13px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(n.label, n.x, n.y);
+  });
+
+  // Label
+  ctx.fillStyle = '#8A9BB5';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('0/1 BFS live trace  ·  teal = cost 0  ·  amber = cost 1', 12, 10);
+
+  frame++;
+  if (frame % 40 === 0) {
+    if (step < bfsOrder.length) {
+      visitedNode[bfsOrder[step]] = true;
+      if (step < bfsEdgeOrder.length) visitedEdge[bfsEdgeOrder[step]] = true;
+      step++;
+    } else {
+      // Reset animation
+      setTimeout(() => {
+        visitedEdge = new Array(edges.length).fill(false);
+        visitedNode = new Array(nodes.length).fill(false);
+        step = 0; frame = 0;
+      }, 1500);
+    }
+  }
+  requestAnimationFrame(drawGraph);
+}
+drawGraph();
+</script>
+</body>
+</html>

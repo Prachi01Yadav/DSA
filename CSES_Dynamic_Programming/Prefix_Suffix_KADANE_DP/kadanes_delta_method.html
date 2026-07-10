@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering the Delta Method (Kadane's Algorithm)</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #dbeafe;
+            --card-bg: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--accent-secondary);
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 30px 0;
+            border-left: 5px solid var(--accent-primary);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--accent-primary);
+        }
+
+        .highlight {
+            background-color: var(--accent-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .math-box {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .gain {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .loss {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .insight {
+            background-color: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
+        }
+
+        .insight h4 {
+            margin-top: 0;
+            color: #b45309;
+        }
+        
+        ul {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Mastering the "Delta Method"</h1>
+        <p class="subtitle">A plain-English guide to solving tricky Kadane's Algorithm variations.</p>
+    </header>
+
+    <p>Normally, Kadane's algorithm is just a way to find the biggest continuous slice of a pie (the maximum subarray sum). But in competitive programming and technical interviews, problems rarely ask for that directly.</p>
+    
+    <p>Instead, they give you an array and say: <em>"You can make <strong>one magical move</strong> (like flipping, reversing, or swapping a segment). What is the maximum total you can end up with?"</em></p>
+
+    <h2>The Core Idea: Stop Tracking the Total, Start Tracking the Change!</h2>
+    <p>When you are allowed to make a change to a block of items, it's really hard to keep track of the whole array's total at every step. It gets too messy.</p>
+    
+    <p>The <strong>Delta Method</strong> says: Forget the total! Just look at how much you <strong>gain</strong> or <strong>lose</strong> by making the change. This change is called the <span class="highlight">Delta</span>.</p>
+
+    <div class="insight">
+        <h4>The Golden Rule</h4>
+        <p><strong>Final Total = Base Total + Best Possible Change (Delta)</strong></p>
+        <p>If we know our current total, we just need to use Kadane's Algorithm to find the contiguous segment that gives us the <em>biggest possible boost</em>.</p>
+    </div>
+
+    <h2>A Real-World Example: The Magic Lemonade Stand</h2>
+    <div class="card">
+        <h3>The Scenario</h3>
+        <p>Imagine you run a lemonade stand for 7 days. Some days are highly profitable (Good), some are terrible (Bad).</p>
+        <p>Your week looks like this: <code>[Bad, Good, Bad, Bad, Good, Good, Bad]</code></p>
+        
+        <p>You have a <strong>"Magic Marketing Potion"</strong> that you can use on one continuous stretch of days. The magic reverses the luck of those days:</p>
+        <ul>
+            <li><span class="gain">Bad days become Good days (+1 profit)</span></li>
+            <li><span class="loss">Good days become Bad days (-1 profit)</span></li>
+        </ul>
+        <p><em>Question: Which stretch of days do you use the magic on to get the most total Good days?</em></p>
+    </div>
+
+    <h3>Step 1: Calculate the Base Total</h3>
+    <p>If you don't use the magic at all, how many good days do you have? Looking at <code>[Bad, <strong>Good</strong>, Bad, Bad, <strong>Good</strong>, <strong>Good</strong>, Bad]</code>, you have exactly <strong>3 Good days</strong>. This is your baseline.</p>
+
+    <h3>Step 2: Create the "Delta" (Change) Array</h3>
+    <p>Now, we translate the magic potion's effect into numbers. What happens if we use magic on a specific day?</p>
+    <ul>
+        <li>If we use it on a Bad day, it turns Good. That's a <strong>Gain of +1</strong>.</li>
+        <li>If we use it on a Good day, it turns Bad. That's a <strong>Loss of -1</strong>.</li>
+    </ul>
+    
+    <p>Let's map our week into a Delta Array:</p>
+    <div class="math-box">
+Original: [Bad, Good, Bad, Bad, Good, Good, Bad]<br>
+Delta:    [ +1,  -1,  +1,  +1,  -1,  -1,  +1]
+    </div>
+
+    <h3>Step 3: Run Kadane's Algorithm on the Delta</h3>
+    <p>Now we just want to find the contiguous subarray in our Delta Array that gives us the highest positive number. This is exactly what Kadane's algorithm is built for!</p>
+    
+    <div class="math-box">
+Delta Array: [ +1,  -1,  <strong>+1,  +1</strong>,  -1,  -1,  +1 ]<br>
+The best slice is the middle part: [+1, +1] which sums to <strong>+2</strong>.
+    </div>
+
+    <p>This tells us that if we apply the magic potion to Days 3 and 4 (the two middle Bad days), our overall total will increase by 2!</p>
+
+    <h3>Step 4: Combine Base + Delta</h3>
+    <p>We take our base total (3) and add our maximum delta (+2).</p>
+    <p><strong>3 + 2 = 5 Maximum Good Days.</strong></p>
+    <p>Let's verify manually: If we flip Days 3 and 4, the array becomes: <code>[Bad, Good, <strong>Good</strong>, <strong>Good</strong>, Good, Good, Bad]</code>. Count them up: exactly 5 Good days! It works perfectly.</p>
+
+    <h2>Why is this method so powerful?</h2>
+    <p>By translating the problem into a "Delta Array", we strip away all the complicated rules about the specific game, reverse logic, or swaps. We turn it into a simple list of numbers where we just need to find the biggest slice. Kadane's Algorithm handles the heavy lifting in lightning-fast <code>O(N)</code> time.</p>
+    
+    <p>So next time you face a problem that says <em>"Make one change to a segment to maximize X"</em>:</p>
+    <ol>
+        <li>Find the baseline score.</li>
+        <li>Figure out the math for what you gain/lose at each step (The Delta).</li>
+        <li>Run Kadane's on the Delta array to find the max boost.</li>
+        <li>Add the max boost to your baseline.</li>
+    </ol>
+</div>
+
+</body>
+</html>
