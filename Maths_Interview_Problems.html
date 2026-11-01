@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mathematical Problems</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff; color: #111;
+    font: 15px/1.5 Helvetica, Arial, sans-serif;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; }
+  h1 { font-size: 36px; font-weight: 700; letter-spacing: -.5px; margin: 0 0 12px; }
+  .sub { color: #777; margin: 0 0 18px; }
+  .sub b { color: #c2570c; }
+  hr { border: 0; border-top: 1px solid #ddd; margin: 0 0 18px; }
+
+  .head, .row {
+    display: grid; grid-template-columns: 36px 1fr 104px 104px; align-items: center;
+  }
+  .head { padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid #eee; }
+  .c { text-align: center; }
+  .hd {
+    display: inline-block; padding: 3px 12px; border-radius: 99px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .05em; white-space: nowrap;
+  }
+  .hd.good { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+  .hd.done { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+
+  .row { padding: 4px 0; }
+  .row:hover { background: #fafafa; }
+  .ord { text-align: right; padding-right: 10px; color: #111; font-variant-numeric: tabular-nums; }
+  .t a { color: #1a1ab0; text-decoration: underline; }
+  .t a:visited { color: #1a1ab0; }
+  .tag { color: #c2570c; font-weight: 700; font-size: 12px; margin-left: 8px; white-space: nowrap; }
+  .more { color: #999; font-size: 12px; margin-left: 8px; cursor: pointer; background: none; border: 0; padding: 0; font-family: inherit; }
+  .more:hover { color: #555; text-decoration: underline; }
+  .src { color: #999; font-size: 11px; margin-left: 8px; }
+
+  .row.is-done .t a { color: #9a9a9a; text-decoration: line-through; }
+  .row.is-done .ord { color: #9a9a9a; }
+
+  input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; margin: 0; vertical-align: middle; }
+  input.cb-good { accent-color: #d97706; }
+  input.cb-done { accent-color: #16a34a; }
+
+  .warn { display: none; margin: 0 0 16px; padding: 8px 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 13px; border-radius: 6px; }
+
+  @media (max-width: 600px) {
+    .page { padding: 28px 14px 60px; }
+    h1 { font-size: 28px; }
+    .head, .row { grid-template-columns: 28px 1fr 68px 68px; }
+    .hd { font-size: 10px; padding: 2px 7px; white-space: normal; line-height: 1.2; }
+    .ord { padding-right: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Mathematical Problems</h1>
+  <p class="sub">70 problems &nbsp;&middot;&nbsp; click any title to open it &nbsp;&middot;&nbsp; <b>[Company]</b> = asks this problem, most-asked first</p>
+  <hr>
+  <p class="warn" id="warn">Ticks can't be saved in this browser mode (private window, or storage blocked), so they will be lost when you close the page.</p>
+
+  <div class="head">
+    <span></span>
+    <span></span>
+    <span class="c"><span class="hd good">GOOD ONE :)</span></span>
+    <span class="c"><span class="hd done">DONE</span></span>
+  </div>
+  <div id="list"></div>
+</div>
+
+<script>
+const DATA = [{"num":1344,"name":"Angle Between Hands of a Clock","url":"https://leetcode.com/problems/angle-between-hands-of-a-clock/","gfg":false,"companies":[["Fidelity",100.0],["Zoho",100.0],["Siemens",71.3],["Epic Systems",70.7],["Aurora",61.8],["Amazon",51.1],["Salesforce",50.2],["Bloomberg",46.8],["Google",35.9],["Meta",34.5],["Microsoft",31.1]]},{"num":50,"name":"Pow(x, n)","url":"https://leetcode.com/problems/powx-n/","gfg":false,"companies":[["Wix",87.3],["eBay",84.3],["Meta",84.1],["LinkedIn",69.2],["Qualcomm",64.8],["Bloomberg",61.2],["Microsoft",56.9],["ServiceNow",55.3],["EPAM Systems",55.1],["tcs",54.9],["Amazon",54.2],["Google",54.2],["Adobe",47.0],["Citadel",46.9],["Walmart Labs",44.7],["Nvidia",39.1],["Cisco",36.8],["Goldman Sachs",35.5],["Oracle",34.4],["Infosys",31.3],["TikTok",26.8]]},{"num":null,"name":"Power of Numbers","url":"https://www.geeksforgeeks.org/problems/power-of-numbers-1587115620/1","gfg":true,"companies":[]},{"num":null,"name":"Prime Factors","url":"https://www.geeksforgeeks.org/problems/prime-factors5052/1","gfg":true,"companies":[]},{"num":7,"name":"Reverse Integer","url":"https://leetcode.com/problems/reverse-integer/","gfg":false,"companies":[["Accenture",78.4],["Bloomberg",74.6],["Meta",70.8],["Apple",66.0],["Google",65.6],["Microsoft",63.2],["EPAM Systems",62.5],["Amazon",62.3],["Wipro",61.8],["tcs",60.0],["Adobe",57.5],["Cognizant",57.1],["Capgemini",56.8],["Infosys",56.2],["Walmart Labs",44.7],["Oracle",39.1],["LinkedIn",29.9],["Yandex",29.0],["Uber",24.3]]},{"num":458,"name":"Poor Pigs","url":"https://leetcode.com/problems/poor-pigs/","gfg":false,"companies":[["Google",5.0]]},{"num":902,"name":"Numbers At Most N Given Digit Set","url":"https://leetcode.com/problems/numbers-at-most-n-given-digit-set/","gfg":false,"companies":[["TikTok",47.1],["Amazon",20.0],["Microsoft",8.9],["Google",5.0]]},{"num":1015,"name":"Smallest Integer Divisible by K","url":"https://leetcode.com/problems/smallest-integer-divisible-by-k/","gfg":false,"companies":[["Google",27.2],["tcs",26.8],["Microsoft",12.0],["Amazon",10.3],["Bloomberg",9.8],["Meta",5.0]]},{"num":268,"name":"Missing Number","url":"https://leetcode.com/problems/missing-number/","gfg":false,"companies":[["Arista Networks",84.5],["Revolut",68.3],["HCL",63.9],["Amazon",56.5],["Nvidia",54.5],["Bloomberg",53.1],["Google",49.8],["Microsoft",48.0],["IBM",47.3],["Infosys",46.7],["tcs",45.0],["BlackRock",44.3],["Zoho",41.3],["Salesforce",40.1],["Meta",39.2],["Apple",38.3],["Goldman Sachs",22.5]]},{"num":478,"name":"Generate Random Point in a Circle","url":"https://leetcode.com/problems/generate-random-point-in-a-circle/","gfg":false,"companies":[["Meta",5.0]]},{"num":869,"name":"Reordered Power of 2","url":"https://leetcode.com/problems/reordered-power-of-2/","gfg":false,"companies":[["Bloomberg",40.1],["Google",23.5],["Microsoft",22.0],["Amazon",20.7],["Meta",5.0]]},{"num":775,"name":"Global and Local Inversions","url":"https://leetcode.com/problems/global-and-local-inversions/","gfg":false,"companies":[["Amazon",20.0]]},{"num":1551,"name":"Minimum Operations to Make Array Equal","url":"https://leetcode.com/problems/minimum-operations-to-make-array-equal/","gfg":false,"companies":[["Amazon",5.1]]},{"num":970,"name":"Powerful Integers","url":"https://leetcode.com/problems/powerful-integers/","gfg":false,"companies":[]},{"num":906,"name":"Super Palindromes","url":"https://leetcode.com/problems/super-palindromes/","gfg":false,"companies":[["Google",18.0]]},{"num":497,"name":"Random Point in Non-overlapping Rectangles","url":"https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/","gfg":false,"companies":[["Uber",27.8],["Google",20.9]]},{"num":470,"name":"Implement Rand10() Using Rand7()","url":"https://leetcode.com/problems/implement-rand10-using-rand7/","gfg":false,"companies":[["LinkedIn",35.1],["Yandex",29.0],["TikTok",26.8],["Google",17.0],["Microsoft",14.1]]},{"num":1266,"name":"Minimum Time Visiting All Points","url":"https://leetcode.com/problems/minimum-time-visiting-all-points/","gfg":false,"companies":[["Media.net",86.4],["Meta",29.5],["Bloomberg",23.9],["Google",17.0],["Amazon",8.9],["Microsoft",8.9]]},{"num":384,"name":"Shuffle an Array","url":"https://leetcode.com/problems/shuffle-an-array/","gfg":false,"companies":[["Uber",63.0],["LinkedIn",39.1],["Google",14.9],["Meta",8.7],["Amazon",7.2]]},{"num":932,"name":"Beautiful Array","url":"https://leetcode.com/problems/beautiful-array/","gfg":false,"companies":[["Google",22.1],["Bloomberg",13.4],["Amazon",5.1],["Meta",5.0]]},{"num":null,"name":"Segmented Sieve","url":"https://www.geeksforgeeks.org/segmented-sieve-print-primes-in-a-range/","gfg":true,"companies":[]},{"num":263,"name":"Ugly Number","url":"https://leetcode.com/problems/ugly-number/","gfg":false,"companies":[["Zoho",38.9],["Google",34.7],["tcs",31.7],["Bloomberg",29.7],["Amazon",26.5],["Microsoft",25.0],["Meta",20.4]]},{"num":587,"name":"Erect the Fence","url":"https://leetcode.com/problems/erect-the-fence/","gfg":false,"companies":[["Meesho",57.9],["Google",19.5],["Amazon",5.1]]},{"num":149,"name":"Max Points on a Line","url":"https://leetcode.com/problems/max-points-on-a-line/","gfg":false,"companies":[["Waymo",100.0],["X",93.7],["Zoox",64.3],["Sprinklr",60.6],["Meesho",57.9],["LinkedIn",56.3],["Cisco",55.4],["Apple",51.0],["Citadel",46.9],["Zoho",41.3],["Nvidia",39.1],["Bloomberg",36.8],["Google",28.2],["Meta",28.1],["Amazon",23.6],["Microsoft",19.5]]},{"num":258,"name":"Add Digits","url":"https://leetcode.com/problems/add-digits/","gfg":false,"companies":[["Adobe",78.3],["Bloomberg",44.3],["Microsoft",43.3],["Visa",40.8],["Amazon",39.1],["Infosys",37.8],["Uber",37.7],["Google",35.8],["Meta",24.5]]},{"num":319,"name":"Bulb Switcher","url":"https://leetcode.com/problems/bulb-switcher/","gfg":false,"companies":[["LinkedIn",100.0],["Infosys",56.2],["Accenture",42.4],["Amazon",28.9],["tcs",26.8],["Google",23.5],["Microsoft",19.5],["Meta",18.0],["Bloomberg",9.8]]},{"num":837,"name":"New 21 Game","url":"https://leetcode.com/problems/new-21-game/","gfg":false,"companies":[["Microsoft",42.1],["Google",29.7],["Amazon",22.8],["Bloomberg",21.4],["Meta",18.0]]},{"num":1502,"name":"Can Make Arithmetic Progression From Sequence","url":"https://leetcode.com/problems/can-make-arithmetic-progression-from-sequence/","gfg":false,"companies":[["Google",47.0],["Meta",34.5],["Bloomberg",27.3],["Amazon",26.5],["Microsoft",25.1]]},{"num":1569,"name":"Number of Ways to Reorder Array to Get Same BST","url":"https://leetcode.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/","gfg":false,"companies":[["Google",18.0]]},{"num":168,"name":"Excel Sheet Column Title","url":"https://leetcode.com/problems/excel-sheet-column-title/","gfg":false,"companies":[["Zenefits",100.0],["Ola Cabs",65.6],["Zoho",55.7],["Microsoft",47.3],["DE Shaw",41.0],["Accenture",40.5],["Bloomberg",36.8],["Amazon",33.3],["Meta",31.9],["Google",31.8]]},{"num":1359,"name":"Count All Valid Pickup and Delivery Options","url":"https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/","gfg":false,"companies":[["Acko",100.0],["DoorDash",53.4],["Google",5.0]]},{"num":342,"name":"Power Of Four","url":"https://leetcode.com/problems/power-of-four/","gfg":false,"companies":[["Two Sigma",90.4],["Wix",87.3],["Google",28.2],["Amazon",20.7],["Bloomberg",17.7],["Meta",14.4],["Microsoft",12.0]]},{"num":2849,"name":"Determine if a Cell Is Reachable at a Given Time","url":"https://leetcode.com/problems/determine-if-a-cell-is-reachable-at-a-given-time/","gfg":false,"companies":[["Google",16.4]]},{"num":1688,"name":"Count of Matches in Tournament","url":"https://leetcode.com/problems/count-of-matches-in-tournament/","gfg":false,"companies":[["Microsoft",14.1],["Amazon",12.5],["Google",10.5],["Meta",5.0]]},{"num":1716,"name":"Calculate Money in Leetcode Bank","url":"https://leetcode.com/problems/calculate-money-in-leetcode-bank/","gfg":false,"companies":[["Microsoft",25.1],["Google",20.6],["Amazon",7.2],["Meta",5.0]]},{"num":null,"name":"Techfest and the Queue","url":"https://www.geeksforgeeks.org/problems/techfest-and-the-queue1044/1","gfg":true,"companies":[]},{"num":2485,"name":"Find the Pivot Integer","url":"https://leetcode.com/problems/find-the-pivot-integer/","gfg":false,"companies":[["Amazon",20.0],["Google",10.5],["Meta",5.0]]},{"num":633,"name":"Sum of Square Numbers","url":"https://leetcode.com/problems/sum-of-square-numbers/","gfg":false,"companies":[["LinkedIn",44.7],["Bloomberg",32.5],["Google",28.9],["Amazon",21.2],["Meta",19.4],["Microsoft",14.1]]},{"num":1780,"name":"Check if Number is a Sum of Powers of Three","url":"https://leetcode.com/problems/check-if-number-is-a-sum-of-powers-of-three/","gfg":false,"companies":[["Google",26.0],["Bloomberg",20.1],["Amazon",15.7],["Meta",5.0]]},{"num":2579,"name":"Count Total Number of Colored Cells","url":"https://leetcode.com/problems/count-total-number-of-colored-cells/","gfg":false,"companies":[["Amazon",15.6],["Meta",15.3],["Microsoft",14.1],["Bloomberg",13.4],["Google",8.1]]},{"num":2523,"name":"Closest Prime Numbers in Range","url":"https://leetcode.com/problems/closest-prime-numbers-in-range/","gfg":false,"companies":[["TikTok",54.4],["Bloomberg",15.4],["Amazon",12.5],["Microsoft",12.0],["Google",5.0],["Meta",5.0]]},{"num":2033,"name":"Minimum Operations to Make a Uni-Value Grid","url":"https://leetcode.com/problems/minimum-operations-to-make-a-uni-value-grid/","gfg":false,"companies":[["EPAM Systems",89.2],["Amazon",14.3],["Microsoft",14.1],["Google",8.1],["Meta",5.0]]},{"num":2818,"name":"Apply Operations to Maximize Score","url":"https://leetcode.com/problems/apply-operations-to-maximize-score/","gfg":false,"companies":[["Google",12.6],["Meta",5.0]]},{"num":3272,"name":"Find the Count of Good Integers","url":"https://leetcode.com/problems/find-the-count-of-good-integers/","gfg":false,"companies":[["Meta",15.3],["Google",14.9]]},{"num":2145,"name":"Count the Hidden Sequences","url":"https://leetcode.com/problems/count-the-hidden-sequences/","gfg":false,"companies":[["Zomato",100.0],["TikTok",59.3],["Amazon",25.1],["Bloomberg",23.9],["Meta",20.4],["Google",10.0]]},{"num":2338,"name":"Count the Number of Ideal Arrays","url":"https://leetcode.com/problems/count-the-number-of-ideal-arrays/","gfg":false,"companies":[["Infosys",67.6],["Google",14.9],["Amazon",8.9],["Microsoft",8.9]]},{"num":null,"name":"Matrix Exponentiation","url":"https://www.geeksforgeeks.org/matrix-exponentiation/","gfg":true,"companies":[]},{"num":3337,"name":"Total Characters in String After Transformations II","url":"https://leetcode.com/problems/total-characters-in-string-after-transformations-ii/","gfg":false,"companies":[["Google",10.0]]},{"num":2894,"name":"Divisible and Non-divisible Sums Difference","url":"https://leetcode.com/problems/divisible-and-non-divisible-sums-difference/","gfg":false,"companies":[["Google",20.6],["Bloomberg",15.4],["Meta",15.3],["Amazon",13.2]]},{"num":2929,"name":"Distribute Candies Among Children II","url":"https://leetcode.com/problems/distribute-candies-among-children-ii/","gfg":false,"companies":[["PhonePe",74.2],["Rubrik",57.0],["Amazon",30.2],["Google",17.0],["Meta",15.3]]},{"num":3405,"name":"Count the Number of Arrays with K Matching Adjacent Elements","url":"https://leetcode.com/problems/count-the-number-of-arrays-with-k-matching-adjacent-elements/","gfg":false,"companies":[["PhonePe",100.0],["Bloomberg",23.9],["Meta",8.7],["Amazon",5.1],["Google",5.0]]},{"num":2081,"name":"Sum of k-Mirror Numbers","url":"https://leetcode.com/problems/sum-of-k-mirror-numbers/","gfg":false,"companies":[["Cisco",66.8],["Google",17.0],["Meta",15.3],["Bloomberg",9.8],["Microsoft",8.9]]},{"num":3021,"name":"Alice and Bob Playing Flower Game","url":"https://leetcode.com/problems/alice-and-bob-playing-flower-game/","gfg":false,"companies":[["Rubrik",59.0],["Microsoft",16.1],["Google",12.6],["Bloomberg",9.8],["Amazon",5.1]]},{"num":2749,"name":"Minimum Operations to Make the Integer Zero","url":"https://leetcode.com/problems/minimum-operations-to-make-the-integer-zero/","gfg":false,"companies":[["Bloomberg",20.1],["Amazon",15.6],["Google",14.9],["Meta",8.7]]},{"num":166,"name":"Fraction to Recurring Decimal","url":"https://leetcode.com/problems/fraction-to-recurring-decimal/","gfg":false,"companies":[["IXL",88.8],["Goldman Sachs",77.7],["Zoho",51.3],["Snap",44.9],["Google",31.1],["Oracle",26.5],["Meta",25.1],["Amazon",18.3],["Microsoft",14.1],["Bloomberg",9.8]]},{"num":2598,"name":"Smallest Missing Non-negative Integer After Operations","url":"https://leetcode.com/problems/smallest-missing-non-negative-integer-after-operations/","gfg":false,"companies":[["Mercari",100.0],["Citadel",69.0],["Atlassian",59.3],["IBM",37.9],["Microsoft",14.1],["Amazon",13.2]]},{"num":3623,"name":"Count Number of Trapezoids I","url":"https://leetcode.com/problems/count-number-of-trapezoids-i/","gfg":false,"companies":[["Google",47.6],["Bloomberg",9.8],["Meta",5.0]]},{"num":3625,"name":"Count Number of Trapezoids II","url":"https://leetcode.com/problems/count-number-of-trapezoids-ii/","gfg":false,"companies":[["Google",50.0],["Meta",15.3]]},{"num":3577,"name":"Count the Number of Computer Unlocking Permutations","url":"https://leetcode.com/problems/count-the-number-of-computer-unlocking-permutations/","gfg":false,"companies":[["Google",12.6],["Amazon",5.1],["Meta",5.0]]},{"num":1390,"name":"Four Divisors","url":"https://leetcode.com/problems/four-divisors/","gfg":false,"companies":[["Capital One",64.6],["Bloomberg",20.1],["Microsoft",16.1],["Google",14.9],["Meta",12.2],["Amazon",5.1]]},{"num":1622,"name":"Fancy Sequence","url":"https://leetcode.com/problems/fancy-sequence/","gfg":false,"companies":[["Amazon",20.9],["Google",18.0],["Bloomberg",8.2]]},{"num":3881,"name":"Direction Assignments with Exactly K Visible People","url":"https://leetcode.com/problems/direction-assignments-with-exactly-k-visible-people/","gfg":false,"companies":[]},{"num":3751,"name":"Total Waviness of Numbers in Range I","url":"https://leetcode.com/problems/total-waviness-of-numbers-in-range-i/","gfg":false,"companies":[["Amazon",39.1],["Google",11.8]]},{"num":3558,"name":"Number of Ways to Assign Edge Weights I","url":"https://leetcode.com/problems/number-of-ways-to-assign-edge-weights-i/","gfg":false,"companies":[["Amazon",28.9],["Meta",8.0]]},{"num":3312,"name":"Sorted GCD Pair Queries","url":"https://leetcode.com/problems/sorted-gcd-pair-queries/","gfg":false,"companies":[["Amazon",34.6],["Google",32.7],["Bloomberg",8.2]]},{"num":3518,"name":"Smallest Palindromic Rearrangement II","url":"https://leetcode.com/problems/smallest-palindromic-rearrangement-ii/","gfg":false,"companies":[["Meta",53.8],["Google",29.0]]},{"num":3116,"name":"Kth Smallest Amount With Single Denomination Combination","url":"https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/","gfg":false,"companies":[]},{"num":3876,"name":"Construct Uniform Parity Array II","url":"https://leetcode.com/problems/construct-uniform-parity-array-ii/","gfg":false,"companies":[["Amdocs",95.0]]},{"num":3871,"name":"Count Commas in Range II","url":"https://leetcode.com/problems/count-commas-in-range-ii/","gfg":false,"companies":[]},{"num":1401,"name":"Circle and Rectangle Overlapping","url":"https://leetcode.com/problems/circle-and-rectangle-overlapping/","gfg":false,"companies":[["Google",16.4],["Microsoft",14.1]]}];
+const SHOW = 5;
+const KEY = "math-problems-v1";
+
+let state = { done: {}, good: {} };
+let canSave = true;
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) { const s = JSON.parse(raw); if (s && s.done && s.good) state = s; }
+  localStorage.setItem(KEY + "-test", "1"); localStorage.removeItem(KEY + "-test");
+} catch (e) { canSave = false; }
+if (!canSave) document.getElementById("warn").style.display = "block";
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { document.getElementById("warn").style.display = "block"; }
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const idOf = p => p.num ? "lc" + p.num : "gfg-" + p.name.toLowerCase().replace(/\W+/g, "-");
+
+function tagsHtml(p, expanded) {
+  if (p.gfg) return '<span class="src">GFG</span>';
+  const list = expanded ? p.companies : p.companies.slice(0, SHOW);
+  let h = list.map(c => '<span class="tag">[' + esc(c[0]) + ']</span>').join("");
+  const rest = p.companies.length - list.length;
+  if (rest > 0) h += '<button class="more" type="button" data-more="1" title="Show all ' + p.companies.length + ' companies">+' + rest + ' more</button>';
+  return h;
+}
+
+const list = document.getElementById("list");
+DATA.forEach((p, i) => {
+  const id = idOf(p);
+  const row = document.createElement("div");
+  row.className = "row";
+  row.dataset.id = id;
+  row._p = p;
+  row.innerHTML =
+    '<span class="ord">' + (i + 1) + '.</span>' +
+    '<span class="t"><a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.name) + '</a><span class="tags">' + tagsHtml(p, false) + '</span></span>' +
+    '<span class="c"><input type="checkbox" class="cb-good" aria-label="Good one"></span>' +
+    '<span class="c"><input type="checkbox" class="cb-done" aria-label="Done"></span>';
+  row.querySelector(".cb-good").checked = !!state.good[id];
+  row.querySelector(".cb-done").checked = !!state.done[id];
+  row.classList.toggle("is-done", !!state.done[id]);
+  list.appendChild(row);
+});
+
+list.addEventListener("change", e => {
+  const row = e.target.closest(".row"); if (!row) return;
+  const id = row.dataset.id;
+  if (e.target.classList.contains("cb-done")) {
+    if (e.target.checked) state.done[id] = 1; else delete state.done[id];
+    row.classList.toggle("is-done", e.target.checked);
+  }
+  if (e.target.classList.contains("cb-good")) {
+    if (e.target.checked) state.good[id] = 1; else delete state.good[id];
+  }
+  save();
+});
+list.addEventListener("click", e => {
+  const b = e.target.closest("[data-more]"); if (!b) return;
+  const row = b.closest(".row");
+  row.querySelector(".tags").innerHTML = tagsHtml(row._p, true);
+});
+</script>
+</body>
+</html>

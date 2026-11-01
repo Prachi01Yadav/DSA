@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interval Scheduling — Pattern Map</title>
+<style>
+  :root{
+    --paper:#fbfaf6;
+    --ink:#1f2a24;
+    --ink-soft:#4a564e;
+    --rule:#d8d5c8;
+    --accent:#8a6d1f;
+    --accent-soft:#f1e7c9;
+    --code-bg:#232922;
+    --code-text:#e8e6da;
+    --tag-start:#2f5d4f;
+    --tag-end:#7a3b2e;
+    --tag-sweep:#4a4a7a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    line-height:1.6;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:44px 22px 100px;}
+  header.top{margin-bottom:38px;}
+  header.top h1{
+    font-family:"Iowan Old Style",Georgia,serif;
+    font-size:2rem;
+    font-weight:600;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header.top p{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--ink-soft);
+    font-size:0.98rem;
+    margin:0;
+    max-width:58ch;
+  }
+  .divider{height:1px;background:var(--rule);margin:34px 0;border:none;}
+
+  /* Decision table */
+  .decision{
+    background:var(--accent-soft);
+    border-left:3px solid var(--accent);
+    padding:20px 22px;
+    margin:0 0 40px;
+  }
+  .decision h2{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--accent);
+    margin:0 0 14px;
+    font-weight:700;
+  }
+  .decision table{width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:0.92rem;}
+  .decision td{padding:9px 6px;vertical-align:top;border-bottom:1px solid rgba(138,109,31,0.18);}
+  .decision tr:last-child td{border-bottom:none;}
+  .decision td.q{color:var(--ink-soft);width:56%;padding-right:14px;}
+  .decision td.a{font-weight:600;color:var(--ink);white-space:nowrap;}
+
+  /* Pattern blocks */
+  .pattern{margin-bottom:56px;}
+  .pattern .num{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    letter-spacing:0.02em;
+  }
+  .pattern h2{
+    font-size:1.42rem;
+    margin:2px 0 4px;
+    font-weight:600;
+  }
+  .sort-tag{
+    display:inline-block;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.76rem;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:2px;
+    color:#fff;
+    margin-bottom:14px;
+  }
+  .sort-tag.start{background:var(--tag-start);}
+  .sort-tag.end{background:var(--tag-end);}
+  .sort-tag.sweep{background:var(--tag-sweep);}
+
+  .pattern p{margin:10px 0;}
+  .pattern .keywords{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    margin:14px 0;
+  }
+  .pattern .keywords b{color:var(--ink);font-weight:600;}
+
+  pre{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:5px;
+    overflow-x:auto;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:0.84rem;
+    line-height:1.55;
+    margin:14px 0;
+  }
+  .why{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.92rem;
+    background:rgba(47,93,79,0.07);
+    border-left:3px solid var(--tag-start);
+    padding:12px 16px;
+    margin:14px 0;
+    color:var(--ink);
+  }
+  .why b{color:var(--tag-start);}
+
+  /* Confusion buster */
+  .buster{
+    margin-top:52px;
+    padding:24px 24px 8px;
+    border:1px solid var(--rule);
+    background:#fff;
+  }
+  .buster h2{font-size:1.2rem;margin:0 0 14px;}
+  .buster .row{
+    display:flex;
+    gap:16px;
+    margin-bottom:18px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.92rem;
+  }
+  .buster .row .label{
+    flex:0 0 96px;
+    font-weight:700;
+    color:var(--tag-start);
+  }
+  .buster .row.end .label{color:var(--tag-end);}
+  .buster .row .body{color:var(--ink-soft);}
+  .buster .row .body b{color:var(--ink);}
+
+  footer{
+    margin-top:60px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.82rem;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>Interval Scheduling — Pattern Map</h1>
+    <p>Five recurring shapes behind almost every interval problem, and the one question that tells you whether to sort by start time or end time.</p>
+  </header>
+
+  <div class="decision">
+    <h2>Quick lookup by what the problem asks for</h2>
+    <table>
+      <tr><td class="q">Maximum number of non-overlapping intervals you can keep / fewest to remove</td><td class="a">Sort by END, greedy pick</td></tr>
+      <tr><td class="q">Max people/tasks alive at the same instant (just a count)</td><td class="a">Sweep line, +1/−1</td></tr>
+      <tr><td class="q">Minimum meeting rooms / platforms needed (just a count)</td><td class="a">Sweep line, +1/−1</td></tr>
+      <tr><td class="q">Which room each meeting goes into (actual allocation)</td><td class="a">Sort by START, min-heap of end times</td></tr>
+      <tr><td class="q">Merge all overlapping intervals into blocks</td><td class="a">Sort by START, merge in place</td></tr>
+      <tr><td class="q">Attend one meeting/event per day, deadline-bound, tasks have a duration</td><td class="a">Sort by deadline/END, max-heap for exchange argument</td></tr>
+      <tr><td class="q">Free time common to everyone / gaps between busy blocks</td><td class="a">Sweep line or merge, then read gaps</td></tr>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PATTERN 1 -->
+  <div class="pattern">
+    <div class="num">Pattern 1</div>
+    <h2>Non-overlapping intervals (Activity Selection)</h2>
+    <span class="sort-tag end">SORT BY END TIME</span>
+    <p>You're given start/end pairs and asked for the maximum count of intervals that don't overlap each other — or equivalently, the minimum number to delete so nothing overlaps.</p>
+    <div class="keywords"><b>Keywords that point here:</b> "maximum non-overlapping intervals," "minimum intervals to remove," "erase overlap intervals," "maximum activities," "job sequencing without deadline pressure."</div>
+    <pre>Arrays.sort(intervals, (a, b) -> a[1] - b[1]);   // sort by END
+int count = 1;
+int prevEnd = intervals[0][1];
+for (int i = 1; i < intervals.length; i++) {
+    if (intervals[i][0] >= prevEnd) {   // starts after (or when) prev ends
+        count++;
+        prevEnd = intervals[i][1];
+    }
+}</pre>
+    <div class="why"><b>Why end time, not start:</b> the interval that finishes earliest leaves the most room for everything that comes after it, regardless of when it started. Sorting by start and greedily taking the first one can lock in a long interval that blocks out several short ones later. This is the classic exchange-argument greedy proof.</div>
+  </div>
+
+  <!-- PATTERN 2 -->
+  <div class="pattern">
+    <div class="num">Pattern 2</div>
+    <h2>Sweep line (+1 / −1)</h2>
+    <span class="sort-tag sweep">EVENTS SORTED BY TIME</span>
+    <p>You only need a <em>number</em> — the max overlap at any instant, or the minimum resources (rooms, platforms, servers) needed at peak load. You don't care which interval got which resource.</p>
+    <div class="keywords"><b>Keywords that point here:</b> "minimum platforms," "minimum meeting rooms required" (count only), "maximum overlapping intervals," "peak concurrent users," "car pooling capacity check."</div>
+    <pre>List<int[]> events = new ArrayList<>();
+for (int[] iv : intervals) {
+    events.add(new int[]{iv[0], 1});    // arrival
+    events.add(new int[]{iv[1], -1});   // departure
+}
+events.sort((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]); // end before start on ties, if intervals are half-open
+
+int cur = 0, peak = 0;
+for (int[] e : events) {
+    cur += e[1];
+    peak = Math.max(peak, cur);
+}</pre>
+    <div class="why"><b>Why this is different from Pattern 1:</b> here you're not selecting a subset of intervals — every interval is "active," you're just measuring how many overlap at once. There's no greedy choice being made, so there's no start-vs-end dilemma; you sort <i>events</i>, not intervals, and the tie-break (process an ending before a starting event at the same timestamp) matters only if the interval is closed at both ends.</div>
+  </div>
+
+  <!-- PATTERN 3 -->
+  <div class="pattern">
+    <div class="num">Pattern 3</div>
+    <h2>Room allocation (Meeting Rooms II)</h2>
+    <span class="sort-tag start">SORT BY START TIME</span>
+    <p>Same flavor as Pattern 2, but now you need the actual assignment — which room each meeting uses — not just the peak count. This is where a min-heap enters.</p>
+    <div class="keywords"><b>Keywords that point here:</b> "minimum rooms and assign each meeting a room," "schedule tasks on k machines," "how the rooms were allocated," "reuse the earliest-freed resource."</div>
+    <pre>Arrays.sort(intervals, (a, b) -> a[0] - b[0]);   // sort by START
+PriorityQueue<Integer> endTimes = new PriorityQueue<>();  // min-heap of end times
+for (int[] iv : intervals) {
+    if (!endTimes.isEmpty() && endTimes.peek() <= iv[0]) {
+        endTimes.poll();     // earliest-freed room is free — reuse it
+    }
+    endTimes.offer(iv[1]);   // occupy a room until this end time
+}
+int roomsNeeded = endTimes.size();</pre>
+    <div class="why"><b>Why start time here, when Pattern 1 used end time:</b> you're processing meetings in the order they <i>arrive</i>, and for each new arrival asking "is any room about to be free?" That question only makes sense if you walk through arrivals chronologically. The heap tracks the earliest end time among busy rooms, so it plays the role end-time-sorting played in Pattern 1 — but here it's dynamic (updated per arrival) instead of a static sort key, because you must decide room-by-room, not just count.</div>
+  </div>
+
+  <!-- PATTERN 4 -->
+  <div class="pattern">
+    <div class="num">Pattern 4</div>
+    <h2>Merge intervals</h2>
+    <span class="sort-tag start">SORT BY START TIME</span>
+    <p>Collapse overlapping or touching intervals into their union. Foundation for "insert interval," "employee free time," and "list of busy blocks."</p>
+    <div class="keywords"><b>Keywords that point here:</b> "merge overlapping intervals," "combine intervals," "consolidate ranges," "insert interval into sorted list."</div>
+    <pre>Arrays.sort(intervals, (a, b) -> a[0] - b[0]);  // sort by START
+List<int[]> merged = new ArrayList<>();
+for (int[] iv : intervals) {
+    if (merged.isEmpty() || merged.get(merged.size()-1)[1] < iv[0]) {
+        merged.add(iv);
+    } else {
+        merged.get(merged.size()-1)[1] =
+            Math.max(merged.get(merged.size()-1)[1], iv[1]);
+    }
+}</pre>
+    <div class="why"><b>Why start time:</b> you're building up a union left to right, so you need intervals in the order they begin — you're not choosing a subset (no greedy trade-off), just accumulating coverage, so there's no reason to prefer end time here.</div>
+  </div>
+
+  <!-- PATTERN 5 -->
+  <div class="pattern">
+    <div class="num">Pattern 5</div>
+    <h2>Deadline-bound task scheduling (Job Sequencing / "Course Schedule III")</h2>
+    <span class="sort-tag end">SORT BY DEADLINE (END)</span>
+    <p>Each task has a duration and a deadline; you attend/complete as many <i>whole</i> tasks as possible without missing any deadline — but unlike Pattern 1, tasks aren't fixed [start, end] windows, so you sometimes need to <i>evict</i> an already-accepted task later if a better one shows up.</p>
+    <div class="keywords"><b>Keywords that point here:</b> "maximum number of courses you can take before deadlines," "job sequencing to maximize profit," "task scheduler with deadlines," "you may drop an earlier choice if it helps."</div>
+    <pre>Arrays.sort(tasks, (a, b) -> a[1] - b[1]);  // sort by deadline
+PriorityQueue<Integer> taken = new PriorityQueue<>(Collections.reverseOrder()); // max-heap of durations
+long time = 0;
+for (int[] t : tasks) {
+    time += t[0];              // tentatively take it
+    taken.offer(t[0]);
+    if (time > t[1]) {         // blew the deadline
+        time -= taken.poll();  // evict the LONGEST task taken so far
+    }
+}
+int maxTasksAttended = taken.size();</pre>
+    <div class="why"><b>Why this looks like Pattern 1 but needs a heap:</b> sorting by end/deadline is still right, for the same exchange-argument reason as Pattern 1 — but because a task has a <i>duration</i> that eats into the schedule (not just an instantaneous slot), a task you accepted early can later become the thing worth undoing. The max-heap lets you cheaply find "the most expensive choice so far" to undo, which is what you were groping toward with "attend a tiny bit, not the whole interval" — you're not partially attending anything, you're conditionally un-committing to a full task.</div>
+  </div>
+
+  <div class="buster">
+    <h2>The one-line rule for start vs. end</h2>
+    <div class="row">
+      <div class="label">Sort by END</div>
+      <div class="body">when you're <b>picking a subset</b> of intervals/tasks and want to leave maximum room for the future (Patterns 1 and 5). This is a greedy selection problem.</div>
+    </div>
+    <div class="row end">
+      <div class="label">Sort by START</div>
+      <div class="body">when you're <b>processing arrivals in real time</b> — building a union (Pattern 4) or assigning live resources as they show up (Pattern 3). This is a simulation problem.</div>
+    </div>
+    <div class="row">
+      <div class="label">Sweep line</div>
+      <div class="body">when you don't care about individual intervals at all, only <b>the count of overlaps</b> at some moment (Pattern 2). Sort events, not intervals.</div>
+    </div>
+  </div>
+
+  <footer>Java snippets — trim to <code>long</code> where durations/timestamps can overflow <code>int</code>, per your usual DP pitfalls.</footer>
+
+</div>
+</body>
+</html>

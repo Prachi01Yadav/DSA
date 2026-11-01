@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bit City: Bit Manipulation, but fun</title>
+<style>
+:root{--bg:#0d0f1c;--card:#161a2e;--card2:#1d2240;--ink:#e8ebff;--mute:#9aa3d1;--on:#ffd23f;--off:#2a3050;--acc:#5ef2c4;--pink:#ff5d8f;--blue:#59a6ff;--purple:#a78bfa;--red:#ff6b6b;--line:#2f3660}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1000px 500px at 10% -10%,#2a2358 0,transparent 60%),var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 14px 90px}
+nav{position:sticky;top:0;z-index:20;background:#0d0f1cdd;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+nav a{display:inline-block;padding:11px 12px;color:var(--mute);text-decoration:none;font-size:14px}
+nav a:hover{color:var(--acc)}
+h1{font-size:clamp(30px,7vw,48px);line-height:1.1;margin:26px 0 8px}
+h1 span{background:linear-gradient(90deg,var(--on),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{margin:0 0 6px;font-size:clamp(22px,5vw,29px)}
+h3{margin:18px 0 6px;font-size:18px}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:20px 0}
+.sub{color:var(--mute);margin:0 0 10px}
+code{background:#0b0d1a;border:1px solid var(--line);padding:1px 6px;border-radius:6px;font:14px ui-monospace,Menlo,Consolas,monospace;color:var(--acc);white-space:nowrap}
+pre{background:#0b0d1a;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:auto;font:13.5px/1.55 ui-monospace,Menlo,Consolas,monospace;color:#cfe9ff;margin:10px 0}
+pre code{background:none;border:0;padding:0;color:inherit;white-space:pre}
+.tip,.warn,.story{border-left:4px solid;padding:10px 14px;border-radius:0 10px 10px 0;margin:12px 0;background:#ffffff08}
+.tip{border-color:var(--acc)}.warn{border-color:var(--red)}.story{border-color:var(--purple)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:12px;margin:12px 0}
+.card{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card h4{margin:0 0 4px;font-size:17px}
+.card .big{font-size:28px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--card2);color:var(--mute)}
+.tt{width:auto;min-width:60%}
+.tblwrap{overflow-x:auto}
+/* bit rows */
+.rowv{display:flex;align-items:center;gap:8px 10px;margin:6px 0;flex-wrap:wrap}
+.rl{min-width:104px;font:13px ui-monospace,Menlo,monospace;color:var(--mute)}
+.bits{display:flex;gap:4px}
+.cell{width:clamp(27px,8vw,40px);padding:2px 0 4px;border-radius:8px;background:var(--off);text-align:center;color:#7b84b5;transition:.15s;border:0;font-family:inherit}
+.cell small{display:block;font-size:10px;opacity:.75;line-height:1.25}
+.cell b{font:700 18px ui-monospace,Menlo,monospace}
+.cell.on{background:#3d3410;color:var(--on);box-shadow:0 0 12px #ffd23f40 inset}
+.cell.hl{outline:2px solid var(--pink)}
+.cell.chg{outline:2px solid var(--acc)}
+.rv{font:700 15px ui-monospace,Menlo,monospace;color:var(--blue)}
+.sw{cursor:pointer;width:clamp(30px,9.5vw,48px);padding:4px 0}
+.sw:hover{transform:translateY(-2px)}
+.sw b{font-size:22px}
+.legend{font-size:13px;color:var(--mute)}
+.pk{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:3px}
+/* controls */
+.btn{background:var(--card2);color:var(--ink);border:1px solid #3b4375;border-radius:10px;padding:8px 12px;cursor:pointer;font:600 14px system-ui;margin:3px 2px}
+.btn:hover{border-color:var(--acc)}
+.btn.active{background:var(--acc);color:#04210f;border-color:var(--acc)}
+input,select{background:#0b0d1a;color:var(--ink);border:1px solid #3b4375;border-radius:8px;padding:8px 10px;font:15px ui-monospace,Menlo,monospace;max-width:100%}
+input[type=number]{width:92px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:8px 0}
+.out{background:#0b0d1a;border:1px dashed var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.expl{margin:6px 0 0;color:var(--ink)}
+.res{font-weight:700;color:var(--on)}
+/* tests */
+.grp{margin:22px 0 4px;color:var(--on)}
+.test{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.test.ok{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.num{background:var(--purple);color:#10062e;border-radius:6px;padding:1px 7px;font:700 13px ui-monospace,monospace;margin-right:6px}
+.q{margin:6px 0}
+.ans{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ans input{width:150px}
+.fb{margin-top:6px;font-weight:600}
+.fb.good{color:var(--acc)}.fb.bad{color:var(--pink)}
+.hint{margin-top:8px;padding:8px 12px;border-left:4px solid var(--on);background:#ffd23f12;border-radius:0 8px 8px 0}
+.sol{margin-top:8px;padding:10px 12px;border:1px dashed var(--acc);border-radius:10px;background:#5ef2c40a}
+.sol ol{margin:6px 0 6px 20px;padding:0}
+.final{font-weight:700;color:var(--acc)}
+.score{position:sticky;top:44px;z-index:15;text-align:right;font-weight:700;color:var(--on);padding:4px 0}
+footer{color:var(--mute);text-align:center;margin-top:30px;font-size:14px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="#hero">🏙️ Welcome</a><a href="#c1">1 Binary</a><a href="#c2">2 Operators</a><a href="#c3">3 Big Five</a><a href="#c4">4 Masks</a><a href="#c5">5 Wizard tricks</a><a href="#c6">6 Sets</a><a href="#c7">7 Traps</a><a href="#arena">🏟️ Arena (tests)</a><a href="#cheat">📋 Cheatsheet</a>
+</nav>
+<div class="wrap">
+
+<header id="hero">
+  <h1>Welcome to <span>Bit City</span> 💡</h1>
+  <p class="sub">Bit manipulation is just <b>light switches</b>. That's it. A number is a row of switches: <b style="color:var(--on)">1 = ON</b>, <b>0 = OFF</b>. Every operation below is just "which switches do we flip, and how?"</p>
+  <section>
+    <h2>🎛️ The Switchboard (click the bits!)</h2>
+    <p class="sub">Each switch has an <b>index</b> (top, counted from the <u>right</u>, starting at 0) and a <b>value</b> (bottom). The number = sum of values of all ON switches.</p>
+    <div class="bits" id="heroBits" style="margin:8px 0"></div>
+    <div id="heroInfo" class="res"></div>
+    <div class="ctl"><button class="btn" onclick="heroSet(0)">All OFF</button><button class="btn" onclick="heroSet(255)">All ON</button><button class="btn" onclick="heroSet(Math.floor(Math.random()*256))">🎲 Random</button></div>
+    <div class="story">🧠 <b>Golden rule #1:</b> Index 0 is the <u>rightmost</u> bit (the humble doorman 🚪). Almost every bug beginners make is reading the indices from the left.</div>
+  </section>
+  <section>
+    <h2>🧪 The 5-step dry-run recipe</h2>
+    <p class="sub">Use this for <i>every</i> problem in the Arena below. Do it on paper:</p>
+    <ol>
+      <li>Write each number in binary, <b>aligned</b>, with index labels on top (0 on the right).</li>
+      <li>Build the <b>mask</b> on its own line (for example <code>1 &lt;&lt; k</code>).</li>
+      <li>Apply the operator <b>column by column</b>, never "as a whole".</li>
+      <li>Read the result row back as decimal.</li>
+      <li>Sanity-check with a tiny case (like <code>n = 1</code> or <code>n = 0</code>).</li>
+    </ol>
+  </section>
+</header>
+
+<!-- ============ CH1 ============ -->
+<section id="c1">
+  <h2>Chapter 1: Reading the switchboard 📖</h2>
+  <p class="sub">Place values double as you go left: 1, 2, 4, 8, 16, 32, 64, 128 …</p>
+  <div id="placeVis"></div>
+  <div class="tip">⭐ <b>The most important number in bit-land: <code>1 &lt;&lt; k</code></b>. It is a number with <u>only switch k ON</u>, I call it the <b>spotlight 🔦</b>. Its value is 2<sup>k</sup>.</div>
+  <div class="tblwrap"><table id="spotTbl"></table></div>
+  <h3>Mini examples</h3>
+  <ul>
+    <li><code>13</code> = 8 + 4 + 1 → switches 3, 2, 0 are ON → <code>00001101</code></li>
+    <li><code>40</code> = 32 + 8 → switches 5 and 3 → <code>00101000</code></li>
+    <li>Even numbers always have switch 0 OFF; odd numbers always have it ON. (That is why <code>n &amp; 1</code> tells odd/even.)</li>
+  </ul>
+</section>
+
+<!-- ============ CH2 ============ -->
+<section id="c2">
+  <h2>Chapter 2: The six residents of Bit City 🏘️</h2>
+  <p class="sub">Each one has a personality. Learn the personality, forget memorising.</p>
+  <div class="grid">
+    <div class="card"><div class="big">🚪</div><h4>AND <code>&amp;</code>: the Bouncer</h4><p>Lets a bit through <b>only if BOTH</b> numbers have a 1 there.<br><b>Use it to:</b> check a bit, clear bits, keep only some bits.</p></div>
+    <div class="card"><div class="big">🎉</div><h4>OR <code>|</code>: the Party Host</h4><p>Bit is 1 if <b>EITHER</b> has a 1.<br><b>Use it to:</b> turn bits ON, merge sets.</p></div>
+    <div class="card"><div class="big">🕵️</div><h4>XOR <code>^</code>: the Spy</h4><p>Bit is 1 if the two bits are <b>DIFFERENT</b>. Same bits cancel to 0.<br><b>Use it to:</b> toggle bits, find the odd one out, swap.</p></div>
+    <div class="card"><div class="big">🙃</div><h4>NOT <code>~</code>: Opposite Day</h4><p>Flips <b>every</b> bit (0↔1). In Java, <code>~n = -n - 1</code>.<br><b>Use it to:</b> build "everything except" masks.</p></div>
+    <div class="card"><div class="big">🛗</div><h4>Left shift <code>&lt;&lt;</code>: Elevator Up</h4><p>Slides all bits left, fills 0s on the right. <code>n &lt;&lt; k</code> = <code>n × 2<sup>k</sup></code>.</p></div>
+    <div class="card"><div class="big">🛗</div><h4>Right shift <code>&gt;&gt;</code> / <code>&gt;&gt;&gt;</code>: Elevator Down</h4><p><code>n &gt;&gt; k</code> = floor(<code>n / 2<sup>k</sup></code>), keeps the sign. <code>&gt;&gt;&gt;</code> (Java) fills 0s no matter what.</p></div>
+  </div>
+  <h3>Truth table (memorise nothing, just look)</h3>
+  <table class="tt"><tr><th>a</th><th>b</th><th>a &amp; b</th><th>a | b</th><th>a ^ b</th></tr>
+   <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+   <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+   <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+   <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr></table>
+  <div class="tip">🧠 <b>Cheat phrases:</b> AND = "both or nothing". OR = "at least one". XOR = "exactly one" (or "are they different?").<br>Useful facts: <code>x &amp; 0 = 0</code>, <code>x &amp; 1 = x</code>, <code>x | 0 = x</code>, <code>x ^ 0 = x</code>, <code>x ^ x = 0</code>.</div>
+
+  <h3>🔬 Operator Lab (8-bit bytes, so everything fits on screen)</h3>
+  <div class="ctl">
+    <label>a <input id="la" type="number" min="0" max="255" value="12" oninput="labRender()"></label>
+    <select id="lop" onchange="labRender()">
+      <option value="and">a &amp; b (AND)</option><option value="or">a | b (OR)</option><option value="xor">a ^ b (XOR)</option>
+      <option value="shl">a &lt;&lt; b (left shift)</option><option value="shr">a &gt;&gt; b (right shift)</option><option value="not">~a (NOT)</option>
+    </select>
+    <label>b <input id="lb" type="number" min="0" max="255" value="10" oninput="labRender()"></label>
+  </div>
+  <div class="out" id="labOut"></div>
+  <div class="legend"><span class="pk" style="background:var(--acc)"></span>result bit that is 1 &nbsp; (for shifts, <b>b</b> is the shift amount 0–7)</div>
+</section>
+
+<!-- ============ CH3 ============ -->
+<section id="c3">
+  <h2>Chapter 3: The Big Five: kth-bit powers 🖐️</h2>
+  <p class="sub">Everything in bitmask problems is built from these five moves. All of them use the spotlight <code>mask = 1 &lt;&lt; k</code>.</p>
+  <div class="tblwrap"><table>
+    <tr><th>Move</th><th>Formula</th><th>Personality</th></tr>
+    <tr><td>🔍 Check bit k</td><td><code>(n &gt;&gt; k) &amp; 1</code> or <code>(n &amp; mask) != 0</code></td><td>Bouncer: only switch k can pass; is anything left?</td></tr>
+    <tr><td>💡 Set bit k (→1)</td><td><code>n | mask</code></td><td>Host: invites switch k, whatever it was</td></tr>
+    <tr><td>🌑 Clear bit k (→0)</td><td><code>n &amp; ~mask</code></td><td>Opposite Day mask has a 0 only at k; the Bouncer kills exactly that one</td></tr>
+    <tr><td>🔄 Toggle bit k</td><td><code>n ^ mask</code></td><td>Spy: different from 1 means flip</td></tr>
+    <tr><td>✏️ Update bit k to v</td><td><code>(n &amp; ~mask) | (v &lt;&lt; k)</code></td><td>Clear first, then write v</td></tr>
+  </table></div>
+<pre><code>boolean isOn = ((n &gt;&gt; k) &amp; 1) == 1;      // check
+n = n | (1 &lt;&lt; k);                       // set
+n = n &amp; ~(1 &lt;&lt; k);                     // clear
+n = n ^ (1 &lt;&lt; k);                       // toggle
+n = (n &amp; ~(1 &lt;&lt; k)) | (v &lt;&lt; k);       // update to v (v is 0 or 1)</code></pre>
+  <div class="story">🧠 <b>Mnemonic:</b> <b>O</b>R turns <b>O</b>N. <b>A</b>ND-NOT turns it <b>A</b>way (off). <b>X</b>OR fli<b>X</b>es (flips). AND just <b>A</b>sks (checks).</div>
+
+  <h3>🎮 Playground</h3>
+  <div class="ctl">
+    <label>n <input id="pn" type="number" min="0" max="255" value="45" oninput="pgRender()"></label>
+    <label>k <select id="pk" onchange="pgRender()"></select></label>
+    <label>v <select id="pv" onchange="pgRender()"><option>0</option><option>1</option></select></label>
+  </div>
+  <div class="ctl" id="pgBtns">
+    <button class="btn active" data-op="check" onclick="pgOp('check')">🔍 Check</button>
+    <button class="btn" data-op="set" onclick="pgOp('set')">💡 Set</button>
+    <button class="btn" data-op="clear" onclick="pgOp('clear')">🌑 Clear</button>
+    <button class="btn" data-op="toggle" onclick="pgOp('toggle')">🔄 Toggle</button>
+    <button class="btn" data-op="update" onclick="pgOp('update')">✏️ Update to v</button>
+  </div>
+  <div class="out" id="pgOut"></div>
+  <div class="legend"><span class="pk" style="outline:2px solid var(--pink)"></span>spotlight bit k &nbsp; <span class="pk" style="outline:2px solid var(--acc)"></span>bit that changed</div>
+</section>
+
+<!-- ============ CH4 ============ -->
+<section id="c4">
+  <h2>Chapter 4: Mask recipes 🎭</h2>
+  <p class="sub">A mask is a tiny stencil. Build the stencil, then use &amp; | ^ with it. Examples below use the shown k, l, r.</p>
+  <div class="tblwrap"><table id="maskTbl"></table></div>
+  <div class="tip">⭐ <b>Why <code>(1 &lt;&lt; k) - 1</code> works:</b> <code>1&lt;&lt;k</code> is a lone 1 followed by k zeros (like <code>1000</code>). Subtracting 1 turns that lone 1 into 0 and all the zeros below it into 1s (<code>0111</code>). Instant "k ones" mask!</div>
+</section>
+
+<!-- ============ CH5 ============ -->
+<section id="c5">
+  <h2>Chapter 5: Wizard tricks 🧙</h2>
+  <p class="sub">The famous one-liners. Each has a visual so you can <i>see</i> why it works.</p>
+
+  <h3>🪄 1. <code>n &amp; (n-1)</code>: the Lowest-1 Eraser</h3>
+  <p>Subtracting 1 flips the lowest 1 to 0 and turns all zeros to its right into 1s. AND-ing with the original wipes that whole zone. Result: <b>lowest set bit erased</b>.</p>
+  <div id="vTrick1"></div>
+  <ul><li>Power of two? → <code>n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0</code> (a power of two has exactly one 1, erase it and nothing is left)</li>
+  <li>Count set bits (Kernighan): <code>while(n &gt; 0){ n &amp;= n-1; count++; }</code> runs once per 1, not once per bit</li></ul>
+
+  <h3>🪄 2. <code>n &amp; -n</code>: the Lowest-1 Spotlight</h3>
+  <p>Negative numbers are stored as <b>two's complement</b>: <code>-n = ~n + 1</code>. Flip everything then add 1; the carry ripples up through the zeros and stops right at the lowest 1, leaving only that bit in common.</p>
+  <div id="vTrick2"></div>
+  <div id="vTwos"></div>
+  <p>Used in: Fenwick trees (BIT), iterating set bits of a mask, finding the lowest set bit's value.</p>
+
+  <h3>🪄 3. XOR superpowers 🕵️</h3>
+  <ul>
+    <li><code>a ^ a = 0</code> (twins cancel), <code>a ^ 0 = a</code>, and order doesn't matter.</li>
+    <li><b>Single number:</b> XOR the whole array; every pair cancels, the loner survives.</li>
+    <li><b>Missing number</b> in 0..n: XOR all indices and all values, the missing one is left.</li>
+    <li><b>Swap without temp:</b> <code>a ^= b; b ^= a; a ^= b;</code></li>
+    <li><b>Do they differ?</b> <code>a ^ b</code> has a 1 exactly where they differ. <b>Hamming distance</b> = <code>Integer.bitCount(a ^ b)</code></li>
+  </ul>
+
+  <h3>🪄 4. Quick utilities</h3>
+  <div class="tblwrap"><table>
+    <tr><th>Goal</th><th>Code</th></tr>
+    <tr><td>Odd / even</td><td><code>(n &amp; 1) == 1</code> is odd</td></tr>
+    <tr><td>Multiply / divide by 2<sup>k</sup></td><td><code>n &lt;&lt; k</code>, <code>n &gt;&gt; k</code></td></tr>
+    <tr><td>Value of lowest set bit</td><td><code>n &amp; -n</code></td></tr>
+    <tr><td>Index of lowest set bit</td><td><code>Integer.numberOfTrailingZeros(n)</code></td></tr>
+    <tr><td>Index of highest set bit</td><td><code>31 - Integer.numberOfLeadingZeros(n)</code></td></tr>
+    <tr><td>Count set bits</td><td><code>Integer.bitCount(n)</code></td></tr>
+    <tr><td>All ones</td><td><code>-1</code> or <code>~0</code></td></tr>
+    <tr><td>Negate</td><td><code>~n + 1</code> equals <code>-n</code>; also <code>~n = -n - 1</code></td></tr>
+    <tr><td>Debug print</td><td><code>Integer.toBinaryString(n)</code></td></tr>
+  </table></div>
+</section>
+
+<!-- ============ CH6 ============ -->
+<section id="c6">
+  <h2>Chapter 6: Bitmask = a tiny set 🧺</h2>
+  <p class="sub">Have at most ~20–30 items? One integer can store "which items are picked". Bit i ON = item i is in the set. This powers subset enumeration and bitmask DP.</p>
+  <div id="setVis"></div>
+  <div class="tblwrap"><table>
+    <tr><th>Set operation</th><th>Bit code</th></tr>
+    <tr><td>Empty set / full set of n items</td><td><code>0</code> / <code>(1 &lt;&lt; n) - 1</code></td></tr>
+    <tr><td>Add item i</td><td><code>m | (1 &lt;&lt; i)</code></td></tr>
+    <tr><td>Remove item i</td><td><code>m &amp; ~(1 &lt;&lt; i)</code></td></tr>
+    <tr><td>Is item i in set?</td><td><code>(m &gt;&gt; i) &amp; 1</code></td></tr>
+    <tr><td>Union / Intersection</td><td><code>a | b</code> / <code>a &amp; b</code></td></tr>
+    <tr><td>Difference (a minus b)</td><td><code>a &amp; ~b</code></td></tr>
+    <tr><td>Complement</td><td><code>full ^ m</code></td></tr>
+    <tr><td>Size of set</td><td><code>Integer.bitCount(m)</code></td></tr>
+    <tr><td>Is a a subset of b?</td><td><code>(a &amp; b) == a</code></td></tr>
+  </table></div>
+<pre><code>// 1) all subsets of n items
+for (int m = 0; m &lt; (1 &lt;&lt; n); m++) { /* m is one subset */ }
+
+// 2) walk over the set bits of m (fast)
+for (int t = m; t &gt; 0; t &amp;= t - 1) {
+    int i = Integer.numberOfTrailingZeros(t);   // item i is in m
+}
+
+// 3) all submasks of m (including m and 0)
+for (int s = m; ; s = (s - 1) &amp; m) {
+    /* use s */
+    if (s == 0) break;
+}</code></pre>
+  <h3>Submask walk for <code>m = 13</code> (<code>01101</code> = {A, C, D})</h3>
+  <div id="subVis"></div>
+  <div class="tip">🧠 <b>Why <code>(s-1) &amp; m</code> works:</b> subtracting 1 gives the "previous" number, AND-ing with m throws away bits that aren't allowed. You land on the next smaller submask, in order, with nothing skipped.</div>
+</section>
+
+<!-- ============ CH7 ============ -->
+<section id="c7">
+  <h2>Chapter 7: Traps in Java 🪤</h2>
+  <div class="warn"><b>1. Shift count wraps.</b> For <code>int</code>, the shift amount is taken mod 32: <code>1 &lt;&lt; 32 == 1</code>, and <code>1 &lt;&lt; 31</code> is negative (<code>-2147483648</code>). For 31+ bits use <code>1L &lt;&lt; k</code> and a <code>long</code> mask.</div>
+  <div class="warn"><b>2. <code>&gt;&gt;</code> vs <code>&gt;&gt;&gt;</code>.</b> <code>-8 &gt;&gt; 1 = -4</code> (sign bit copied), but <code>-8 &gt;&gt;&gt; 1 = 2147483644</code> (zeros fill in).</div>
+  <div class="warn"><b>3. Precedence bites.</b> Order high→low: <code>~</code>, <code>+ -</code>, <code>&lt;&lt; &gt;&gt;</code>, <code>&lt; &gt;</code>, <code>== !=</code>, <code>&amp;</code>, <code>^</code>, <code>|</code>. So <code>1 + 2 &lt;&lt; 3</code> is <code>(1+2) &lt;&lt; 3 = 24</code>, and <code>n &amp; 1 == 0</code> is parsed as <code>n &amp; (1 == 0)</code> (compile error). <b>Always parenthesise:</b> <code>(n &amp; 1) == 0</code>.</div>
+  <div class="warn"><b>4. Odd check with negatives.</b> <code>-3 % 2 == -1</code>, so <code>n % 2 == 1</code> misses negative odds. <code>(n &amp; 1) == 1</code> always works.</div>
+  <div class="warn"><b>5. Forgetting that <code>~</code> flips all 32 bits.</b> <code>~5</code> is <code>-6</code>, not 2. To flip only the lowest 3 bits use <code>n ^ 7</code>, not <code>~n</code>.</div>
+</section>
+
+<!-- ============ ARENA ============ -->
+<section id="arena">
+  <h2>🏟️ The Arena: 34 test cases with answers</h2>
+  <p class="sub">Dry-run each on paper first. Type your answer and hit <b>Check</b>. Stuck? <b>💡 Hint</b>. Want to compare your steps? <b>👀 Dry run</b> shows the full column-by-column working. Indices count from the right, starting at 0. Numbers are shown as 8-bit rows (Java uses 32 bits, but only the right 8 matter for these).</p>
+  <div class="score">Score: <span id="score">0</span> / <span id="total"></span></div>
+  <div id="tests"></div>
+</section>
+
+<!-- ============ CHEAT ============ -->
+<section id="cheat">
+  <h2>📋 One-page cheatsheet</h2>
+<pre><code>mask       = 1 &lt;&lt; k
+check      (n &gt;&gt; k) &amp; 1
+set        n | (1 &lt;&lt; k)
+clear      n &amp; ~(1 &lt;&lt; k)
+toggle     n ^ (1 &lt;&lt; k)
+update     (n &amp; ~(1 &lt;&lt; k)) | (v &lt;&lt; k)
+k ones     (1 &lt;&lt; k) - 1
+keep low k n &amp; ((1 &lt;&lt; k) - 1)
+clear low k n &amp; ~((1 &lt;&lt; k) - 1)
+extract    (n &gt;&gt; l) &amp; ((1 &lt;&lt; (r-l+1)) - 1)
+erase low1 n &amp; (n - 1)
+isolate low1 n &amp; -n
+pow of 2   n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0
+popcount   Integer.bitCount(n)
+subsets    for m in 0..(1&lt;&lt;n)-1
+submasks   for (s=m; ; s=(s-1)&amp;m) { ...; if (s==0) break; }</code></pre>
+</section>
+<footer>Made for dry-running. Go flip some switches. 💡</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,Number.isFinite(x)?x:a));
+const J=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const K=s=>`<code>${J(s)}</code>`;
+const B=(n,w=8)=>(n>>>0).toString(2).padStart(w,'0').slice(-w);
+const bc=(n,w=8)=>`<code>${B(n,w)}</code>`;
+const idxs=(n,w=8)=>{const a=[];for(let i=w-1;i>=0;i--)if((n>>i)&1)a.push(i);return a};
+const lit=(r,w=8)=>{const o={};for(let i=0;i<w;i++)if((r>>i)&1)o[i]='chg';return o};
+const spot=(...ks)=>Object.fromEntries(ks.map(k=>[k,'hl']));
+
+function row(label,val,w=8,opts={}){
+  const bin=B(val,w);let cells='';
+  for(let i=0;i<w;i++){
+    const idx=w-1-i,ch=bin[i],h=opts.hi&&opts.hi[idx]?' '+opts.hi[idx]:'';
+    cells+=`<div class="cell${ch==='1'?' on':''}${h}"><small>${idx}</small><b>${ch}</b></div>`;
+  }
+  const shown=opts.show!==undefined?opts.show:val;
+  return `<div class="rowv"><div class="rl">${J(label)}</div><div class="bits">${cells}</div><div class="rv">${shown}</div></div>`;
+}
+
+/* ---------- hero switchboard ---------- */
+let hero=45;
+function heroSet(v){hero=v;renderHero()}
+function heroT(i){hero^=(1<<i);renderHero()}
+function renderHero(){
+  let c='';
+  for(let i=7;i>=0;i--){const on=(hero>>i)&1;c+=`<button class="cell sw${on?' on':''}" onclick="heroT(${i})"><small>idx ${i}</small><b>${on}</b><small>${1<<i}</small></button>`}
+  $('heroBits').innerHTML=c;
+  const parts=[];for(let i=7;i>=0;i--)if((hero>>i)&1)parts.push(1<<i);
+  $('heroInfo').innerHTML=`Binary <code>${B(hero)}</code> &nbsp;=&nbsp; ${parts.join(' + ')||'0'} &nbsp;=&nbsp; <span style="color:var(--blue)">${hero}</span> &nbsp;(hex 0x${hero.toString(16).toUpperCase()})`;
+}
+
+/* ---------- operator lab ---------- */
+function labRender(){
+  const a=clamp(+$('la').value,0,255),b=clamp(+$('lb').value,0,255),op=$('lop').value;
+  let out='',e='';
+  if(op==='and'){const r=a&b;out=row('a',a)+row('b',b)+row('a & b',r,8,{hi:lit(r)});e=`Kept only columns where <b>both</b> are 1: indices ${idxs(r).join(', ')||'none'}.`}
+  if(op==='or'){const r=a|b;out=row('a',a)+row('b',b)+row('a | b',r,8,{hi:lit(r)});e=`Lit if <b>either</b> is 1: indices ${idxs(r).join(', ')||'none'}.`}
+  if(op==='xor'){const r=a^b;out=row('a',a)+row('b',b)+row('a ^ b',r,8,{hi:lit(r)});e=`Lit where the bits <b>differ</b>: indices ${idxs(r).join(', ')||'none (a and b are identical!)'}.`}
+  if(op==='shl'){const s=clamp(b,0,7),full=a<<s,r=full&255;out=row('a',a)+row(`a << ${s}`,r,8,{hi:lit(r)});e=`Every bit moves ${s} step(s) left, zeros enter from the right. That is a × 2<sup>${s}</sup> = ${full}.`+(full>255?` In a real byte, the bits past index 7 fall off the edge 🕳️, so we see ${r}. (In a 32-bit Java int they would survive.)`:'')}
+  if(op==='shr'){const s=clamp(b,0,7),r=a>>s;out=row('a',a)+row(`a >> ${s}`,r,8,{hi:lit(r)});e=`Every bit moves ${s} step(s) right; the lowest ${s} bit(s) fall off. That is floor(a / 2<sup>${s}</sup>) = ${r}.`}
+  if(op==='not'){const r=~a&255;out=row('a',a)+row('~a (8-bit)',r,8,{hi:lit(r)});e=`Every bit flipped. In an 8-bit byte that is 255 - a = ${r}. In a Java 32-bit <code>int</code>, <code>~${a}</code> = <b>${~a}</b> (because ~n = -n - 1).`}
+  $('labOut').innerHTML=out+`<div class="expl">${e}</div>`;
+}
+
+/* ---------- kth bit playground ---------- */
+let PG='check';
+function pgOp(op){PG=op;document.querySelectorAll('#pgBtns .btn').forEach(b=>b.classList.toggle('active',b.dataset.op===op));pgRender()}
+function pgRender(){
+  const n=clamp(+$('pn').value,0,255),k=+$('pk').value,v=+$('pv').value,mask=1<<k,hi=spot(k);
+  const inv=(~mask)&255;let out='',res,e='',j='';
+  const chg=r=>{const o={...hi};for(let i=0;i<8;i++)if(((n^r)>>i)&1)o[i]='chg';return o};
+  if(PG==='check'){const a=n&mask,bit=(n>>k)&1;
+    out=row('n',n,8,{hi})+row(`mask = 1 << ${k}`,mask,8,{hi})+row('n & mask',a,8,{hi});
+    e=`Only switch ${k} survives the Bouncer. Result is <b>${a}</b>, ${a?'non-zero → bit '+k+' is <b class="res">ON (1)</b>':'zero → bit '+k+' is <b class="res">OFF (0)</b>'}. Same thing: <code>(n &gt;&gt; ${k}) &amp; 1</code> = ${bit}.`;}
+  if(PG==='set'){res=n|mask;
+    out=row('n',n,8,{hi})+row(`mask = 1 << ${k}`,mask,8,{hi})+row('n | mask',res,8,{hi:chg(res)});
+    e=`The Host invites switch ${k}. ${(n>>k)&1?'It was already ON, so nothing changes.':'It was OFF, now it is ON.'} New value <b class="res">${res}</b>.`;}
+  if(PG==='clear'){res=n&inv;
+    out=row('n',n,8,{hi})+row(`mask = 1 << ${k}`,mask,8,{hi})+row('~mask',inv,8,{hi})+row('n & ~mask',res,8,{hi:chg(res)});
+    e=`~mask has a 0 <b>only</b> at index ${k}. The Bouncer lets everything else through and kills switch ${k}. ${(n>>k)&1?'It was ON, now OFF.':'It was already OFF, so nothing changes.'} New value <b class="res">${res}</b>.`;}
+  if(PG==='toggle'){res=n^mask;
+    out=row('n',n,8,{hi})+row(`mask = 1 << ${k}`,mask,8,{hi})+row('n ^ mask',res,8,{hi:chg(res)});
+    e=`The Spy flips switch ${k} and leaves the rest. New value <b class="res">${res}</b>.`;}
+  if(PG==='update'){const cl=n&inv,vm=v<<k;res=cl|vm;
+    out=row('n',n,8,{hi})+row('n & ~mask (cleared)',cl,8,{hi})+row(`v << ${k}`,vm,8,{hi})+row('cleared | (v<<k)',res,8,{hi:chg(res)});
+    e=`Step 1: clear bit ${k}. Step 2: OR in <code>v &lt;&lt; k</code> = ${vm}. Bit ${k} is now ${v}. New value <b class="res">${res}</b>.`;}
+  $('pgOut').innerHTML=out+`<div class="expl">${e}</div>`;
+}
+
+/* ---------- static visuals ---------- */
+function buildStatic(){
+  let p='';for(let i=7;i>=0;i--)p+=`<div class="cell on" style="display:inline-block;margin:0 2px"><small>idx ${i}</small><b>${1<<i}</b></div>`;
+  $('placeVis').innerHTML=`<div class="bits">${p}</div>`;
+  let t='<tr><th>k</th><th>1 &lt;&lt; k</th><th>binary</th></tr>';
+  for(let k=0;k<=7;k++)t+=`<tr><td>${k}</td><td>${1<<k}</td><td><code>${B(1<<k)}</code></td></tr>`;
+  $('spotTbl').innerHTML=t;
+  // mask recipes
+  const R=[
+   ['Only bit k ON','1 << k','k=3',1<<3],
+   ['Lowest k bits ON ("k ones")','(1 << k) - 1','k=3',(1<<3)-1],
+   ['Lowest k bits OFF, rest ON','~((1 << k) - 1)','k=3',~((1<<3)-1)],
+   ['Bits l..r ON','((1 << (r-l+1)) - 1) << l','l=2, r=4',((1<<3)-1)<<2],
+   ['Everything except bit k','~(1 << k)','k=3',~(1<<3)]
+  ];
+  let m='<tr><th>Goal</th><th>Formula</th><th>Example</th><th>8-bit mask</th></tr>';
+  R.forEach(x=>m+=`<tr><td>${x[0]}</td><td><code>${J(x[1])}</code></td><td>${x[2]}</td><td><code>${B(x[3])}</code></td></tr>`);
+  m+=`<tr><th colspan="4">Using masks on n (example n = 109 = <code>${B(109)}</code>)</th></tr>`;
+  const U=[
+   ['Keep only lowest k bits (n mod 2^k)','n & ((1 << k) - 1)','k=4',109&15],
+   ['Clear lowest k bits','n & ~((1 << k) - 1)','k=3',109&~7],
+   ['Extract bits l..r','(n >> l) & ((1 << (r-l+1)) - 1)','l=2, r=4',(109>>2)&7],
+   ['Toggle bits 0..k','n ^ ((1 << (k+1)) - 1)','k=3',109^15],
+   ['Set bits l..r','n | (((1 << (r-l+1)) - 1) << l)','l=2, r=4',109|(7<<2)]
+  ];
+  U.forEach(x=>m+=`<tr><td>${x[0]}</td><td><code>${J(x[1])}</code></td><td>${x[2]}</td><td>→ <b>${x[3]}</b> <code>${B(x[3])}</code></td></tr>`);
+  $('maskTbl').innerHTML=m;
+  // tricks
+  $('vTrick1').innerHTML=row('n = 52',52)+row('n - 1 = 51',51)+row('n & (n-1)',52&51,8,{hi:lit(52&51)});
+  $('vTrick2').innerHTML=row('n = 52',52)+row('-n (low 8 bits)',-52,8,{show:-52})+row('n & -n',52&-52,8,{hi:lit(52&-52)});
+  $('vTwos').innerHTML=`<p><b>Two's complement for 52:</b></p>`+row('n = 52',52)+row('~n (flip all)',~52&255)+row('~n + 1',(~52+1)&255,8,{show:'= -52'});
+  // sets
+  const items=['A','B','C','D'],nI=items.length;
+  let s='<p>Items: A=bit 0, B=bit 1, C=bit 2, D=bit 3.</p><div class="tblwrap"><table class="tt"><tr><th>mask</th><th>binary (D C B A)</th><th>subset</th></tr>';
+  for(let x=0;x<(1<<nI);x++){const sub=items.filter((_,i)=>(x>>i)&1);s+=`<tr><td>${x}</td><td><code>${B(x,nI)}</code></td><td>{${sub.join(', ')}}</td></tr>`}
+  $('setVis').innerHTML=s+'</table></div>';
+  const m13=13,L=[];for(let q=m13;;q=(q-1)&m13){L.push(q);if(q===0)break}
+  $('subVis').innerHTML=`<div class="tblwrap"><table class="tt"><tr><th>step</th><th>s</th><th>binary</th><th>set</th></tr>`+L.map((q,i)=>{const sub=['A','B','C','D','E'].filter((_,j)=>(q>>j)&1);return `<tr><td>${i+1}</td><td>${q}</td><td><code>${B(q,5)}</code></td><td>{${sub.join(', ')}}</td></tr>`}).join('')+`</table></div><p>${L.length} submasks = 2<sup>3</sup> because m has 3 set bits.</p>`;
+}
+
+/* ---------- test cases ---------- */
+const AMP='&amp;',SHL='&lt;&lt;',SHR='&gt;&gt;';
+const T=[
+/* ===== warm-up ===== */
+{g:'🐣 Warm-up: binary & the six residents',t:'Decimal → binary',q:`Write <b>37</b> in binary (type 0s and 1s).`,type:'bin',h:'Place values: 128 64 32 16 8 4 2 1. Greedily pick the biggest that fits.',
+ solve:()=>({ans:37,vis:row('37',37),steps:['37 = 32 + 4 + 1','= 2<sup>5</sup> + 2<sup>2</sup> + 2<sup>0</sup> → switches 5, 2 and 0 are ON',`Binary: ${bc(37)} (leading zeros optional)`]})},
+{g:'🐣 Warm-up: binary & the six residents',t:'Binary → decimal',q:`What is ${K('10110')} (binary) in decimal?`,type:'num',h:'Add the place value of every 1.',
+ solve:()=>{const a=parseInt('10110',2);return{ans:a,vis:row('10110',a),steps:['Bits ON: indices 4, 2, 1 → 16 + 4 + 2',`= ${a}`]}}},
+{g:'🐣 Warm-up: binary & the six residents',t:'AND, the Bouncer',q:`Compute ${K('12 & 10')}.`,type:'num',h:'Write both in 4 bits: 1100 and 1010. Keep a 1 only where BOTH have 1.',
+ solve:()=>{const r=12&10;return{ans:r,vis:row('12',12)+row('10',10)+row('12 & 10',r,8,{hi:lit(r)}),steps:['Go column by column; result bit is 1 only if both bits are 1.',`Only index ${idxs(r).join(', ')} is 1 in both`,`${bc(r)} = ${r}`]}}},
+{g:'🐣 Warm-up: binary & the six residents',t:'OR, the Party Host',q:`Compute ${K('12 | 10')}.`,type:'num',h:'1 wherever EITHER number has a 1.',
+ solve:()=>{const r=12|10;return{ans:r,vis:row('12',12)+row('10',10)+row('12 | 10',r,8,{hi:lit(r)}),steps:['Result bit is 1 if at least one bit is 1.',`Indices lit: ${idxs(r).join(', ')}`,`${bc(r)} = ${r}`]}}},
+{g:'🐣 Warm-up: binary & the six residents',t:'XOR, the Spy',q:`Compute ${K('12 ^ 10')}.`,type:'num',h:'1 only where the bits are different.',
+ solve:()=>{const r=12^10;return{ans:r,vis:row('12',12)+row('10',10)+row('12 ^ 10',r,8,{hi:lit(r)}),steps:['Result bit is 1 only where the two bits differ.',`Differing columns: indices ${idxs(r).join(', ')}`,`${bc(r)} = ${r}`]}}},
+{g:'🐣 Warm-up: binary & the six residents',t:'Elevator up',q:`Compute ${K('5 << 3')}.`,type:'num',h:'Shifting left by 3 multiplies by 2³.',
+ solve:()=>{const r=5<<3;return{ans:r,vis:row('5',5)+row('5 << 3',r,8,{hi:lit(r)}),steps:['Every bit moves 3 places left, zeros enter on the right.',`5 × 2<sup>3</sup> = 5 × 8 = ${r}`]}}},
+{g:'🐣 Warm-up: binary & the six residents',t:'Elevator down',q:`Compute ${K('100 >> 2')}.`,type:'num',h:'Right shift by 2 = floor(100 / 4).',
+ solve:()=>{const r=100>>2;return{ans:r,vis:row('100',100)+row('100 >> 2',r,8,{hi:lit(r)}),steps:['Every bit moves 2 places right; the lowest 2 bits (00) fall off.',`floor(100 / 4) = ${r}`]}}},
+/* ===== core ===== */
+{g:'🔧 Core: kth-bit surgery (n = 45 = 00101101)',t:'Check a bit',q:`Is bit <b>4</b> of <b>45</b> ON? Answer <b>1</b> (ON) or <b>0</b> (OFF).`,type:'num',h:'mask = 1 << 4 = 16. Compute 45 & 16.',
+ solve:()=>{const n=45,k=4,mk=1<<k,a=n&mk;return{ans:(n>>k)&1,vis:row('n',n,8,{hi:spot(k)})+row('1 << 4',mk,8,{hi:spot(k)})+row('n & mask',a,8,{hi:spot(k)}),steps:[`mask = ${K('1 << 4')} = 16 → only switch 4 is lit`,`n & mask = ${a} → ${a?'non-zero = ON':'zero = OFF'}`,`Same via shift: ${K('(45 >> 4) & 1')} = ${(n>>k)&1}`]}}},
+{g:'🔧 Core: kth-bit surgery (n = 45 = 00101101)',t:'Set a bit',q:`Set bit <b>4</b> of <b>45</b>. What is the new number?`,type:'num',h:'n | (1 << 4)',
+ solve:()=>{const n=45,k=4,mk=1<<k,r=n|mk;return{ans:r,vis:row('n',n,8,{hi:spot(k)})+row('1 << 4',mk,8,{hi:spot(k)})+row('n | mask',r,8,{hi:{...spot(k),...lit(n^r)}}),steps:['Bit 4 of 45 is OFF (0).','OR with the spotlight forces it ON.',`${bc(r)} = ${r}`]}}},
+{g:'🔧 Core: kth-bit surgery (n = 45 = 00101101)',t:'Clear a bit',q:`Clear bit <b>5</b> of <b>45</b>. What is the new number?`,type:'num',h:'n & ~(1 << 5). ~ flips the mask so only bit 5 is 0.',
+ solve:()=>{const n=45,k=5,mk=1<<k,inv=(~mk)&255,r=n&~mk;return{ans:r,vis:row('n',n,8,{hi:spot(k)})+row('1 << 5',mk,8,{hi:spot(k)})+row('~mask',inv,8,{hi:spot(k)})+row('n & ~mask',r,8,{hi:{...spot(k),...lit(n^r)}}),steps:['Bit 5 of 45 is ON (1).','~mask is 11011111, a stencil with a hole only at index 5.',`AND kills just that bit: ${bc(r)} = ${r}`]}}},
+{g:'🔧 Core: kth-bit surgery (n = 45 = 00101101)',t:'Toggle a bit',q:`Toggle bit <b>1</b> of <b>45</b>. What is the new number?`,type:'num',h:'n ^ (1 << 1). Bit 1 is currently 0.',
+ solve:()=>{const n=45,k=1,mk=1<<k,r=n^mk;return{ans:r,vis:row('n',n,8,{hi:spot(k)})+row('1 << 1',mk,8,{hi:spot(k)})+row('n ^ mask',r,8,{hi:{...spot(k),...lit(n^r)}}),steps:['Bit 1 was 0, XOR with 1 → 1 (a flip).',`${bc(r)} = ${r}`]}}},
+{g:'🔧 Core: kth-bit surgery (n = 45 = 00101101)',t:'Update a bit',q:`Update bit <b>2</b> of <b>45</b> to the value <b>0</b>. New number?`,type:'num',h:'(n & ~(1<<2)) | (0<<2). Careful: bit 2 of 45 is currently 1.',
+ solve:()=>{const n=45,k=2,v=0,mk=1<<k,cl=n&~mk,r=cl|(v<<k);return{ans:r,vis:row('n',n,8,{hi:spot(k)})+row('n & ~mask',cl,8,{hi:spot(k)})+row('v << k',v<<k,8,{hi:spot(k)})+row('result',r,8,{hi:spot(k)}),steps:['Step 1: clear bit 2 → 41.','Step 2: OR with (0 << 2) = 0 → nothing added.',`Result ${r}`]}}},
+/* ===== masks ===== */
+{g:'🎭 Mask makers',t:'k ones',q:`Evaluate ${K('(1 << 5) - 1')}.`,type:'num',h:'1<<5 is 100000. Subtract 1.',
+ solve:()=>{const r=(1<<5)-1;return{ans:r,vis:row('1 << 5',32)+row('minus 1',r,8,{hi:lit(r)}),steps:['1 << 5 = 32 = 100000','Subtract 1 → the lone 1 vanishes, 5 zeros below become ones: 011111',`= ${r}`]}}},
+{g:'🎭 Mask makers',t:'Keep the low bits',q:`Keep only the lowest <b>4</b> bits of <b>109</b>. Result?`,type:'num',h:'109 & ((1<<4)-1) = 109 & 15. Same as 109 mod 16.',
+ solve:()=>{const r=109&15;return{ans:r,vis:row('109',109)+row('15 (mask)',15)+row('109 & 15',r,8,{hi:lit(r)}),steps:['Mask = (1 << 4) - 1 = 15 = 00001111','AND wipes the top 4 bits and keeps the bottom 4.',`109 mod 16 = ${r}`]}}},
+{g:'🎭 Mask makers',t:'Clear the low bits',q:`Clear the lowest <b>3</b> bits of <b>109</b>. Result?`,type:'num',h:'109 & ~((1<<3)-1) = 109 & ~7.',
+ solve:()=>{const r=109&~7;return{ans:r,vis:row('109',109)+row('~7',~7&255)+row('109 & ~7',r,8,{hi:lit(r)}),steps:['(1<<3)-1 = 7 = 00000111; ~7 = 11111000','AND keeps the top bits, zeroes the bottom 3.',`109 - (109 mod 8) = 109 - 5 = ${r}`]}}},
+{g:'🎭 Mask makers',t:'Extract a bit-field',q:`Extract bits <b>2..4</b> (inclusive) of <b>109</b> as a number.`,type:'num',h:'(n >> l) & ((1 << width) - 1) with l = 2, width = 3.',
+ solve:()=>{const n=109,l=2,w=3,sh=n>>l,mk=(1<<w)-1,r=sh&mk;return{ans:r,vis:row('109',n,8,{hi:spot(2,3,4)})+row('109 >> 2',sh)+row('mask 7',mk)+row('(n>>2) & 7',r,8,{hi:lit(r)}),steps:['Shift right by l = 2 so the field sits at the bottom.',`Width = 4 - 2 + 1 = 3 → mask = (1<<3)-1 = 7`,`${sh} & 7 = ${r}`]}}},
+{g:'🎭 Mask makers',t:'Range of ones',q:`Build a mask with bits <b>2..5</b> ON (everything else 0). Decimal value?`,type:'num',h:'4 ones: (1<<4)-1 = 15, then shift left by 2.',
+ solve:()=>{const r=((1<<4)-1)<<2;return{ans:r,vis:row('(1<<4)-1',15)+row('<< 2',r,8,{hi:lit(r)}),steps:['Width = 5 - 2 + 1 = 4 → four ones: 1111','Shift them to start at index 2: 00111100',`= 32+16+8+4 = ${r}`]}}},
+{g:'🎭 Mask makers',t:'Toggle bits 0..3',q:`Toggle bits <b>0 through 3</b> of <b>178</b>. New number?`,type:'num',h:'XOR with k+1 = 4 ones: n ^ ((1<<4)-1) = n ^ 15.',
+ solve:()=>{const n=178,r=n^15;return{ans:r,vis:row('178',n)+row('15',15)+row('178 ^ 15',r,8,{hi:lit(n^r)}),steps:['178 = 10110010','XOR with 00001111 flips exactly the lowest 4 bits.',`${bc(r)} = ${r}`]}}},
+/* ===== wizard ===== */
+{g:'🧙 Wizard tricks',t:'Lowest-1 eraser',q:`Compute ${K('52 & (52 - 1)')}.`,type:'num',h:'52 = 110100. 51 = 110011. AND them.',
+ solve:()=>{const r=52&51;return{ans:r,vis:row('52',52)+row('51',51)+row('52 & 51',r,8,{hi:lit(r)}),steps:['Subtracting 1 flips the lowest 1 (index 2) to 0 and the zeros below it to 1.','AND with the original wipes that whole zone.',`Lowest set bit erased → ${bc(r)} = ${r}`]}}},
+{g:'🧙 Wizard tricks',t:'Lowest-1 spotlight',q:`Compute ${K('52 & -52')}.`,type:'num',h:'-52 = ~52 + 1. Only the lowest 1 stays in common.',
+ solve:()=>{const r=52&-52;return{ans:r,vis:row('52',52)+row('-52 (low 8 bits)',-52,8,{show:-52})+row('52 & -52',r,8,{hi:lit(r)}),steps:['-52 = ~52 + 1 = 11001100 (low 8 bits).','Only index 2 is 1 in both numbers.',`Result = 2<sup>2</sup> = ${r} (the value of the lowest set bit)`]}}},
+{g:'🧙 Wizard tricks',t:'Power-of-two test',q:`Evaluate ${K('96 & 95')}. (If it were 0, 96 would be a power of two.)`,type:'num',h:'96 = 1100000, 95 = 1011111.',
+ solve:()=>{const r=96&95;return{ans:r,vis:row('96',96)+row('95',95)+row('96 & 95',r,8,{hi:lit(r)}),steps:['96 has two 1s (indices 6 and 5). Erasing the lowest one leaves index 6.',`Result ${r} ≠ 0 → 96 is <b>not</b> a power of two.`]}}},
+{g:'🧙 Wizard tricks',t:'Count set bits (Kernighan)',q:`How many 1-bits are in <b>181</b>?`,type:'num',h:'Repeat n &= n-1 and count rounds. Or just count the 1s in 10110101.',
+ solve:()=>{let n=181,c=0;const st=[];while(n>0){const p=n;n&=n-1;c++;st.push(`Round ${c}: ${bc(p)} &amp; ${bc(p-1)} = ${bc(n)}`)}st.push(`Loop ran ${c} times → ${c} set bits`);return{ans:c,vis:row('181',181),steps:st}}},
+{g:'🧙 Wizard tricks',t:'The loner (XOR)',q:`Array <b>[4, 7, 4, 9, 7]</b>. XOR of all elements?`,type:'num',h:'Pairs cancel. Who has no twin?',
+ solve:()=>{const a=[4,7,4,9,7];let x=0;const st=[];a.forEach(v=>{const p=x;x^=v;st.push(`${p} ^ ${v} = ${x} (${bc(x,4)})`)});st.push('4 and 7 each appear twice, so they cancel; 9 survives.');return{ans:x,steps:st}}},
+{g:'🧙 Wizard tricks',t:'XOR swap',q:`a = <b>6</b>, b = <b>11</b>. After <code>a ^= b; b ^= a; a ^= b;</code> what is the final <b>a</b>?`,type:'num',h:'Trace all three lines in binary: 6 = 0110, 11 = 1011.',
+ solve:()=>{let a=6,b=11;const st=[];a^=b;st.push(`<code>a ^= b</code> → a = ${bc(a,4)} = ${a}, b = 11`);b^=a;st.push(`<code>b ^= a</code> → b = ${bc(b,4)} = ${b} (original a!)`);a^=b;st.push(`<code>a ^= b</code> → a = ${bc(a,4)} = ${a} (original b!)`);return{ans:a,steps:st}}},
+{g:'🧙 Wizard tricks',t:'Hamming distance',q:`How many bit positions differ between <b>93</b> and <b>78</b>?`,type:'num',h:'popcount(93 ^ 78).',
+ solve:()=>{const x=93^78,c=idxs(x).length;return{ans:c,vis:row('93',93)+row('78',78)+row('93 ^ 78',x,8,{hi:lit(x)}),steps:['XOR is 1 exactly where the bits differ.',`93 ^ 78 = ${x} = ${bc(x)}`,`Number of 1s = ${c}`]}}},
+{g:'🧙 Wizard tricks',t:'Opposite Day in Java',q:`What does ${K('~5')} evaluate to in Java (32-bit int)?`,type:'num',h:'~n = -n - 1.',
+ solve:()=>({ans:~5,vis:row('5',5)+row('~5 (low 8 bits)',~5&255,8,{show:'…'}),steps:['~ flips all 32 bits: 000…00101 → 111…11010.','The top bit is 1, so it is a negative number (two\'s complement).','Use ~n = -n - 1 → -5 - 1 = <b>-6</b>.']})},
+/* ===== sets ===== */
+{g:'🧺 Bitmask as a set (items A=0, B=1, C=2, D=3, E=4)',t:'Build a mask',q:`Which mask represents the set <b>{A, C, D}</b>?`,type:'num',h:'Add up 1<<index for each member.',
+ solve:()=>{const r=(1<<0)|(1<<2)|(1<<3);return{ans:r,vis:row('{A,C,D}',r,5,{hi:lit(r,5)}),steps:['A → bit 0 → 1, C → bit 2 → 4, D → bit 3 → 8','1 | 4 | 8 = 13',`Binary ${bc(r,5)}`]}}},
+{g:'🧺 Bitmask as a set (items A=0, B=1, C=2, D=3, E=4)',t:'Intersection',q:`X = {A,C,D} has mask <b>13</b>. Y = {B,C,E} has mask <b>22</b>. What is the mask of <b>X ∩ Y</b>?`,type:'num',h:'13 & 22',
+ solve:()=>{const r=13&22;return{ans:r,vis:row('X = 13',13,5)+row('Y = 22',22,5)+row('X & Y',r,5,{hi:lit(r,5)}),steps:['AND keeps members present in both.',`Only index ${idxs(r,5).join(', ')} (that is C).`,`Mask = ${r}`]}}},
+{g:'🧺 Bitmask as a set (items A=0, B=1, C=2, D=3, E=4)',t:'Set difference',q:`With X = <b>13</b> and Y = <b>22</b> (same as above), what is the mask of <b>X \\ Y</b> (in X but not in Y)?`,type:'num',h:'X & ~Y. Work in 5 bits.',
+ solve:()=>{const r=13&~22;return{ans:r,vis:row('X = 13',13,5)+row('~Y (5-bit)',~22&31,5)+row('X & ~Y',r,5,{hi:lit(r,5)}),steps:['~Y flips Y: 01001 (5 bits).','Keep X members that are not in Y.',`Result ${bc(r,5)} = ${r} → {A, D}`]}}},
+{g:'🧺 Bitmask as a set (items A=0, B=1, C=2, D=3, E=4)',t:'Count submasks',q:`How many submasks does <b>13</b> have (including 13 itself and 0)?`,type:'num',h:'Each set bit can be in or out.',
+ solve:()=>{const L=[];for(let q=13;;q=(q-1)&13){L.push(q);if(q===0)break}return{ans:L.length,steps:[`13 = ${bc(13,5)} has 3 set bits → 2<sup>3</sup> choices.`,`Walking s = (s-1) & 13 from 13: ${L.join(', ')}`,`That is ${L.length} submasks.`]}}},
+/* ===== boss ===== */
+{g:'👑 Boss fights',t:'Missing number',q:`Array <b>[0, 1, 3, 4]</b> is missing one number from 0..4. Use XOR of all indices/values to find it.`,type:'num',h:'XOR 0..4, XOR the array, XOR the two results.',
+ solve:()=>{const a=[0,1,3,4];let f=0;for(let i=0;i<=4;i++)f^=i;let g=0;a.forEach(v=>g^=v);return{ans:f^g,steps:[`XOR of 0..4 = ${f}`,`XOR of array = ${g}`,`${f} ^ ${g} = ${f^g} (every present number cancels, the missing one is left)`]}}},
+{g:'👑 Boss fights',t:'The wrapping shift',q:`In Java, what does ${K('1 << 32')} evaluate to (int)?`,type:'num',h:'The shift amount is taken mod 32.',
+ solve:()=>({ans:1<<32,steps:['For int, the shift distance uses only the low 5 bits: 32 mod 32 = 0.','So 1 << 32 is 1 << 0 = <b>1</b>.','Use <code>1L &lt;&lt; 32</code> (long) to get 4294967296.']})},
+{g:'👑 Boss fights',t:'Precedence trap',q:`Evaluate ${K('1 + 2 << 3')} in Java.`,type:'num',h:'Which binds tighter, + or <<?',
+ solve:()=>({ans:1+2<<3,steps:['+ binds tighter than << (Java precedence).','So it is (1 + 2) << 3 = 3 << 3','3 × 8 = <b>24</b>. Not 1 + 16 = 17!']})},
+{g:'👑 Boss fights',t:'Next power of two',q:`Smallest power of two that is ≥ <b>37</b>? (Trick: x = n-1; smear ones downward with x |= x>>1, x>>2, x>>4 …; answer x+1.)`,type:'num',h:'36 = 100100. Smear the top 1 over everything below it.',
+ solve:()=>{let x=36;const st=[`n - 1 = 36 = ${bc(x)}`];[1,2,4].forEach(s=>{const p=x;x|=x>>s;st.push(`x |= x ${SHR} ${s}: ${bc(p)} | ${bc(p>>s)} = ${bc(x)}`)});st.push(`x is all ones below the top: ${bc(x)} = ${x}`);st.push(`x + 1 = ${x+1}`);return{ans:x+1,steps:st}}}
+];
+
+const solved=new Set();
+function showAns(t,a){return t.type==='bin'?`${a.toString(2)} (= ${a})`:String(a)}
+function buildTests(){
+  let html='',last='';
+  T.forEach((t,i)=>{
+    if(t.g!==last){html+=`<h3 class="grp">${t.g}</h3>`;last=t.g}
+    html+=`<div class="test" id="t${i}"><div><span class="num">#${i+1}</span><b>${t.t}</b></div><div class="q">${t.q}</div>
+    <div class="ans"><input id="in${i}" placeholder="${t.type==='bin'?'binary, e.g. 1011':'your answer'}" autocomplete="off" onkeydown="if(event.key==='Enter')checkT(${i})">
+    <button class="btn" onclick="checkT(${i})">Check ✔</button><button class="btn" onclick="tog(${i},'hint')">💡 Hint</button><button class="btn" onclick="tog(${i},'sol')">👀 Dry run</button></div>
+    <div class="fb" id="fb${i}"></div><div class="hint" id="hint${i}" hidden>${t.h||''}</div><div class="sol" id="sol${i}" hidden></div></div>`;
+  });
+  $('tests').innerHTML=html;$('total').textContent=T.length;
+}
+function tog(i,w){
+  const el=$(w+i);
+  if(w==='sol'&&!el.dataset.f){const s=T[i].solve();
+    el.innerHTML=`<div>${s.vis||''}</div><ol>${s.steps.map(x=>`<li>${x}</li>`).join('')}</ol><div class="final">Answer: ${showAns(T[i],s.ans)}</div>`;el.dataset.f=1}
+  el.hidden=!el.hidden;
+}
+function checkT(i){
+  const t=T[i],s=t.solve(),raw=$('in'+i).value.trim(),fb=$('fb'+i);let v;
+  if(t.type==='bin'){if(!/^[01]+$/.test(raw)){fb.textContent='Type only 0s and 1s 🙂';fb.className='fb bad';return}v=parseInt(raw,2)}
+  else{v=Number(raw);if(raw===''||!Number.isFinite(v)){fb.textContent='Type a number first 🙂';fb.className='fb bad';return}}
+  if(v===s.ans){fb.textContent='🎉 Correct! Open "Dry run" to compare your steps.';fb.className='fb good';$('t'+i).classList.add('ok');solved.add(i);$('score').textContent=solved.size}
+  else{fb.textContent='Not quite. Redo it column by column, then try 💡 Hint or 👀 Dry run.';fb.className='fb bad'}
+}
+
+/* ---------- init ---------- */
+(function(){
+  let o='';for(let k=0;k<8;k++)o+=`<option value="${k}"${k===3?' selected':''}>${k}</option>`;
+  $('pk').innerHTML=o;
+  renderHero();buildStatic();labRender();pgRender();buildTests();
+})();
+</script>
+</body>
+</html>

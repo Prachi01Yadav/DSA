@@ -1,0 +1,807 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-substrings-that-differ-by-one-character/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 670.4898 288.848 683.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+5 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/determine-if-two-strings-are-close/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 652.4898 234.5525 665.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+6 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/decoded-string-at-index/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 634.4898 183.239 647.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+7 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/next-greater-element-iii/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 616.4898 183.806 629.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+8 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/one-edit-distance/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 598.4898 155.2145 611.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+9 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 580.4898 283.577 593.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+10 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/word-subsets/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 562.4898 136.535 575.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+11 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/stamping-the-sequence/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 544.4898 186.158 557.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+12 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-binary-substrings/)
+>> /Border [ 0 0 0 ] /Rect [ 70.595 526.4898 183.806 539.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+13 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-duplicate-file-in-system/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 508.4898 212.387 521.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+14 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/is-subsequence/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 490.4898 151.7285 503.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+15 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/compare-version-numbers/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 472.4898 203.63 485.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+16 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/reverse-words-in-a-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 454.4898 198.968 467.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+17 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/reverse-words-in-a-string-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 436.4898 207.725 449.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+18 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/reverse-words-in-a-string-iii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 418.4898 210.644 431.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+19 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/multiply-strings/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 400.4898 147.6125 413.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+20 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/add-strings/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 382.4898 130.7075 395.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+21 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/complex-number-multiplication/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 364.4898 221.711 377.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+22 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/shifting-letters/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 346.4898 146.468 359.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+23 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/string-compression/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 328.4898 168.623 341.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+24 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/check-if-the-sentence-is-pangram/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 310.4898 235.76 323.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+25 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-and-say/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 292.4898 145.8905 305.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+26 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/integer-to-roman/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 274.4898 157.556 287.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+27 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 256.4898 271.334 269.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+28 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/orderly-queue/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 238.4898 145.292 251.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+29 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/make-the-string-great/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 220.4898 182.6405 233.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+30 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/determine-if-string-halves-are-alike/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 202.4898 243.3095 215.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+31 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/detect-capital/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 184.4898 142.373 197.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+32 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/delete-columns-to-make-sorted/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 166.4898 225.239 179.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+33 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/restore-ip-addresses/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 148.4898 178.556 161.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+34 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/concatenated-words/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 130.4898 175.0595 143.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+35 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 112.4898 302.8655 125.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+36 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/buddy-strings/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 94.48976 141.7955 107.0898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+37 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/substring-with-largest-variance/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 76.48976 226.9925 89.08976 ] /Subtype /Link /Type /Annot
+>>
+endobj
+38 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/repeated-substring-pattern/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 58.48976 206.003 71.08976 ] /Subtype /Link /Type /Annot
+>>
+endobj
+39 0 obj
+<<
+/Annots [ 4 0 R 5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R 
+  14 0 R 15 0 R 16 0 R 17 0 R 18 0 R 19 0 R 20 0 R 21 0 R 22 0 R 23 0 R 
+  24 0 R 25 0 R 26 0 R 27 0 R 28 0 R 29 0 R 30 0 R 31 0 R 32 0 R 33 0 R 
+  34 0 R 35 0 R 36 0 R 37 0 R 38 0 R ] /Contents 96 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 95 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+40 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/text-justification/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 763.2898 154.6265 775.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+41 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/remove-duplicate-letters/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 745.2898 197.225 757.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+42 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/remove-duplicate-letters/)
+>> /Border [ 0 0 0 ] /Rect [ 203.063 745.2898 237.4925 757.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+43 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/smallest-subsequence-of-distinct-characters/)
+>> /Border [ 0 0 0 ] /Rect [ 243.3305 745.2898 283.598 757.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+44 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/backspace-string-compare/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 727.2898 204.2285 739.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+45 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-number-of-homogenous-substrings/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 709.2898 274.2635 721.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+46 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/sort-vowels-in-a-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 691.2898 182.6405 703.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+47 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/unique-length-3-palindromic-subsequences/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 673.2898 284.1965 685.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+48 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-unique-binary-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 655.2898 196.0595 667.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+49 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-beautiful-substrings-i/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 637.2898 206.5805 649.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+50 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-beautiful-substrings-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 619.2898 209.4995 631.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+51 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/number-of-ways-to-divide-a-long-corridor/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 601.2898 274.2425 613.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+52 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/string-compression-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 583.2898 177.38 595.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+53 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/number-of-laser-beams-in-a-bank/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 565.2898 236.915 577.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+54 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-beautiful-indices-in-the-given-array-i/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 547.2898 269.6015 559.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+55 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-beautiful-indices-in-the-given-array-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 529.2898 272.5205 541.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+56 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/minimum-time-to-revert-word-to-initial-state-i/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 511.2898 291.158 523.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+57 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/minimum-time-to-revert-word-to-initial-state-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 493.2898 294.077 505.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+58 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/shortest-uncommon-substring-in-an-array/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 475.2898 273.0875 487.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+59 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-substrings-starting-and-ending-with-given-character/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 457.2898 353.0555 469.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+60 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/append-characters-to-string-to-make-subsequence/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 439.2898 316.3055 451.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+61 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/sort-the-jumbled-numbers/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 421.2898 201.3095 433.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+62 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-the-closest-palindrome/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 403.2898 208.313 415.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+63 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/fraction-addition-and-subtraction/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 385.2898 231.6755 397.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+64 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/shortest-palindrome/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 367.2898 171.5525 379.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+65 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/sentence-similarity-iii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 349.2898 177.968 361.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+66 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/separate-black-and-white-balls/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 331.2898 223.496 343.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+67 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/maximum-swap/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 313.2898 151.109 325.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+68 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/remove-sub-folders-from-the-filesystem/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 295.2898 270.1475 307.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+69 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/string-compression-iii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 277.2898 180.299 289.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+70 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/minimum-number-of-changes-to-make-binary-string-beautiful/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 259.2898 362.9465 271.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+71 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/adding-spaces-to-a-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 241.2898 197.834 253.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+72 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/make-string-a-subsequence-using-cyclic-increments/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 223.2898 323.855 235.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+73 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/move-pieces-to-obtain-a-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 205.2898 221.165 217.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+74 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 187.2898 338.4605 199.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+75 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/)
+>> /Border [ 0 0 0 ] /Rect [ 344.2985 187.2898 384.566 199.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+76 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 390.404 187.2898 430.6715 199.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+77 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/construct-string-with-repeat-limit/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 169.2898 237.482 181.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+78 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/minimum-number-of-operations-to-move-all-balls-to-each-box/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 151.2898 365.2775 163.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+79 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/construct-k-palindrome-strings/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 133.2898 222.8975 145.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+80 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/minimum-length-of-string-after-operations/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 115.2898 275.429 127.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+81 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/construct-smallest-number-from-di-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 97.28976 275.975 109.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+82 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-the-number-of-powerful-integers/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 79.28976 258.5135 91.88976 ] /Subtype /Link /Type /Annot
+>>
+endobj
+83 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/find-the-lexicographically-largest-string-from-the-box-i/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 61.28976 337.8725 73.88976 ] /Subtype /Link /Type /Annot
+>>
+endobj
+84 0 obj
+<<
+/Annots [ 40 0 R 41 0 R 42 0 R 43 0 R 44 0 R 45 0 R 46 0 R 47 0 R 48 0 R 49 0 R 
+  50 0 R 51 0 R 52 0 R 53 0 R 54 0 R 55 0 R 56 0 R 57 0 R 58 0 R 59 0 R 
+  60 0 R 61 0 R 62 0 R 63 0 R 64 0 R 65 0 R 66 0 R 67 0 R 68 0 R 69 0 R 
+  70 0 R 71 0 R 72 0 R 73 0 R 74 0 R 75 0 R 76 0 R 77 0 R 78 0 R 79 0 R 
+  80 0 R 81 0 R 82 0 R 83 0 R ] /Contents 97 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 95 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+85 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/using-a-robot-to-print-the-lexicographically-smallest-string/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 763.2898 353.6225 775.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+86 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-the-number-of-substrings-with-dominant-ones/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 745.2898 326.1965 757.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+87 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/number-of-substrings-with-only-1s/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 727.2898 240.401 739.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+88 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/count-collisions-on-a-road/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 709.2898 203.651 721.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+89 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/delete-columns-to-make-sorted-ii/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 691.2898 233.996 703.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+90 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/words-within-two-edits-of-dictionary/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 673.2898 249.137 685.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+91 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://leetcode.com/problems/maximize-active-section-with-trade-i/)
+>> /Border [ 0 0 0 ] /Rect [ 76.433 655.2898 247.982 667.8898 ] /Subtype /Link /Type /Annot
+>>
+endobj
+92 0 obj
+<<
+/Annots [ 85 0 R 86 0 R 87 0 R 88 0 R 89 0 R 90 0 R 91 0 R ] /Contents 98 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 95 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+93 0 obj
+<<
+/PageMode /UseNone /Pages 95 0 R /Type /Catalog
+>>
+endobj
+94 0 obj
+<<
+/Author (\(anonymous\)) /CreationDate (D:20261001130954+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20261001130954+00'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (\(unspecified\)) /Title (String Problems) /Trapped /False
+>>
+endobj
+95 0 obj
+<<
+/Count 3 /Kids [ 39 0 R 84 0 R 92 0 R ] /Type /Pages
+>>
+endobj
+96 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 1946
+>>
+stream
+Gb!#^bBDVu&Dd46Alknn"=4'-[HPKt,?9eg30m=FBY'j*fOdj?$;!8/hfh?-MA!rY5[mU42J%acO;B]ok@-t*_)Lc]c5-JaB(4Om"j14r%5]@[bg,0hG4><XDN>JE<(`"u7cPB]7FH\5g`57_FD"@cCk8H#0^VR(hU(5gCPqB]/t2X:[#=V]bl31HYASmbq#5FJ.eX)B`cat-ZVI@'fj?@SH`dB&GOs;=^nGAEgl;K`O*(/R8[\?s0JA@[*G!\=\tU],F>_Q@>=$[8kidK]DJ(nm8qb2-#\P>=5S>]:faRf17CKqOb.kFK4EGf;3trEG%fN5XF)/DJ3lgR-DP/Q7%R(o=:G70S:dRaZ6\oFNK&?Qa+!eQ7I)!@BI8KSa0-Jf80SLhd-t2u%ZBStY1/4^0'^nmE\<"`1ei3<L7>)8g#h;P?A]>V8WIEX]XRAk(q?#Quh+R[5^aqtX]1G[S-p@D?*)a(rIt.(6e[XY#lW)KOFEQ.-DUu\k2XB:s\A#B\>clsjA`<DBCU/4uS)2fLZ!]LpH958]]@W7K48AaK-'__":<qn5r+M7hTECm`$EliO&I1rELujI^N"uR@<a<Q/9+B?%VFM)I=OsSp%A6O(!-17;5c+hI-4YJe(r&(#F2!>;cjqL(DBD?"VKLmP)<T6'R-@#Y_(6&6m&b^"i,rNcF?MV&`,.6!-^2YCd"IKETF%@tJn>F"1lW3J+qQSte5#VPjghhCWqlG"Ug@`6_%_GQ-BsC?Q4-1I9i2X`eH.AjU;$(fs%RZLiBpW]3KeB7*d;C(gPuH"V8`m33KtO@6GXnWS-fDhA)63/c.[%d:knhcAic:^GXA?b<06</TVc#'=M",h]<s?#T3$2`HlDF.)#IZ:J/M>']dg%`=mo@2,;GD%&$s3@!E_Zd2#e:H+UQb_EZ4?P"7<1gE]@2R;:-M/_HDG1#.;Elh0*rr(:qF7Oepcu%_d_D#bm]HPf[U;A=0`n6l%(*\RAfH.Gps$`6D1K,``(.W$44((J?#EpgBT"W%3,)>$U%,nM7lf1Z:t,:GH@taB4<V<!HU]Hc4!WUWh9mA[YSA@pp$W<EdOn=l=!`UDT?&_D5's4:<*e<Wc<JEC!3PF$WE/RRTUr<"Ag7\a`#/9<iOoQjY=)1n)ksCP,X?(!CXr\C<5GXd"0`V2(4b8r6/>/?hGu^ep]D_MNRn!1/<U5[oR9BdB?<21VIHdQVL3'"1Qt.Q&L!YlVuF!\te=!XA[c`grf,@!Z$^G:ms-gTDK&C$=&^_3VFDM'#A?aWd!_/5uagZb1@g`jY8Zk=RlN=>D_f;e:cBUbc.mYMe!Wn(cW?f1Y_8F7hbj*4X(iRjK()S#GIU>(E$7koU(q2G("<5e%YM3^#jd3R-,bAWp2#1,V&k-^4lKbL&Wk^][s/"quJf_e$O&`^V9IF"8t%j"mbr3KI.QZI$14':"d[NY<Bi9t"rU8^Gl3X5Z;n0j7)J:?dNY+%c_ST$4E00F%7SRbTf'aM)$7e_!;"D7gX7(`c9P9VPjNQH=`ZI^f=6YKq+AXm\K6<p+2^"^3[+,tKP<bSpqsd-CY#mdM"%5I0k:DYh7@AT9Z?&#Bml%$>7ZL8ZA&`@BJ+AV!3fhSF3?/@qo&Wrn_j>M'7UTb>MdCSe@6+`Lm`6jlZBEj_k"?.3[p2kA46[T!)JeZHIo9lDRhota!q_52"\)C'9C!N=YA0GrX#1g[J<ZGCqHQpekbD*7_>U<7UU.f@OMX(Z!cPk$:]-lpG6/<rUr&IYg>.F<:2S;QSRE.N<[WQpBumGQfJ^1s*C>/a_CApS[<e'$Wq<:A5'kEC5l0gDP5):Y_G4<oY;dAA9jJ%StHH)r;d/\Gga-&+a?Uecr+[0"Q>ji=O_$m1Dq(='8K#4j3iaI4<iP;S<pAHJP0_^?([,`t\;*o;3Fg-0;$L%-@..sIaiU7QKh3;=<gD8RL~>endstream
+endobj
+97 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 2194
+>>
+stream
+Gatm>>>s<8'Ro4Hkc'bh#$#k?O$H$(8fGiib!W';N`WG;CO9Q<\bu=GH*;m3.`m8[0PgL$VfU/XI7L#f^c*9_()906;tTB97?jM1/YW:S1qc<GVFP!Sk[pVi-rUgqD)>Ju-SQjr.#K^@"?s^Q,>r<!rVi`bN*sI^@[QFSU'_ct'iT/M_#d>ki/-2m1Q=A[BNh*>3$`/uK3*"F0YA$<Vf%9`"LWI;%9N=;2#S6(6&34(n2fuhWI='ZLK2rm[q1]rAQ'+@m-hHuK6s%n57C3Q^0^b]K.kQ2Q/5g9qXr5/DJXO+iDg`3S4R/I%Cp"=%"nSob+Gm.`BV6ddpLJqrs.cfK^Y8s$Q]U='biIt!ra*%bV2nLUGTs,]GdY'bW1g_EK"I2_B[N'Aem@of=#E8/:+p30&0u@FD:X/[b\DkqS+t@H/qrD>XjRI?5(=hoRpqG0V'\%F<JT$H#_^no>74nhj3pU3bta,hV+*+UP82hNF\0U0ab-6SdI@h#hrLgWdFBYWqp1/eD-eUR]<p)FgLA[AG)c<TR7KPJJcg/)BTNU2R0O-'NTf2!`>%E&1:3,UVE6f]BE'oUO3`,,@P)MQ<pe,YnRH-MICHRfOuCDTBl(6aq_hjY+HeW"JerHZaQjU@L,.*BC!Ep%R7jf(QL8BWsB+iWGlC!31^4eBERC2=m,0nRK0-QqZ4a43CCZ5YES'"O",UV2ID$Z=tL46*kE2X]LHF<f[3g\TFe9C,RZYq&A&)'GnGcfZ%Oj9Y$e6EPC_ZZq=Z.bmSMf6\)ft;ZToOtc(J@r[[]5B=<+;I&5!td+I#aI'?Ou$lB)R0?>I._4OX#OK<4Xla\kQkKdPI!<07u37J;jfR<NTM$!_=8b@t;?Nt+/3-!@%"AIM$g<[8Q1Te9iJg3qA\W+RC^'Sg$[\*/89?u'l4[e]N.!o\e\0.9u9o2&PpAE4]p49D0LJ>MtVP!nmJ80BAq'g`f'5<bBU=fj/1/M$/.jOue"E$RA:4*,mXe7E"Ln4p[_4cBW0H',EedC'2%5KU3!@"u7U0JLPBl,P_,Mrbl^$Br!;1iS2<PK=fgZ0cik-q.'7^sP6?37,qta[a79Gu[K\UP["kN)HO)1!Zd=Lhqm^[W`kV:e'>.nV"g#ZCc%bkLht9o:i^(,pXklWrXPl1^tmc3CsEkW/irA/hJ3U_eW*/)eB=G+7ji+fSgXtOG*=c;]=I!")5_G.U+;gS^#LgEs2ICK]^.s2Qas'4WHqN?^W1e:'N0eV`YQ-TiPb:6OpQ27FSe^\a+s/NB!oMnsAZU5EeYuT.GIZ%F)FV>A*n0B!ZM;E!6h/[bmSlMk=Eapo3Hu(mS4G<36EDl=bA=S1NY:ontdAh>(Lo)jO$3L\d<nXaA(kBMqmm,&bZ]3L%p>#>M`FC+Pej</-*(Bi%aE9-eZe":L+_FHIC66]U$I9D<YE=H$hs_nGsgVpUt7^toZe#eOJ7P!9D9AFc*@7j8+\o`5C"NHQ6B;j#4>W)0t.=_WZ^Isg*(AkpY-6:i,pot4P^m^_Y#2)\MRpW?L%7<8MDR$gqD(@!ckgK,D4FK+g59ubT_-OLfTC,JqD)Mr=g@,GAr:Jp$&DJ(2#XNg-:?_`OO+5\gpD^h>qEfgXZ:e0Jd*PaOPHTME_;_>1?62/6U7JF';EHNa>X?nMXg:=@r/O-VHk]8\YpN*Sf$Zo5^XfXk;N$`!#fDB2+g1`h=ct)qmC,A+8@_!uU-42tcl19RT4ZN1>WM;McJ#+"uML;a/NbJqjUCVOjE<^?_eB;9j$S7)n(mPDP>,l-N't"J1<_Ap&R4N20FC]TD`T]MRdAN^@!W>gWD$_qHJU[GjZdrdP*5FodYOcdp:7'#(,Z60M9/Hn443))dHWB^m,'2eUO4SPh!W5U[7fDNPm0TGA,rSL,Am$UgR`-o6lkRF9V/;"4^2)-S.aH.FZ1^`VPBV:,8#OV\=94m?0C#;p\sinGV+i^U6QOW>2LdsTCMX&poR8P]]M'$9nKuCd_%Oli/C[%(_fEFDc\:I-_,"rq#h+3\NcbJ`GrYp^:gU$YE(h($iCc)@!a.ej40%"FqRNr.D_G![LWiD8AQ^jKKOIGND,JU<G+(Dr^FtgQc(f.-gBMtNQXG6X(sa48d3-"`<`uF\D\hW4Fpe_Fp8KU3]/F$Ab6#QO)-uCl>">^$r-[6P!M11D=[8&jjZ#<t&'BKR_>~>endstream
+endobj
+98 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 629
+>>
+stream
+Gatnd;/_pX&-q_!I#@r62lWBc0\DFjdS6"TF_dB@9S/IQ"2"Y;gO8o=UsW@?OV/d-0nM2FI_*DuS.<sFY6s2TJp/:?KLE,##[)soNiQ^]CEf>p<J3=E9P^D;#2N[=$PNh#XuK]s;9Y<V\GJ*3+ZTp_!0RX/.hn'lAs&>CE$`P66;&Ak/N!U,O;,4#;iW,u*81h4S9TBrh1]lK)dL;nH\:B@0(<m@P#"0u>OBQB;V_)EDpW`VWE`"B>Dp%?F=Y,*d[saQ9(VreMh2.;2cqmN[HX:]DsdL,D-hO\(/mNrqep;'kL3'A#%9G:H&KSPOm?(0?JC3#?e^r($6IAK51=]?GL)MGGK&!2n7sRubIYTlEUT>JB"i4q8n#3*XTsF^njH<RH@cJup!:TJT)).,j,1;l<Mp]!-^4m3o&F^s^Q=miNTFf!e`50B\Z;8SC\Y4$r%oAHa\mpni$*%7_GTnB'9**lq3c1XS(krkEk?qUkUUqBrifN"Wj*GEY6XV9V,#HsqsH2U"AAsg8:'8h]mF*tq`]-KOp@&KbVaOt`\Y)=W"@GCC%,/tj@P$)moCWk?q/>%#j%J-2sI(fg`MIK"SS<7cZX8PBKpr;Q"Ce!M_GEr3C8PD?T"P_/H~>endstream
+endobj
+xref
+0 99
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000546 00000 n 
+0000000761 00000 n 
+0000000964 00000 n 
+0000001168 00000 n 
+0000001366 00000 n 
+0000001586 00000 n 
+0000001779 00000 n 
+0000001981 00000 n 
+0000002185 00000 n 
+0000002395 00000 n 
+0000002591 00000 n 
+0000002794 00000 n 
+0000003000 00000 n 
+0000003209 00000 n 
+0000003419 00000 n 
+0000003617 00000 n 
+0000003810 00000 n 
+0000004020 00000 n 
+0000004217 00000 n 
+0000004416 00000 n 
+0000004628 00000 n 
+0000004823 00000 n 
+0000005020 00000 n 
+0000005242 00000 n 
+0000005436 00000 n 
+0000005639 00000 n 
+0000005857 00000 n 
+0000006052 00000 n 
+0000006262 00000 n 
+0000006463 00000 n 
+0000006663 00000 n 
+0000006895 00000 n 
+0000007090 00000 n 
+0000007303 00000 n 
+0000007510 00000 n 
+0000007976 00000 n 
+0000008176 00000 n 
+0000008381 00000 n 
+0000008588 00000 n 
+0000008814 00000 n 
+0000009020 00000 n 
+0000009239 00000 n 
+0000009444 00000 n 
+0000009666 00000 n 
+0000009873 00000 n 
+0000010083 00000 n 
+0000010294 00000 n 
+0000010516 00000 n 
+0000010717 00000 n 
+0000010929 00000 n 
+0000011154 00000 n 
+0000011380 00000 n 
+0000011607 00000 n 
+0000011835 00000 n 
+0000012056 00000 n 
+0000012295 00000 n 
+0000012524 00000 n 
+0000012730 00000 n 
+0000012938 00000 n 
+0000013153 00000 n 
+0000013354 00000 n 
+0000013558 00000 n 
+0000013769 00000 n 
+0000013962 00000 n 
+0000014182 00000 n 
+0000014385 00000 n 
+0000014624 00000 n 
+0000014830 00000 n 
+0000015060 00000 n 
+0000015271 00000 n 
+0000015504 00000 n 
+0000015738 00000 n 
+0000015973 00000 n 
+0000016188 00000 n 
+0000016428 00000 n 
+0000016640 00000 n 
+0000016862 00000 n 
+0000017083 00000 n 
+0000017302 00000 n 
+0000017540 00000 n 
+0000018078 00000 n 
+0000018320 00000 n 
+0000018551 00000 n 
+0000018765 00000 n 
+0000018972 00000 n 
+0000019185 00000 n 
+0000019402 00000 n 
+0000019619 00000 n 
+0000019886 00000 n 
+0000019956 00000 n 
+0000020239 00000 n 
+0000020314 00000 n 
+0000022352 00000 n 
+0000024638 00000 n 
+trailer
+<<
+/ID 
+[<da1c0c68e188fe2d09055c595a68fc9f><da1c0c68e188fe2d09055c595a68fc9f>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 94 0 R
+/Root 93 0 R
+/Size 99
+>>
+startxref
+25358
+%%EOF

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hashing Problems</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff; color: #111;
+    font: 15px/1.5 Helvetica, Arial, sans-serif;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 36px; font-weight: 700; letter-spacing: -.5px; margin: 0 0 12px; }
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -.3px; margin: 44px 0 6px; }
+  .sub { color: #777; margin: 0 0 10px; }
+  .sub b { color: #c2570c; }
+  .rev { margin: 0 0 18px; color: #777; }
+  .rev a { color: #1a1ab0; text-decoration: underline; }
+  .rev a:visited { color: #1a1ab0; }
+  hr { border: 0; border-top: 1px solid #ddd; margin: 0 0 18px; }
+
+  .head, .row {
+    display: grid; grid-template-columns: 36px 1fr 104px 104px; align-items: center;
+  }
+  .head {
+    position: sticky; top: var(--nav-h); z-index: 5; background: #fff;
+    padding: 8px 0 10px; margin-bottom: 4px; border-bottom: 1px solid #eee;
+  }
+  .c { text-align: center; }
+  .hd {
+    display: inline-block; padding: 3px 12px; border-radius: 99px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .05em; white-space: nowrap;
+  }
+  .hd.good { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+  .hd.done { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+
+  .row { padding: 4px 0; }
+  .row:hover { background: #fafafa; }
+  .ord { text-align: right; padding-right: 10px; color: #111; font-variant-numeric: tabular-nums; }
+  .t a { color: #1a1ab0; text-decoration: underline; }
+  .t a:visited { color: #1a1ab0; }
+  .amp { color: #111; }
+  .tag { color: #c2570c; font-weight: 700; font-size: 12px; margin-left: 8px; white-space: nowrap; }
+  .more { color: #999; font-size: 12px; margin-left: 8px; cursor: pointer; background: none; border: 0; padding: 0; font-family: inherit; }
+  .more:hover { color: #555; text-decoration: underline; }
+  .src { color: #999; font-size: 11px; margin-left: 8px; }
+
+  .row.is-done .t a { color: #9a9a9a; text-decoration: line-through; }
+  .row.is-done .amp, .row.is-done .ord { color: #9a9a9a; }
+
+  input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; margin: 0; vertical-align: middle; }
+  input.cb-good { accent-color: #d97706; }
+  input.cb-done { accent-color: #16a34a; }
+
+  .warn { display: none; margin: 0 0 16px; padding: 8px 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 13px; border-radius: 6px; }
+
+  @media (max-width: 600px) {
+    .page { padding: 28px 14px 60px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 21px; margin-top: 34px; }
+    .head, .row { grid-template-columns: 28px 1fr 68px 68px; }
+    .hd { font-size: 10px; padding: 2px 7px; white-space: normal; line-height: 1.2; }
+    .ord { padding-right: 6px; }
+  }
+
+  :root { --nav-h: 60px; --green: #16a34a; }
+
+  /* ---- top navigation ---- */
+  .nav {
+    position: sticky; top: 0; z-index: 20; height: var(--nav-h);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 max(14px, calc(50% - 406px));
+    background: #fff; border-bottom: 1px solid #e5e5e5;
+  }
+  .tab {
+    display: flex; align-items: center; gap: 9px;
+    padding: 5px 16px 5px 8px; border-radius: 99px;
+    border: 1px solid #e5e5e5; background: #fff; color: #111;
+    font-family: inherit; cursor: pointer; font-weight: 700; font-size: 14px; line-height: 1.4;
+    transition: background .15s, border-color .15s;
+  }
+  .tab:hover { background: #fafafa; border-color: #cfcfcf; }
+  .tab.on { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+  .tab .tc { font-weight: 600; font-size: 12.5px; color: #777; font-variant-numeric: tabular-nums; }
+  .tab.on .tc { color: #15803d; }
+
+  /* ---- progress rings ---- */
+  .ring { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .ring svg { display: block; }
+  .ring .trk { fill: none; stroke: #e5e7eb; }
+  .ring .bar { fill: none; stroke: var(--green); stroke-linecap: round; transition: stroke-dasharray .35s ease; }
+  .ring .rt { position: absolute; font-size: 14px; font-weight: 700; color: #15803d; font-variant-numeric: tabular-nums; }
+  .ring.full .trk { stroke: #bbf7d0; }
+
+  /* ---- one section (page) at a time ---- */
+  .sec { display: none; }
+  .sec.active { display: block; }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 4px 0 14px; }
+  .sec-head h2 { margin: 0; }
+  .sec-head .stat { display: flex; align-items: center; gap: 12px; color: #777; font-size: 13px; text-align: right; }
+
+  @media (max-width: 600px) {
+    :root { --nav-h: 54px; }
+    .nav { gap: 6px; }
+    .tab { padding: 4px 10px 4px 5px; gap: 6px; font-size: 13px; }
+    .sec-head h2 { font-size: 21px; }
+    .sec-head .stat span.lbl { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="nav" id="nav" aria-label="Topics"></nav>
+<div class="page">
+  <h1>Hashing Problems</h1>
+  <p class="sub">52 problems &nbsp;&middot;&nbsp; click any title to open it &nbsp;&middot;&nbsp; <b>[Company]</b> = asks this problem, most-asked first</p>
+  <hr>
+  <p class="warn" id="warn">Ticks can't be saved in this browser mode (private window, or storage blocked), so they will be lost when you close the page.</p>
+  <div id="sections"></div>
+</div>
+
+<script>
+const SECTIONS = [{"title":"Hashing","note":"","items":[{"id":"lc:verifying-an-alien-dictionary","name":"Verifying an Alien Dictionary","links":[{"name":"Verifying an Alien Dictionary","url":"https://leetcode.com/problems/verifying-an-alien-dictionary/"}],"gfg":false,"companies":[["Wix",87.3],["Anduril",49.5],["Uber",37.9],["Meta",37.7],["Apple",25.0],["Amazon",21.2],["Google",17.4],["Bloomberg",15.4]]},{"id":"lc:brick-wall","name":"Brick Wall","links":[{"name":"Brick Wall","url":"https://leetcode.com/problems/brick-wall/"}],"gfg":false,"companies":[["KLA",84.2],["Meta",26.7],["Amazon",26.0],["Bloomberg",17.7],["Google",11.8]]},{"id":"lc:find-and-replace-pattern","name":"Find and Replace Pattern","links":[{"name":"Find and Replace Pattern","url":"https://leetcode.com/problems/find-and-replace-pattern/"}],"gfg":false,"companies":[["Amazon",25.1],["Google",12.6]]},{"id":"lc:longest-consecutive-sequence","name":"Longest Consecutive Sequence","links":[{"name":"Longest Consecutive Sequence","url":"https://leetcode.com/problems/longest-consecutive-sequence/"}],"gfg":false,"companies":[["PayPal",0],["Paytm",100.0],["Wissen Technology",100.0],["Zepto",93.8],["Nvidia",91.1],["Myntra",86.5],["Okta",82.0],["tcs",74.3],["Walmart Labs",72.9],["Bloomberg",72.3],["TikTok",70.9],["Amazon",70.7],["Google",69.6],["Swiggy",69.2],["Apple",69.0],["BitGo",67.0],["EPAM Systems",64.8],["Microsoft",62.7],["Oracle",59.2],["Meta",58.4],["Lyft",57.6],["Meesho",56.6],["Tesla",56.4],["PhonePe",54.9],["IBM",54.0],["Deloitte",53.7],["Morgan Stanley",52.6],["Salesforce",50.2],["DE Shaw",49.7],["Infosys",46.7],["Cisco",45.0],["Uber",42.2],["Adobe",41.7],["Zoho",41.3],["Atlassian",40.8],["Visa",40.8],["Roblox",39.7],["Goldman Sachs",38.7],["Capital One",35.2],["LinkedIn",22.9]]},{"id":"lc:palindrome-pairs","name":"Palindrome Pairs","links":[{"name":"Palindrome Pairs","url":"https://leetcode.com/problems/palindrome-pairs/"}],"gfg":false,"companies":[["Wix",87.3],["Airbnb",78.6],["Expedia",54.1],["Goldman Sachs",29.2],["Google",24.4],["Amazon",12.5],["Microsoft",8.9],["Meta",5.0]]},{"id":"lc:number-of-matching-subsequences","name":"Number of Matching Subsequences","links":[{"name":"Number of Matching Subsequences","url":"https://leetcode.com/problems/number-of-matching-subsequences/"}],"gfg":false,"companies":[["Visa",50.3],["Uber",45.9],["Google",35.3],["Bloomberg",20.1],["Amazon",15.7],["Meta",14.4],["Microsoft",7.3]]},{"id":"lc:partition-labels","name":"Partition Labels","links":[{"name":"Partition Labels","url":"https://leetcode.com/problems/partition-labels/"}],"gfg":false,"companies":[["Barclays",100.0],["InMobi",76.5],["Amazon",41.4],["Microsoft",33.4],["Infosys",31.3],["LinkedIn",22.9],["Bloomberg",20.1],["Google",19.5],["Meta",18.0]]},{"id":"lc:bulls-and-cows","name":"Bulls and Cows","links":[{"name":"Bulls and Cows","url":"https://leetcode.com/problems/bulls-and-cows/"}],"gfg":false,"companies":[["Flexport",100.0],["Zopsmart",74.7],["Epic Systems",58.6],["Amazon",39.1],["Bloomberg",25.5],["Google",25.4],["Meta",8.7]]},{"id":"lc:custom-sort-string","name":"Custom Sort String","links":[{"name":"Custom Sort String","url":"https://leetcode.com/problems/custom-sort-string/"}],"gfg":false,"companies":[["Meta",73.3],["Amazon",30.2],["Bloomberg",15.4],["Google",10.5],["Microsoft",8.9]]},{"id":"lc:array-of-doubled-pairs","name":"Array of Doubled Pairs","links":[{"name":"Array of Doubled Pairs","url":"https://leetcode.com/problems/array-of-doubled-pairs/"}],"gfg":false,"companies":[["Google",16.4]]},{"id":"lc:find-players-with-zero-or-one-losses","name":"Find Players With Zero or One Losses","links":[{"name":"Find Players With Zero or One Losses","url":"https://leetcode.com/problems/find-players-with-zero-or-one-losses/"}],"gfg":false,"companies":[["Indeed",97.3],["Google",17.3]]},{"id":"lc:unique-number-of-occurrences","name":"Unique Number of Occurrences","links":[{"name":"Unique Number of Occurrences","url":"https://leetcode.com/problems/unique-number-of-occurrences/"}],"gfg":false,"companies":[["Google",41.7],["Amazon",39.2],["Bloomberg",38.5],["Microsoft",27.7],["Meta",26.7]]},{"id":"lc:word-pattern","name":"Word Pattern","links":[{"name":"Word Pattern","url":"https://leetcode.com/problems/word-pattern/"}],"gfg":false,"companies":[["Dropbox",92.1],["Uber",47.5],["Nvidia",39.1],["Bloomberg",30.0],["Meta",26.1],["Google",25.4],["Microsoft",25.0],["Amazon",23.6]]},{"id":"lc:find-the-town-judge","name":"Find the Town Judge","links":[{"name":"Find the Town Judge","url":"https://leetcode.com/problems/find-the-town-judge/"}],"gfg":false,"companies":[["Arista Networks",96.8],["Google",22.1],["Amazon",20.7],["Bloomberg",20.1],["Meta",5.0]]},{"id":"lc:equal-row-and-column-pairs","name":"Equal Row and Column Pairs","links":[{"name":"Equal Row and Column Pairs","url":"https://leetcode.com/problems/equal-row-and-column-pairs/"}],"gfg":false,"companies":[["DE Shaw",67.6],["Microsoft",14.1],["Meta",12.2],["Google",10.5],["Bloomberg",9.8]]},{"id":"lc:number-of-good-pairs","name":"Number of Good Pairs","links":[{"name":"Number of Good Pairs","url":"https://leetcode.com/problems/number-of-good-pairs/"}],"gfg":false,"companies":[["Sony",100.0],["Accenture",42.4],["Zoho",41.3],["Bloomberg",30.0],["Google",28.9],["Microsoft",27.7],["Amazon",26.0],["Meta",8.7]]},{"id":"lc:binary-trees-with-factors","name":"Binary Trees With Factors","links":[{"name":"Binary Trees With Factors","url":"https://leetcode.com/problems/binary-trees-with-factors/"}],"gfg":false,"companies":[["Amazon",5.0],["Google",5.0]]},{"id":"lc:restore-the-array-from-adjacent-pairs","name":"Restore the Array From Adjacent Pairs","links":[{"name":"Restore the Array From Adjacent Pairs","url":"https://leetcode.com/problems/restore-the-array-from-adjacent-pairs/"}],"gfg":false,"companies":[["Robinhood",97.5],["Capital One",90.3],["SIG",87.1],["eBay",70.7],["Visa",40.8],["Roblox",39.7],["Meta",12.2],["Google",7.0],["Amazon",5.1]]},{"id":"lc:count-nice-pairs-in-an-array","name":"Count Nice Pairs in an Array","links":[{"name":"Count Nice Pairs in an Array","url":"https://leetcode.com/problems/count-nice-pairs-in-an-array/"}],"gfg":false,"companies":[["Roblox",39.7],["Uber",37.7],["Capital One",37.2],["Google",5.0],["Meta",5.0]]},{"id":"lc:destination-city","name":"Destination City","links":[{"name":"Destination City","url":"https://leetcode.com/problems/destination-city/"}],"gfg":false,"companies":[["Yelp",100.0],["Yandex",44.2],["Amazon",10.3],["Meta",5.0]]},{"id":"lc:redistribute-characters-to-make-all-strings-equal","name":"Redistribute Characters to Make All Strings Equal","links":[{"name":"Redistribute Characters to Make All Strings Equal","url":"https://leetcode.com/problems/redistribute-characters-to-make-all-strings-equal/"}],"gfg":false,"companies":[["Moengage",100.0]]},{"id":"lc:minimum-number-of-pushes-to-type-word-i","name":"Minimum Number of Pushes to Type Word I","links":[{"name":"Minimum Number of Pushes to Type Word I","url":"https://leetcode.com/problems/minimum-number-of-pushes-to-type-word-i/"}],"gfg":false,"companies":[["Snap",52.8],["Google",46.6],["Amazon",28.9],["Bloomberg",17.7]]},{"id":"lc:minimum-number-of-pushes-to-type-word-ii","name":"Minimum Number of Pushes to Type Word II","links":[{"name":"Minimum Number of Pushes to Type Word II","url":"https://leetcode.com/problems/minimum-number-of-pushes-to-type-word-ii/"}],"gfg":false,"companies":[["Amazon",39.1],["Bloomberg",36.8],["Google",11.8]]},{"id":"lc:find-the-maximum-number-of-elements-in-subset","name":"Find the Maximum Number of Elements in Subset","links":[{"name":"Find the Maximum Number of Elements in Subset","url":"https://leetcode.com/problems/find-the-maximum-number-of-elements-in-subset/"}],"gfg":false,"companies":[["Meta",43.3],["Bloomberg",36.8],["Amazon",25.1],["Google",23.5],["Microsoft",7.3]]},{"id":"lc:isomorphic-strings","name":"Isomorphic Strings","links":[{"name":"Isomorphic Strings","url":"https://leetcode.com/problems/isomorphic-strings/"}],"gfg":false,"companies":[["Remitly",100.0],["Sprinklr",77.5],["Yandex",74.1],["American Express",67.4],["Zomato",66.7],["LinkedIn",62.6],["HashedIn",59.9],["Bloomberg",54.9],["Zoho",51.3],["Microsoft",48.8],["tcs",47.7],["Amazon",47.3],["Google",45.7],["Meta",38.5],["Oracle",34.4]]},{"id":"lc:hand-of-straights","name":"Hand of Straights","links":[{"name":"Hand of Straights","url":"https://leetcode.com/problems/hand-of-straights/"}],"gfg":false,"companies":[["Visa",40.8],["Google",23.3],["Microsoft",18.4],["Amazon",18.0],["Bloomberg",17.7],["Meta",15.3]]},{"id":"lc:check-if-array-pairs-are-divisible-by-k","name":"Check If Array Pairs Are Divisible by k","links":[{"name":"Check If Array Pairs Are Divisible by k","url":"https://leetcode.com/problems/check-if-array-pairs-are-divisible-by-k/"}],"gfg":false,"companies":[["Visa",50.3],["Amazon",28.1],["tcs",26.8],["Google",20.6],["Microsoft",18.4],["Meta",12.2],["Bloomberg",8.2]]},{"id":"lc:find-the-number-of-distinct-colors-among-the-balls","name":"Find the Number of Distinct Colors Among the Balls","links":[{"name":"Find the Number of Distinct Colors Among the Balls","url":"https://leetcode.com/problems/find-the-number-of-distinct-colors-among-the-balls/"}],"gfg":false,"companies":[["Bloomberg",15.4],["Google",14.9],["Amazon",8.9]]},{"id":"lc:count-number-of-bad-pairs","name":"Count Number of Bad Pairs","links":[{"name":"Count Number of Bad Pairs","url":"https://leetcode.com/problems/count-number-of-bad-pairs/"}],"gfg":false,"companies":[["Google",26.0],["Amazon",22.8],["Bloomberg",9.8],["Microsoft",8.9]]},{"id":"lc:minimum-index-of-a-valid-split","name":"Minimum Index of a Valid Split","links":[{"name":"Minimum Index of a Valid Split","url":"https://leetcode.com/problems/minimum-index-of-a-valid-split/"}],"gfg":false,"companies":[["Google",10.0],["Microsoft",8.9],["Amazon",5.1]]},{"id":"lc:rabbits-in-forest","name":"Rabbits in Forest","links":[{"name":"Rabbits in Forest","url":"https://leetcode.com/problems/rabbits-in-forest/"}],"gfg":false,"companies":[["CARS24",100.0],["Wish",100.0],["DP world",87.7],["Bloomberg",27.2],["Google",22.1],["Meta",20.4],["Amazon",15.6],["Microsoft",8.9]]},{"id":"lc:total-characters-in-string-after-transformations-i","name":"Total Characters in String After Transformations I","links":[{"name":"Total Characters in String After Transformations I","url":"https://leetcode.com/problems/total-characters-in-string-after-transformations-i/"}],"gfg":false,"companies":[["MathWorks",54.3],["Amazon",20.7],["Google",5.0],["Meta",5.0]]},{"id":"lc:longest-palindrome-by-concatenating-two-letter-words","name":"Longest Palindrome by Concatenating Two Letter Words","links":[{"name":"Longest Palindrome by Concatenating Two Letter Words","url":"https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/"}],"gfg":false,"companies":[["Databricks",61.1],["Bloomberg",15.4],["Google",14.9],["Microsoft",14.1],["Amazon",5.0],["Meta",5.0]]},{"id":"lc:vowel-spellchecker","name":"Vowel Spellchecker","links":[{"name":"Vowel Spellchecker","url":"https://leetcode.com/problems/vowel-spellchecker/"}],"gfg":false,"companies":[["Grammarly",89.1],["Microsoft",25.1],["Amazon",20.7],["Bloomberg",20.1],["Google",10.0],["Meta",8.7]]},{"id":"lc:next-greater-numerically-balanced-number","name":"Next Greater Numerically Balanced Number","links":[{"name":"Next Greater Numerically Balanced Number","url":"https://leetcode.com/problems/next-greater-numerically-balanced-number/"}],"gfg":false,"companies":[["Sprinklr",89.6],["Bloomberg",24.6],["Google",18.9],["Microsoft",8.9],["Meta",5.0]]},{"id":"lc:count-special-triplets","name":"Count Special Triplets","links":[{"name":"Count Special Triplets","url":"https://leetcode.com/problems/count-special-triplets/"}],"gfg":false,"companies":[["Bloomberg",20.1],["Meta",12.2],["Google",10.5]]},{"id":"lc:count-covered-buildings","name":"Count Covered Buildings","links":[{"name":"Count Covered Buildings","url":"https://leetcode.com/problems/count-covered-buildings/"}],"gfg":false,"companies":[["Amazon",30.9],["Google",14.9]]},{"id":"lc:longest-balanced-substring-ii","name":"Longest Balanced Substring II","links":[{"name":"Longest Balanced Substring II","url":"https://leetcode.com/problems/longest-balanced-substring-ii/"}],"gfg":false,"companies":[["tcs",26.8],["Amazon",15.6],["Bloomberg",13.4],["Google",12.6],["Meta",12.2],["Microsoft",8.9]]},{"id":"lc:check-if-strings-can-be-made-equal-with-operations-ii","name":"Check if Strings Can be Made Equal With Operations II","links":[{"name":"Check if Strings Can be Made Equal With Operations II","url":"https://leetcode.com/problems/check-if-strings-can-be-made-equal-with-operations-ii/"}],"gfg":false,"companies":[["Citrix",100.0],["Microsoft",24.1],["Google",17.4],["Amazon",14.3]]},{"id":"lc:minimum-distance-between-three-equal-elements-i+minimum-distance-between-three-equal-elements-ii","name":"Minimum Distance Between Three Equal Elements I & II","links":[{"name":"Minimum Distance Between Three Equal Elements I","url":"https://leetcode.com/problems/minimum-distance-between-three-equal-elements-i/"},{"name":"Minimum Distance Between Three Equal Elements II","url":"https://leetcode.com/problems/minimum-distance-between-three-equal-elements-ii/"}],"gfg":false,"companies":[["Microsoft",24.1],["Google",11.8],["Amazon",5.1]]},{"id":"lc:closest-equal-element-queries","name":"Closest Equal Element Queries","links":[{"name":"Closest Equal Element Queries","url":"https://leetcode.com/problems/closest-equal-element-queries/"}],"gfg":false,"companies":[["Salesforce",80.8],["Bloomberg",34.2],["Amazon",26.0],["Google",11.8]]},{"id":"lc:minimum-absolute-distance-between-mirror-pairs","name":"Minimum Absolute Distance Between Mirror Pairs","links":[{"name":"Minimum Absolute Distance Between Mirror Pairs","url":"https://leetcode.com/problems/minimum-absolute-distance-between-mirror-pairs/"}],"gfg":false,"companies":[["Meta",38.7],["Microsoft",24.1],["Amazon",14.3],["Google",11.8]]},{"id":"lc:count-the-number-of-special-characters-ii","name":"Count the Number of Special Characters II","links":[{"name":"Count the Number of Special Characters II","url":"https://leetcode.com/problems/count-the-number-of-special-characters-ii/"}],"gfg":false,"companies":[["Google",28.8],["Amazon",20.0],["Microsoft",14.1]]},{"id":"lc:evaluate-the-bracket-pairs-of-a-string","name":"Evaluate the Bracket Pairs of a String","links":[{"name":"Evaluate the Bracket Pairs of a String","url":"https://leetcode.com/problems/evaluate-the-bracket-pairs-of-a-string/"}],"gfg":false,"companies":[["Remitly",68.6],["Google",24.4]]},{"id":"lc:contains-duplicate-iii","name":"Contains Duplicate III","links":[{"name":"Contains Duplicate III","url":"https://leetcode.com/problems/contains-duplicate-iii/"}],"gfg":false,"companies":[["Netflix",91.2],["Airbnb",65.5],["Microsoft",27.7],["Bloomberg",17.7],["Amazon",13.2],["Google",12.6],["Meta",11.4]]},{"id":"lc:smallest-number-in-infinite-set","name":"Smallest Number in Infinite Set","links":[{"name":"Smallest Number in Infinite Set","url":"https://leetcode.com/problems/smallest-number-in-infinite-set/"}],"gfg":false,"companies":[["Amazon",26.5],["Uber",24.3],["Meta",15.3],["Google",14.9],["Microsoft",14.1],["Bloomberg",9.8]]},{"id":"gfg:https://www.geeksforgeeks.org/problems/array-pair-sum-divisibility-problem3257/1","name":"Array Pair Sum Divisibility Problem","links":[{"name":"Array Pair Sum Divisibility Problem","url":"https://www.geeksforgeeks.org/problems/array-pair-sum-divisibility-problem3257/1"}],"gfg":true,"companies":[]},{"id":"lc:replace-words","name":"Replace Words","links":[{"name":"Replace Words","url":"https://leetcode.com/problems/replace-words/"}],"gfg":false,"companies":[["Uber",52.1],["TikTok",35.6],["Microsoft",8.9],["Google",5.0]]},{"id":"lc:count-the-number-of-consistent-strings","name":"Count the Number of Consistent Strings","links":[{"name":"Count the Number of Consistent Strings","url":"https://leetcode.com/problems/count-the-number-of-consistent-strings/"}],"gfg":false,"companies":[["Robinhood",94.7],["Bloomberg",17.7],["Google",17.3]]},{"id":"lc:bitwise-ors-of-subarrays","name":"Bitwise ORs of Subarrays","links":[{"name":"Bitwise ORs of Subarrays","url":"https://leetcode.com/problems/bitwise-ors-of-subarrays/"}],"gfg":false,"companies":[["BNY Mellon",86.0],["tcs",49.9],["Microsoft",30.0],["Bloomberg",23.9],["Google",18.9],["Amazon",10.3],["Meta",5.0]]},{"id":"lc:maximum-square-area-by-removing-fences-from-a-field","name":"Maximum Square Area by Removing Fences From a Field","links":[{"name":"Maximum Square Area by Removing Fences From a Field","url":"https://leetcode.com/problems/maximum-square-area-by-removing-fences-from-a-field/"}],"gfg":false,"companies":[["Bloomberg",15.4],["Google",10.5]]},{"id":"lc:minimum-pair-removal-to-sort-array-ii","name":"Minimum Pair Removal to Sort Array II","links":[{"name":"Minimum Pair Removal to Sort Array II","url":"https://leetcode.com/problems/minimum-pair-removal-to-sort-array-ii/"}],"gfg":false,"companies":[["Amazon",18.3],["Microsoft",8.9],["Google",5.0]]}]}];
+const SHOW = 5;
+const KEY = "hashing-problems-v1";
+
+let state = { done: {}, good: {} };
+let canSave = true;
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) { const s = JSON.parse(raw); if (s && s.done && s.good) state = s; }
+  localStorage.setItem(KEY + "-test", "1"); localStorage.removeItem(KEY + "-test");
+} catch (e) { canSave = false; }
+if (!canSave) document.getElementById("warn").style.display = "block";
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { document.getElementById("warn").style.display = "block"; }
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function tagsHtml(p, expanded) {
+  if (p.gfg) return '<span class="src">GFG</span>';
+  const list = expanded ? p.companies : p.companies.slice(0, SHOW);
+  let h = list.map(c => '<span class="tag">[' + esc(c[0]) + ']</span>').join("");
+  const rest = p.companies.length - list.length;
+  if (rest > 0) h += '<button class="more" type="button" data-more="1" title="Show all ' + p.companies.length + ' companies">+' + rest + ' more</button>';
+  return h;
+}
+function titleHtml(p) {
+  return p.links.map(l => '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>').join(' <span class="amp">&amp;</span> ');
+}
+
+const root = document.getElementById("sections");
+SECTIONS.forEach((sec, si) => {
+  const wrap = document.createElement("div");
+  wrap.className = "sec"; wrap.id = "sec-" + si;
+  const top = document.createElement("div"); top.className = "sec-head";
+  top.innerHTML = '<h2>' + esc(sec.title) + '</h2><div class="stat"><span class="lbl">solved</span>' + ring(si, 64, 7, true) + '</div>';
+  wrap.appendChild(top);
+  wrap.insertAdjacentHTML("beforeend",
+    '<div class="head"><span></span><span></span>' +
+    '<span class="c"><span class="hd good">GOOD ONE :)</span></span>' +
+    '<span class="c"><span class="hd done">DONE</span></span></div>');
+  const list = document.createElement("div");
+  sec.items.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.dataset.id = p.id;
+    row._p = p;
+    row.innerHTML =
+      '<span class="ord">' + (i + 1) + '.</span>' +
+      '<span class="t">' + titleHtml(p) + '<span class="tags">' + tagsHtml(p, false) + '</span></span>' +
+      '<span class="c"><input type="checkbox" class="cb-good" aria-label="Good one"></span>' +
+      '<span class="c"><input type="checkbox" class="cb-done" aria-label="Done"></span>';
+    row.querySelector(".cb-good").checked = !!state.good[p.id];
+    row.querySelector(".cb-done").checked = !!state.done[p.id];
+    row.classList.toggle("is-done", !!state.done[p.id]);
+    list.appendChild(row);
+  });
+  wrap.appendChild(list);
+  root.appendChild(wrap);
+});
+
+// A problem that appears in more than one place shares one tick everywhere.
+function syncRows(id) {
+  document.querySelectorAll(".row").forEach(r => {
+    if (r.dataset.id !== id) return;
+    r.querySelector(".cb-good").checked = !!state.good[id];
+    r.querySelector(".cb-done").checked = !!state.done[id];
+    r.classList.toggle("is-done", !!state.done[id]);
+  });
+}
+
+root.addEventListener("change", e => {
+  const row = e.target.closest(".row"); if (!row) return;
+  const id = row.dataset.id;
+  if (e.target.classList.contains("cb-done")) {
+    if (e.target.checked) state.done[id] = 1; else delete state.done[id];
+  }
+  if (e.target.classList.contains("cb-good")) {
+    if (e.target.checked) state.good[id] = 1; else delete state.good[id];
+  }
+  syncRows(id);
+  updateCounts();
+  save();
+});
+root.addEventListener("click", e => {
+  const b = e.target.closest("[data-more]"); if (!b) return;
+  const row = b.closest(".row");
+  row.querySelector(".tags").innerHTML = tagsHtml(row._p, true);
+});
+// ---- progress rings ----
+function ring(si, size, stroke, withText) {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r, m = size / 2;
+  return '<span class="ring" data-ring="' + si + '" style="width:' + size + 'px;height:' + size + 'px">' +
+    '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+    '<circle class="trk" cx="' + m + '" cy="' + m + '" r="' + r + '" stroke-width="' + stroke + '"/>' +
+    '<circle class="bar" cx="' + m + '" cy="' + m + '" r="' + r + '" stroke-width="' + stroke + '" data-c="' + c + '" ' +
+    'stroke-dasharray="0 ' + c + '" transform="rotate(-90 ' + m + ' ' + m + ')"/></svg>' +
+    (withText ? '<b class="rt"></b>' : '') + '</span>';
+}
+function updateCounts() {
+  SECTIONS.forEach((sec, si) => {
+    const total = sec.items.length;
+    const done = sec.items.filter(p => state.done[p.id]).length;
+    document.querySelectorAll('[data-ring="' + si + '"]').forEach(el => {
+      const bar = el.querySelector(".bar"), c = parseFloat(bar.getAttribute("data-c"));
+      bar.setAttribute("stroke-dasharray", (total ? c * done / total : 0) + " " + c);
+      const t = el.querySelector(".rt"); if (t) t.textContent = done + "/" + total;
+      el.classList.toggle("full", total > 0 && done === total);
+    });
+    document.querySelectorAll('[data-cnt="' + si + '"]').forEach(el => { el.textContent = done + "/" + total; });
+  });
+}
+
+// ---- header navigation (one topic per page) ----
+const slug = t => t.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const nav = document.getElementById("nav");
+nav.innerHTML = SECTIONS.map((s, i) =>
+  '<button type="button" class="tab" data-tab="' + i + '">' + ring(i, 30, 4.5, false) +
+  '<span>' + esc(s.title) + '</span><span class="tc" data-cnt="' + i + '"></span></button>').join("");
+function showTab(i) {
+  document.querySelectorAll(".sec").forEach((el, k) => el.classList.toggle("active", k === i));
+  document.querySelectorAll(".tab").forEach((el, k) => el.classList.toggle("on", k === i));
+  window.scrollTo(0, 0);
+  try { localStorage.setItem(KEY + "-tab", String(i)); } catch (e) {}
+  try { history.replaceState(null, "", "#" + slug(SECTIONS[i].title)); } catch (e) {}
+}
+nav.addEventListener("click", e => {
+  const b = e.target.closest(".tab"); if (!b) return;
+  showTab(parseInt(b.dataset.tab, 10));
+});
+function startTab() {
+  let i = -1;
+  try { i = SECTIONS.findIndex(s => slug(s.title) === decodeURIComponent(location.hash.slice(1))); } catch (e) {}
+  if (i < 0) { try { i = parseInt(localStorage.getItem(KEY + "-tab"), 10); } catch (e) {} }
+  if (!(i >= 0 && i < SECTIONS.length)) i = 0;
+  showTab(i);
+}
+updateCounts();
+startTab();
+</script>
+</body>
+</html>

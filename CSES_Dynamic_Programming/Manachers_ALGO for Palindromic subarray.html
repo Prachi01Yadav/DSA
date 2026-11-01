@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mirror World: The Palindrome Subarray Sum Adventure</title>
+<style>
+  :root{
+    --bg: #0d0b1e;
+    --bg2: #14112b;
+    --panel: #1a1638;
+    --neon1: #ff5fd6;
+    --neon2: #5fe3ff;
+    --neon3: #a3ff5f;
+    --text: #e9e6ff;
+    --muted: #a79fd6;
+    --code-bg: #0a0818;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(circle at 20% 0%, #241f4d 0%, var(--bg) 45%), var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .wrap{ max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.hero{
+    text-align:center;
+    padding: 70px 20px 50px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(255,95,214,0.10), transparent 60%);
+    pointer-events:none;
+  }
+  .mirror-emoji{ font-size: 3.2rem; display:block; margin-bottom: 10px;
+    filter: drop-shadow(0 0 18px rgba(95,227,255,0.6)); }
+  h1.title{
+    font-size: 2.3rem;
+    margin: 0 0 12px;
+    background: linear-gradient(90deg, var(--neon2), var(--neon1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 0.5px;
+  }
+  .subtitle{ color: var(--muted); font-size: 1.05rem; max-width: 640px; margin: 0 auto; }
+
+  nav.toc{
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 30px 0 40px;
+  }
+  nav.toc h3{ margin: 0 0 10px; color: var(--neon3); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;}
+  nav.toc ol{ margin:0; padding-left: 20px; columns: 2; column-gap: 30px;}
+  nav.toc li{ margin-bottom: 8px; }
+  nav.toc a{ color: var(--text); text-decoration: none; border-bottom: 1px dashed rgba(233,230,255,0.3);}
+  nav.toc a:hover{ color: var(--neon2); border-color: var(--neon2); }
+
+  section{ margin: 55px 0; }
+  h2.section-title{
+    font-size: 1.5rem;
+    display:flex; align-items:center; gap: 10px;
+    color: var(--text);
+    border-bottom: 2px solid rgba(255,95,214,0.25);
+    padding-bottom: 10px;
+  }
+  h2.section-title .num{
+    background: linear-gradient(135deg, var(--neon1), var(--neon2));
+    color: #0d0b1e;
+    font-weight: 800;
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1rem;
+    flex-shrink:0;
+  }
+  h3{ color: var(--neon2); font-size: 1.15rem; margin-top: 30px; }
+
+  p{ color: var(--text); }
+  .muted{ color: var(--muted); }
+
+  .callout{
+    background: linear-gradient(135deg, rgba(255,95,214,0.08), rgba(95,227,255,0.06));
+    border-left: 4px solid var(--neon2);
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin: 18px 0;
+  }
+  .callout b{ color: var(--neon3); }
+
+  .example-box{
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.95rem;
+    overflow-x:auto;
+  }
+  .highlight{ color: var(--neon3); font-weight:700; }
+
+  pre{
+    background: var(--code-bg);
+    border: 1px solid rgba(95,227,255,0.15);
+    border-radius: 12px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  code{
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  p code, li code{
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: var(--neon3);
+  }
+
+  details{
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    margin: 16px 0;
+    padding: 14px 20px;
+  }
+  details summary{
+    cursor:pointer;
+    font-weight: 700;
+    color: var(--neon2);
+    list-style: none;
+  }
+  details summary::-webkit-details-marker{ display:none; }
+  details summary::before{
+    content: "▶ ";
+    display:inline-block;
+    transition: transform 0.2s;
+    color: var(--neon1);
+  }
+  details[open] summary::before{ transform: rotate(90deg); }
+  details[open] summary{ margin-bottom: 10px; }
+
+  table{
+    width:100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.92rem;
+  }
+  th, td{
+    text-align:left;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  th{ color: var(--neon3); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px;}
+  tr:hover td{ background: rgba(255,255,255,0.03); }
+  a.link{ color: var(--neon2); }
+
+  .badge{
+    display:inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .badge.easy{ background: rgba(163,255,95,0.15); color: var(--neon3); }
+  .badge.medium{ background: rgba(255,200,95,0.15); color: #ffd35f; }
+  .badge.hard{ background: rgba(255,95,95,0.15); color: #ff7f7f; }
+
+  .mirror-strip{
+    display:flex; justify-content:center; gap: 6px; margin: 30px 0;
+    font-size: 1.4rem; opacity:0.6;
+  }
+
+  footer{
+    text-align:center;
+    color: var(--muted);
+    padding: 40px 20px 10px;
+    font-size: 0.9rem;
+  }
+
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px){
+    .grid2{ grid-template-columns: 1fr; }
+    nav.toc ol{ columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="mirror-emoji">🪞🕵️‍♂️</span>
+    <h1 class="title">Mirror World: The Palindrome Subarray Sum Case</h1>
+    <p class="subtitle">A fun, no-scary-words tour of Manacher's Algorithm, the "hash fingerprint" trick, and how they connect to a real Hard LeetCode problem.</p>
+  </header>
+
+  <nav class="toc">
+    <h3>🗺️ Where we're going</h3>
+    <ol>
+      <li><a href="#mystery">The Mystery (what even is this problem)</a></li>
+      <li><a href="#center">Trick 1: Ripples in a Pond (expand from center)</a></li>
+      <li><a href="#manacher">Trick 2: Manacher's Algorithm (the twin trick)</a></li>
+      <li><a href="#hashing">Trick 3: Hashing (the fingerprint trick)</a></li>
+      <li><a href="#solution">Cracking THIS exact problem</a></li>
+      <li><a href="#toolbox">Toolbox: similar techniques</a></li>
+      <li><a href="#practice">Practice Dojo: similar problems</a></li>
+      <li><a href="#cheatsheet">Cheat sheet recap</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. THE MYSTERY -->
+  <section id="mystery">
+    <h2 class="section-title"><span class="num">1</span> The Mystery</h2>
+    <p>Okay so here's the case, detective. You get an array of numbers, like:</p>
+    <div class="example-box">nums = [1, -3, 2, 3, 2, -3, 1]</div>
+    <p>A <b>palindrome</b> is just a fancy word for "reads the same forwards and backwards." Like the word "mom" or "racecar." Same idea here but with numbers instead of letters.</p>
+    <p>A <b>subarray</b> just means a chunk of the array that's all next to each other (you can't skip around, no cherry-picking).</p>
+    <p>Your job: look at <i>every possible chunk</i> of the array, keep only the chunks that are palindromes (mirror-images of themselves), and out of those, find the one with the <span class="highlight">biggest sum</span>.</p>
+
+    <div class="callout">
+      <b>Example walkthrough:</b> In <code>[1, -3, 2, 3, 2, -3, 1]</code>, the chunk <code>[2, 3, 2]</code> is a palindrome (reads the same both ways) and sums to <b>7</b>. The whole array is ALSO a palindrome, but it only sums to 3. So <b>7 is the winner</b>.
+    </div>
+
+    <p class="muted">Why is this "Hard"? Because there could be a huge pile of possible chunks, and checking every single one the dumb way (character by character, chunk by chunk) is way too slow. That's where our detective tools come in.</p>
+  </section>
+
+  <div class="mirror-strip">🪞 ⋯ 🪞 ⋯ 🪞</div>
+
+  <!-- 2. EXPAND FROM CENTER -->
+  <section id="center">
+    <h2 class="section-title"><span class="num">2</span> Trick 1: Ripples in a Pond</h2>
+    <p>Think about throwing a stone in a pond. Ripples spread out evenly from the center, in both directions at once. Palindromes work the exact same way — they have a <b>center point</b>, and they grow outward symmetrically.</p>
+
+    <p>So instead of checking random chunks, we pick a center, and grow outward one step at a time, checking "does the left side still match the right side?" The moment it stops matching, we stop — everything before that was a valid palindrome.</p>
+
+    <div class="callout">
+      There are two kinds of centers: a single number can be a center (like the middle of "racecar" — length is odd), or the gap between two numbers can be a center (like the middle of "abba" — length is even). So we check <b>both types</b> of centers for every position.
+    </div>
+
+    <p>This is simple, it's honest, and it works. It's just a little slow if we do it in the most basic way — but it's the foundation everything else builds on. Keep this ripple idea in your head, it's going to matter a lot in the next section.</p>
+  </section>
+
+  <!-- 3. MANACHER -->
+  <section id="manacher">
+    <h2 class="section-title"><span class="num">3</span> Trick 2: Manacher's Algorithm — The Twin Trick</h2>
+    <p>Manacher's algorithm is basically the "ripples in a pond" idea but with a genius shortcut: <b>palindromes have twins.</b></p>
+
+    <div class="callout">
+      <b>The big "aha":</b> Say you already found a huge palindrome stretching from position 10 to position 40, centered at position 25. Now you want to know the palindrome size at position 27. Well, position 27 has a "mirror twin" on the other side of the center — position 23. And you <i>already know</i> the answer for position 23! So instead of starting from zero and rechecking everything, you just copy that answer (with a small safety check) and save a ton of work.
+    </div>
+
+    <p>That's it. That's the whole trick. Instead of blindly re-doing the ripple check every single time, Manacher's algorithm remembers the <b>biggest palindrome found so far</b> and its boundaries, and reuses mirror-twin information whenever possible. This takes it from slow to <span class="highlight">O(n)</span> — it visits the whole array basically once.</p>
+
+    <h3>The two little arrays it builds</h3>
+    <p>Manacher's algorithm usually builds two arrays:</p>
+    <ul>
+      <li><code>d1[i]</code> — how far you can stretch out from position <code>i</code> as a center for <b>odd-length</b> palindromes (like "racecar").</li>
+      <li><code>d2[i]</code> — how far you can stretch for <b>even-length</b> palindromes centered in the gap right before position <code>i</code> (like "abba").</li>
+    </ul>
+
+    <details>
+      <summary>Show me the Python code for Manacher's Algorithm</summary>
+      <pre><code># d1[i] = radius of the biggest ODD-length palindrome centered at i
+# (radius 1 means just the single element itself)
+def manacher_odd(arr):
+    n = len(arr)
+    d1 = [0] * n
+    left, right = 0, -1   # the rightmost palindrome window found so far
+    for i in range(n):
+        # Use the mirror twin's answer as a starting guess (if inside the window)
+        k = 1 if i > right else min(d1[left + right - i], right - i + 1)
+        # Try to grow further, the honest "ripple" way
+        while i - k >= 0 and i + k < n and arr[i - k] == arr[i + k]:
+            k += 1
+        d1[i] = k
+        k -= 1
+        if i + k > right:          # this palindrome reaches further right, update window
+            left, right = i - k, i + k
+    return d1
+
+# d2[i] = radius of the biggest EVEN-length palindrome centered
+# right between i-1 and i
+def manacher_even(arr):
+    n = len(arr)
+    d2 = [0] * n
+    left, right = 0, -1
+    for i in range(n):
+        k = 0 if i > right else min(d2[left + right - i + 1], right - i + 1)
+        while i - k - 1 >= 0 and i + k < n and arr[i - k - 1] == arr[i + k]:
+            k += 1
+        d2[i] = k
+        k -= 1
+        if i + k > right:
+            left, right = i - k - 1, i + k
+    return d2</code></pre>
+    </details>
+
+    <div class="callout">
+      <b>Honest note for THIS problem:</b> Manacher's algorithm is amazing for finding the <i>longest</i> palindrome fast. But our problem wants the <i>biggest sum</i>, not the longest length — and because of negative numbers, sometimes a <b>smaller</b> palindrome has a bigger sum than the full-length one! So Manacher gets us the maximum stretch super fast, but we still need to peek at the smaller palindromes inside it too. It's a great skill to know (tons of other problems need exactly the longest-palindrome trick), just not the full silver bullet here on its own.
+    </div>
+  </section>
+
+  <!-- 4. HASHING -->
+  <section id="hashing">
+    <h2 class="section-title"><span class="num">4</span> Trick 3: Hashing — The Fingerprint Trick</h2>
+    <p>Imagine every chunk of the array gets its own unique "fingerprint" number. If two chunks have the same fingerprint, they're (almost certainly) the same sequence of numbers. This is called <b>hashing</b>, and the "hash-code equals" technique just means: instead of comparing chunks element-by-element (slow), you compare their <b>fingerprints</b> (instant).</p>
+
+    <h3>How do we fingerprint a chunk instantly?</h3>
+    <p>We treat the array like a number written in some weird base (like how "123" in base 10 means 1×100 + 2×10 + 3×1). We precompute a <b>prefix hash</b> array once, and then any chunk's fingerprint can be pulled out in O(1) using subtraction — just like prefix sums, but multiplication-flavored.</p>
+
+    <div class="callout">
+      <b>The palindrome check:</b> Build a fingerprint array for the array <i>forwards</i>, and another one for the array <i>reversed</i>. To check if chunk <code>nums[l..r]</code> is a palindrome, just grab its forward fingerprint AND grab the fingerprint of that same stretch from the reversed array. If the two fingerprints match — boom, it's a palindrome. One quick comparison, no element-by-element checking needed!
+    </div>
+
+    <details>
+      <summary>Show me the Python code for rolling hash + palindrome check</summary>
+      <pre><code>MOD = 1_000_000_007
+BASE = 131
+
+def build_hash(arr):
+    n = len(arr)
+    h = [0] * (n + 1)      # h[i] = fingerprint of arr[0..i-1]
+    power = [1] * (n + 1)  # BASE^i, precomputed
+    for i in range(n):
+        h[i + 1] = (h[i] * BASE + arr[i]) % MOD
+        power[i + 1] = (power[i] * BASE) % MOD
+    return h, power
+
+def range_hash(h, power, l, r):  # fingerprint of arr[l..r], inclusive
+    return (h[r + 1] - h[l] * power[r - l + 1]) % MOD
+
+def is_palindrome_subarray(nums, l, r, fwd, fwd_pow, rev, rev_pow):
+    n = len(nums)
+    forward_print = range_hash(fwd, fwd_pow, l, r)
+    # the mirrored stretch inside the REVERSED array
+    rl, rr = n - 1 - r, n - 1 - l
+    backward_print = range_hash(rev, rev_pow, rl, rr)
+    return forward_print == backward_print
+
+# Usage:
+# fwd, fwd_pow = build_hash(nums)
+# rev, rev_pow = build_hash(nums[::-1])
+# is_palindrome_subarray(nums, l, r, fwd, fwd_pow, rev, rev_pow)  -> True/False in O(1)!</code></pre>
+    </details>
+
+    <div class="callout">
+      <b>Bonus power move:</b> Because "is this a palindrome" is O(1) to check now, and because palindrome-ness is <i>nested</i> (if a big chunk centered at some point is a palindrome, every smaller chunk sharing that center is automatically a palindrome too), you can <b>binary search</b> for the largest palindrome radius at each center. That turns "find longest palindrome at every center" into O(n log n) instead of O(n²). Super handy trick to keep in your back pocket!
+    </div>
+    <p class="muted">Real talk: in interviews/contests, people often use <b>two different hash formulas</b> (double hashing) to make fingerprint collisions basically impossible. Worth remembering if collisions ever bite you.</p>
+  </section>
+
+  <!-- 5. SOLUTION -->
+  <section id="solution">
+    <h2 class="section-title"><span class="num">5</span> Cracking THIS Exact Problem</h2>
+    <p>Now let's actually solve <b>Palindromic Subarray Sum</b>. Here's the plan, plain and simple:</p>
+    <ol>
+      <li>Build a <b>prefix sum</b> array so we can get the sum of any chunk in O(1) (add up front, subtract off, done).</li>
+      <li>For every position, treat it as a center and do the "ripples in a pond" expand — for BOTH odd-length and even-length centers.</li>
+      <li>Every time the ripple successfully grows (left number still equals right number), that whole chunk is a valid palindrome — check its sum and keep the biggest one you've seen.</li>
+    </ol>
+
+    <div class="callout">
+      <b>Why not just take the biggest palindrome per center?</b> Because of negative numbers! A smaller palindrome tucked inside a bigger one might have a bigger sum (the bigger one might include some negative junk dragging the total down). So we have to check <i>every valid radius</i> along the way, not just the maximum one. This is exactly why Manacher alone doesn't fully solve this — but the "expand and check every step" idea, powered by fast prefix sums, does the job perfectly.
+    </div>
+
+    <pre><code>def maxPalindromeSum(nums):
+    n = len(nums)
+    prefix = [0] * (n + 1)
+    for i in range(n):
+        prefix[i + 1] = prefix[i] + nums[i]
+
+    def range_sum(l, r):          # sum of nums[l..r], inclusive
+        return prefix[r + 1] - prefix[l]
+
+    best = max(nums)              # a single number is always a valid palindrome
+
+    # odd-length palindromes: center is a single number
+    for c in range(n):
+        l, r = c, c
+        while l >= 0 and r < n and nums[l] == nums[r]:
+            best = max(best, range_sum(l, r))
+            l -= 1
+            r += 1
+
+    # even-length palindromes: center is a gap between two numbers
+    for c in range(n - 1):
+        l, r = c, c + 1
+        while l >= 0 and r < n and nums[l] == nums[r]:
+            best = max(best, range_sum(l, r))
+            l -= 1
+            r += 1
+
+    return best
+
+# Quick check:
+print(maxPalindromeSum([1, -3, 2, 3, 2, -3, 1]))  # -> 7</code></pre>
+
+    <div class="grid2">
+      <div class="callout">
+        <b>Time:</b> O(n²) worst case (like when every number is the same — think <code>[5,5,5,5,5]</code>, every center ripples all the way out).
+      </div>
+      <div class="callout">
+        <b>Space:</b> O(n) for the prefix sum array.
+      </div>
+    </div>
+
+    <p>This is genuinely the expected solution for this problem — clean, easy to explain in an interview, and fast enough. The Manacher and hashing tricks you just learned are extra superpowers that make the closely-related "longest palindrome" family of problems blazing fast — you'll use them constantly in the practice problems below.</p>
+  </section>
+
+  <!-- 6. TOOLBOX -->
+  <section id="toolbox">
+    <h2 class="section-title"><span class="num">6</span> Toolbox: Similar Techniques Worth Knowing</h2>
+    <table>
+      <tr><th>Technique</th><th>What it's for</th><th>Speed</th></tr>
+      <tr>
+        <td><b>Expand around center</b></td>
+        <td>The "ripples" trick — simple, works for palindrome existence and sums</td>
+        <td>O(n²)</td>
+      </tr>
+      <tr>
+        <td><b>Manacher's Algorithm</b></td>
+        <td>Find the longest palindrome at <i>every</i> center, using the mirror-twin shortcut</td>
+        <td>O(n)</td>
+      </tr>
+      <tr>
+        <td><b>Rolling Hash (Rabin-Karp style)</b></td>
+        <td>Instant "fingerprint" comparisons of chunks — palindrome checks, substring matching</td>
+        <td>O(1) per check, O(n) setup</td>
+      </tr>
+      <tr>
+        <td><b>Z-function</b></td>
+        <td>For every position, how much does it match the very start of the array? Great for pattern matching</td>
+        <td>O(n)</td>
+      </tr>
+      <tr>
+        <td><b>KMP failure function</b></td>
+        <td>Similar cousin of Z-function, used for fast substring search and "shortest palindrome" type problems</td>
+        <td>O(n)</td>
+      </tr>
+      <tr>
+        <td><b>DP palindrome table</b></td>
+        <td><code>isPal[i][j]</code> = true if chunk i..j is a palindrome, built from smaller chunks up</td>
+        <td>O(n²)</td>
+      </tr>
+      <tr>
+        <td><b>Eertree (Palindromic Tree)</b></td>
+        <td>Advanced structure that tracks every distinct palindrome in a string efficiently</td>
+        <td>O(n)</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- 7. PRACTICE -->
+  <section id="practice">
+    <h2 class="section-title"><span class="num">7</span> Practice Dojo</h2>
+    <p>Same family of tricks, different disguises. Go rack these up 💪</p>
+    <table>
+      <tr><th>Problem</th><th>Difficulty</th><th>Best tool</th></tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank">5. Longest Palindromic Substring</a></td>
+        <td><span class="badge medium">Medium</span></td>
+        <td>Expand from center / Manacher's</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/palindromic-substrings/" target="_blank">647. Palindromic Substrings</a></td>
+        <td><span class="badge medium">Medium</span></td>
+        <td>Expand from center</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/longest-palindromic-subsequence/" target="_blank">516. Longest Palindromic Subsequence</a></td>
+        <td><span class="badge medium">Medium</span></td>
+        <td>DP table</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/shortest-palindrome/" target="_blank">214. Shortest Palindrome</a></td>
+        <td><span class="badge hard">Hard</span></td>
+        <td>KMP / rolling hash</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/palindrome-partitioning/" target="_blank">131. Palindrome Partitioning</a></td>
+        <td><span class="badge medium">Medium</span></td>
+        <td>DP table + backtracking</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/palindrome-partitioning-ii/" target="_blank">132. Palindrome Partitioning II</a></td>
+        <td><span class="badge hard">Hard</span></td>
+        <td>DP table + DP min-cuts</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/maximum-product-of-the-length-of-two-palindromic-substrings/" target="_blank">1960. Max Product of Two Palindromic Substrings</a></td>
+        <td><span class="badge hard">Hard</span></td>
+        <td>Manacher's Algorithm</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/count-different-palindromic-subsequences/" target="_blank">730. Count Different Palindromic Subsequences</a></td>
+        <td><span class="badge hard">Hard</span></td>
+        <td>DP table</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/maximum-number-of-non-overlapping-palindrome-substrings/" target="_blank">2472. Max Non-overlapping Palindrome Substrings</a></td>
+        <td><span class="badge hard">Hard</span></td>
+        <td>Manacher's / hashing + DP</td>
+      </tr>
+      <tr>
+        <td><a class="link" href="https://leetcode.com/problems/find-the-closest-palindrome/" target="_blank">564. Find the Closest Palindrome</a></td>
+        <td><span class="badge hard">Hard</span></td>
+        <td>Math + string tricks (good palate cleanser)</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- 8. CHEATSHEET -->
+  <section id="cheatsheet">
+    <h2 class="section-title"><span class="num">8</span> Cheat Sheet Recap</h2>
+    <div class="callout">
+      🪞 <b>Palindrome</b> = reads the same forward and backward.<br>
+      🌊 <b>Expand from center</b> = grow outward from a point (or gap) while both sides keep matching.<br>
+      👯 <b>Manacher's Algorithm</b> = expand from center, but reuse "mirror twin" answers so you never redo work. Gets you the longest palindrome everywhere in O(n).<br>
+      🖐️ <b>Hashing / fingerprint trick</b> = give every chunk an instant fingerprint number so comparing chunks is O(1) instead of O(chunk length). Combine with binary search for O(n log n) longest-palindrome-per-center.<br>
+      🎯 <b>This problem's real solution</b> = expand from center (both odd & even) + prefix sums, checking every radius along the way because negative numbers can make a smaller palindrome the winner.
+    </div>
+    <p class="muted">Go build muscle memory with the practice list above — once you've written "expand from center" three or four times by hand, Manacher's twin trick will click instantly. Good luck, detective. 🕵️‍♂️🪞</p>
+  </section>
+
+  <footer>
+    Made for a fun deep dive into palindrome tricks · Happy coding!
+  </footer>
+
+</div>
+</body>
+</html>

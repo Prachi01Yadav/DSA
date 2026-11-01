@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backtracking Problems</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff; color: #111;
+    font: 15px/1.5 Helvetica, Arial, sans-serif;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; }
+  h1 { font-size: 36px; font-weight: 700; letter-spacing: -.5px; margin: 0 0 12px; }
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -.3px; margin: 44px 0 6px; }
+  .sub { color: #777; margin: 0 0 10px; }
+  .sub b { color: #c2570c; }
+  .rev { margin: 0 0 18px; color: #777; }
+  .rev a { color: #1a1ab0; text-decoration: underline; }
+  .rev a:visited { color: #1a1ab0; }
+  hr { border: 0; border-top: 1px solid #ddd; margin: 0 0 18px; }
+
+  .head, .row {
+    display: grid; grid-template-columns: 36px 1fr 104px 104px; align-items: center;
+  }
+  .head {
+    position: sticky; top: 0; z-index: 1; background: #fff;
+    padding: 8px 0 10px; margin-bottom: 4px; border-bottom: 1px solid #eee;
+  }
+  .c { text-align: center; }
+  .hd {
+    display: inline-block; padding: 3px 12px; border-radius: 99px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .05em; white-space: nowrap;
+  }
+  .hd.good { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+  .hd.done { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+
+  .row { padding: 4px 0; }
+  .row:hover { background: #fafafa; }
+  .ord { text-align: right; padding-right: 10px; color: #111; font-variant-numeric: tabular-nums; }
+  .t a { color: #1a1ab0; text-decoration: underline; }
+  .t a:visited { color: #1a1ab0; }
+  .amp { color: #111; }
+  .tag { color: #c2570c; font-weight: 700; font-size: 12px; margin-left: 8px; white-space: nowrap; }
+  .more { color: #999; font-size: 12px; margin-left: 8px; cursor: pointer; background: none; border: 0; padding: 0; font-family: inherit; }
+  .more:hover { color: #555; text-decoration: underline; }
+  .src { color: #999; font-size: 11px; margin-left: 8px; }
+
+  .row.is-done .t a { color: #9a9a9a; text-decoration: line-through; }
+  .row.is-done .amp, .row.is-done .ord { color: #9a9a9a; }
+
+  input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; margin: 0; vertical-align: middle; }
+  input.cb-good { accent-color: #d97706; }
+  input.cb-done { accent-color: #16a34a; }
+
+  .warn { display: none; margin: 0 0 16px; padding: 8px 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 13px; border-radius: 6px; }
+
+  @media (max-width: 600px) {
+    .page { padding: 28px 14px 60px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 21px; margin-top: 34px; }
+    .head, .row { grid-template-columns: 28px 1fr 68px 68px; }
+    .hd { font-size: 10px; padding: 2px 7px; white-space: normal; line-height: 1.2; }
+    .ord { padding-right: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Backtracking Problems</h1>
+  <p class="sub">45 problems &nbsp;&middot;&nbsp; click any title to open it &nbsp;&middot;&nbsp; <b>[Company]</b> = asks this problem, most-asked first</p>
+  <hr>
+  <p class="warn" id="warn">Ticks can't be saved in this browser mode (private window, or storage blocked), so they will be lost when you close the page.</p>
+  <div id="sections"></div>
+</div>
+
+<script>
+const SECTIONS = [{"title":"Backtracking","items":[{"id":"lc:permutations-ii","name":"Permutations II","links":[{"name":"Permutations II","url":"https://leetcode.com/problems/permutations-ii/"}],"gfg":false,"companies":[["TikTok",47.1],["LinkedIn",46.9],["Microsoft",41.5],["Amazon",34.6],["Apple",32.7],["Bloomberg",32.5],["Google",30.4],["Goldman Sachs",22.5],["Meta",8.0]]},{"id":"lc:permutations","name":"Permutations","links":[{"name":"Permutations","url":"https://leetcode.com/problems/permutations/"}],"gfg":false,"companies":[["Booking.com",83.4],["Workday",80.9],["Microstrategy",77.8],["Arista Networks",70.6],["Bloomberg",69.8],["Infosys",67.9],["American Express",67.4],["Zomato",66.7],["Qualcomm",64.8],["LinkedIn",58.6],["Amazon",56.5],["Epic Systems",56.1],["Microsoft",56.1],["Samsung",54.1],["Agoda",52.1],["TikTok",51.4],["Google",49.7],["Citadel",46.9],["Meta",43.8],["Apple",43.0],["Oracle",40.3],["Uber",37.7],["Cisco",36.8],["tcs",31.7],["Goldman Sachs",22.5]]},{"id":"lc:word-search","name":"Word Search","links":[{"name":"Word Search","url":"https://leetcode.com/problems/word-search/"}],"gfg":false,"companies":[["Faire",100.0],["Karat",87.9],["Uber",78.0],["Bloomberg",77.8],["Netflix",77.1],["TikTok",76.7],["PayPal",76.3],["Mastercard",75.9],["MakeMyTrip",74.6],["Epic Systems",70.7],["Grammarly",69.6],["Amazon",66.9],["Atlassian",65.9],["Arista Networks",65.4],["Whatnot",65.2],["Wix",63.5],["eBay",63.5],["Snap",63.0],["Yahoo",60.2],["Walmart Labs",60.1],["Microsoft",55.2],["Morgan Stanley",54.8],["Samsung",54.1],["Zoho",51.3],["Salesforce",50.5],["Citadel",46.9],["Cisco",45.0],["Google",44.0],["Meta",43.3],["Accenture",42.4],["Visa",40.8],["Snowflake",40.6],["Oracle",40.3],["Apple",39.4],["IBM",37.9],["Goldman Sachs",29.2]]},{"id":"lc:generate-parentheses","name":"Generate Parentheses","links":[{"name":"Generate Parentheses","url":"https://leetcode.com/problems/generate-parentheses/"}],"gfg":false,"companies":[["Huawei",100.0],["Zenefits",100.0],["Walmart Labs",93.3],["Disney",88.3],["Myntra",86.5],["ServiceNow",84.1],["Zoho",78.7],["Avito",77.2],["Grammarly",75.8],["MakeMyTrip",74.6],["Amazon",70.7],["Expedia",68.1],["Bloomberg",65.9],["TikTok",65.3],["Qualcomm",64.8],["Microsoft",64.7],["Samsung",64.4],["EPAM Systems",62.5],["Google",61.4],["Flipkart",61.2],["Dell",60.2],["IBM",60.1],["eBay",59.9],["Adobe",59.8],["Infosys",59.4],["Salesforce",59.3],["Meta",58.6],["Oracle",58.0],["Morgan Stanley",54.8],["Yandex",50.3],["Uber",49.9],["Apple",49.4],["Intuit",46.9],["Goldman Sachs",41.0],["tcs",39.5]]},{"id":"lc:subsets#iterative","name":"Subsets (C++ iterative)","links":[{"name":"Subsets (C++ iterative)","url":"https://leetcode.com/problems/subsets/"}],"gfg":false,"companies":[["Coupang",94.8],["Fiverr",90.8],["Wix",80.3],["Agoda",75.3],["Bloomberg",69.8],["TikTok",64.9],["Amazon",64.0],["Meta",61.8],["Microsoft",55.2],["Walmart Labs",55.0],["PayPal",53.3],["Google",52.1],["ByteDance",50.2],["Uber",49.9],["Flipkart",43.2],["Zoho",41.3],["Infosys",40.2],["IBM",37.9],["tcs",37.1],["Oracle",26.5],["Goldman Sachs",22.5]]},{"id":"lc:subsets#backtracking","name":"Subsets (C++ Backtracking)","links":[{"name":"Subsets (C++ Backtracking)","url":"https://leetcode.com/problems/subsets/"}],"gfg":false,"companies":[["Coupang",94.8],["Fiverr",90.8],["Wix",80.3],["Agoda",75.3],["Bloomberg",69.8],["TikTok",64.9],["Amazon",64.0],["Meta",61.8],["Microsoft",55.2],["Walmart Labs",55.0],["PayPal",53.3],["Google",52.1],["ByteDance",50.2],["Uber",49.9],["Flipkart",43.2],["Zoho",41.3],["Infosys",40.2],["IBM",37.9],["tcs",37.1],["Oracle",26.5],["Goldman Sachs",22.5]]},{"id":"lc:subsets-ii","name":"Subsets II","links":[{"name":"Subsets II","url":"https://leetcode.com/problems/subsets-ii/"}],"gfg":false,"companies":[["UiPath",87.8],["Bloomberg",59.7],["Walmart Labs",55.0],["Google",44.8],["Microsoft",44.2],["tcs",43.5],["Amazon",43.1],["Meta",41.4]]},{"id":"lc:combination-sum","name":"Combination Sum","links":[{"name":"Combination Sum","url":"https://leetcode.com/problems/combination-sum/"}],"gfg":false,"companies":[["HPE",100.0],["Juniper Networks",100.0],["Yahoo",91.7],["NetApp",87.7],["Snap",82.5],["Confluent",77.4],["Walmart Labs",72.9],["Bloomberg",69.8],["ByteDance",69.0],["Airbnb",67.2],["Zomato",66.7],["Meta",58.4],["TikTok",57.9],["ServiceNow",55.3],["Amazon",54.6],["Microsoft",51.0],["Uber",49.9],["Google",47.4],["Pinterest",47.1],["Citadel",46.9],["PayPal",44.0],["Zoho",41.3],["Apple",38.3],["Salesforce",35.6],["LinkedIn",29.9],["Oracle",26.5]]},{"id":"lc:combination-sum-ii","name":"Combination Sum II","links":[{"name":"Combination Sum II","url":"https://leetcode.com/problems/combination-sum-ii/"}],"gfg":false,"companies":[["Rakuten",100.0],["Snap",79.6],["ByteDance",50.2],["Adobe",47.0],["Walmart Labs",44.7],["Zoho",41.3],["Oracle",40.3],["Bloomberg",38.7],["Meta",38.7],["Microsoft",38.6],["TikTok",35.6],["LinkedIn",35.1],["Amazon",33.3],["Google",33.3],["Salesforce",27.7]]},{"id":"lc:combination-sum-iii","name":"Combination Sum III","links":[{"name":"Combination Sum III","url":"https://leetcode.com/problems/combination-sum-iii/"}],"gfg":false,"companies":[["Microsoft",37.9],["Amazon",29.6],["Bloomberg",20.1],["Google",18.9]]},{"id":"lc:partition-to-k-equal-sum-subsets","name":"Partition to K Equal Sum Subsets (2 approaches)","links":[{"name":"Partition to K Equal Sum Subsets (2 approaches)","url":"https://leetcode.com/problems/partition-to-k-equal-sum-subsets/"}],"gfg":false,"companies":[["Zeta",78.1],["LinkedIn",69.2],["Microsoft",32.0],["Amazon",27.8],["TikTok",24.6],["Google",20.6],["Meta",12.2],["Bloomberg",8.2]]},{"id":"lc:sequential-digits","name":"Sequential Digits","links":[{"name":"Sequential Digits","url":"https://leetcode.com/problems/sequential-digits/"}],"gfg":false,"companies":[["Zoho",88.5],["Bloomberg",46.8],["Amazon",39.1],["Meta",34.5],["Google",32.7]]},{"id":"lc:split-a-string-into-the-max-number-of-unique-substrings","name":"Split a String Into the Max Number of Unique Substrings","links":[{"name":"Split a String Into the Max Number of Unique Substrings","url":"https://leetcode.com/problems/split-a-string-into-the-max-number-of-unique-substrings/"}],"gfg":false,"companies":[["Google",22.1],["Microsoft",14.1],["Amazon",8.9],["Meta",5.0]]},{"id":"gfg:https://www.geeksforgeeks.org/print-possible-strings-can-made-placing-spaces/","name":"Permutation with Spaces (2 Approaches)","links":[{"name":"Permutation with Spaces (2 Approaches)","url":"https://www.geeksforgeeks.org/print-possible-strings-can-made-placing-spaces/"}],"gfg":true,"companies":[]},{"id":"gfg:https://www.geeksforgeeks.org/permute-string-changing-case/","name":"Permutation with Case Change (2 approaches)","links":[{"name":"Permutation with Case Change (2 approaches)","url":"https://www.geeksforgeeks.org/permute-string-changing-case/"}],"gfg":true,"companies":[]},{"id":"lc:letter-case-permutation","name":"Letter Case Permutation (2 approaches)","links":[{"name":"Letter Case Permutation (2 approaches)","url":"https://leetcode.com/problems/letter-case-permutation/"}],"gfg":false,"companies":[["Yelp",94.2],["TikTok",35.6],["Meta",35.0],["Google",17.4],["Microsoft",14.1],["Bloomberg",9.8],["Amazon",5.1]]},{"id":"lc:letter-combinations-of-a-phone-number","name":"Letter Combinations of a Phone Number","links":[{"name":"Letter Combinations of a Phone Number","url":"https://leetcode.com/problems/letter-combinations-of-a-phone-number/"}],"gfg":false,"companies":[["Epic Systems",95.6],["Dropbox",92.1],["Societe Generale",89.4],["Trexquant",89.2],["LinkedIn",88.9],["DE Shaw",76.0],["Microsoft",75.6],["Tesla",73.2],["Accenture",72.3],["Flexport",71.4],["Infosys",68.6],["Expedia",68.1],["Amazon",66.9],["Zoho",64.0],["Tekion",63.5],["IBM",59.2],["Uber",59.1],["Meta",57.8],["Google",57.2],["Zopsmart",55.7],["ServiceNow",55.3],["Snap",55.0],["PhonePe",54.9],["Bloomberg",53.8],["Apple",48.7],["Oracle",48.6],["Citadel",46.9],["Capital One",45.0],["Cisco",45.0],["tcs",45.0],["Walmart Labs",44.7],["Pinterest",42.8],["Lyft",42.7],["Visa",40.8],["Nvidia",37.0],["Goldman Sachs",29.2],["Yandex",29.0]]},{"id":"lc:count-sorted-vowel-strings","name":"Count Sorted Vowel Strings","links":[{"name":"Count Sorted Vowel Strings","url":"https://leetcode.com/problems/count-sorted-vowel-strings/"}],"gfg":false,"companies":[["Google",5.0]]},{"id":"lc:beautiful-arrangement","name":"Beautiful Arrangement","links":[{"name":"Beautiful Arrangement","url":"https://leetcode.com/problems/beautiful-arrangement/"}],"gfg":false,"companies":[["Visa",100.0],["Rippling",87.6],["HashedIn",59.9],["Microsoft",42.1],["Google",19.5],["Bloomberg",9.8],["Amazon",5.1]]},{"id":"gfg:https://www.geeksforgeeks.org/tug-of-war/","name":"Tug Of War","links":[{"name":"Tug Of War","url":"https://www.geeksforgeeks.org/tug-of-war/"}],"gfg":true,"companies":[]},{"id":"lc:combination-sum-iv","name":"Combination Sum IV","links":[{"name":"Combination Sum IV","url":"https://leetcode.com/problems/combination-sum-iv/"}],"gfg":false,"companies":[["Snap",79.6],["Google",33.7],["Meta",28.1],["TikTok",26.8],["Amazon",20.0],["Bloomberg",15.4],["Microsoft",8.9]]},{"id":"lc:n-queens","name":"N-Queens (2 approaches)","links":[{"name":"N-Queens (2 approaches)","url":"https://leetcode.com/problems/n-queens/"}],"gfg":false,"companies":[["Mastercard",94.1],["Huawei",80.0],["TikTok",76.7],["Amazon",61.6],["Zoho",58.4],["Microsoft",58.2],["Google",57.6],["Adobe",57.5],["Meta",56.1],["Bloomberg",55.6],["Oracle",48.6],["IBM",47.3],["Goldman Sachs",43.6],["Accenture",42.4],["Infosys",40.2],["tcs",39.5]]},{"id":"lc:n-queens-ii","name":"N-Queens II (2 approaches)","links":[{"name":"N-Queens II (2 approaches)","url":"https://leetcode.com/problems/n-queens-ii/"}],"gfg":false,"companies":[["Zenefits",100.0],["Liftoff",90.1],["Deutsche Bank",75.2],["Walmart Labs",44.7],["Snowflake",40.6],["Microsoft",30.0],["Amazon",29.6],["Bloomberg",27.3],["Meta",25.1],["Google",22.1]]},{"id":"lc:matchsticks-to-square","name":"Matchsticks to Square","links":[{"name":"Matchsticks to Square","url":"https://leetcode.com/problems/matchsticks-to-square/"}],"gfg":false,"companies":[["eBay",78.3],["PhonePe",74.2],["TikTok",51.3],["Uber",24.3],["Meta",12.2],["Google",10.5],["Amazon",8.9]]},{"id":"lc:sudoku-solver","name":"Sudoku Solver","links":[{"name":"Sudoku Solver","url":"https://leetcode.com/problems/sudoku-solver/"}],"gfg":false,"companies":[["Confluent",100.0],["Riot Games",100.0],["Snap",79.6],["eBay",59.9],["Citadel",55.6],["Uber",52.1],["Amazon",50.4],["Microsoft",49.6],["Zoho",48.7],["Google",48.4],["Intuit",46.9],["Bloomberg",46.8],["DoorDash",34.7],["Apple",32.7],["Meta",30.7],["Goldman Sachs",26.9],["Oracle",26.5]]},{"id":"lc:expression-add-operators","name":"Expression Add Operators","links":[{"name":"Expression Add Operators","url":"https://leetcode.com/problems/expression-add-operators/"}],"gfg":false,"companies":[["Pinterest",92.5],["Meta",58.8],["Google",36.3],["TikTok",26.8],["LinkedIn",22.9],["Bloomberg",21.4],["Amazon",12.5]]},{"id":"lc:word-search","name":"Word Search","links":[{"name":"Word Search","url":"https://leetcode.com/problems/word-search/"}],"gfg":false,"companies":[["Faire",100.0],["Karat",87.9],["Uber",78.0],["Bloomberg",77.8],["Netflix",77.1],["TikTok",76.7],["PayPal",76.3],["Mastercard",75.9],["MakeMyTrip",74.6],["Epic Systems",70.7],["Grammarly",69.6],["Amazon",66.9],["Atlassian",65.9],["Arista Networks",65.4],["Whatnot",65.2],["Wix",63.5],["eBay",63.5],["Snap",63.0],["Yahoo",60.2],["Walmart Labs",60.1],["Microsoft",55.2],["Morgan Stanley",54.8],["Samsung",54.1],["Zoho",51.3],["Salesforce",50.5],["Citadel",46.9],["Cisco",45.0],["Google",44.0],["Meta",43.3],["Accenture",42.4],["Visa",40.8],["Snowflake",40.6],["Oracle",40.3],["Apple",39.4],["IBM",37.9],["Goldman Sachs",29.2]]},{"id":"lc:unique-paths-iii","name":"Unique Paths III","links":[{"name":"Unique Paths III","url":"https://leetcode.com/problems/unique-paths-iii/"}],"gfg":false,"companies":[["Databricks",54.6],["Meta",25.1],["Amazon",24.8],["Goldman Sachs",22.5],["Google",20.6],["Microsoft",19.5],["Bloomberg",15.4]]},{"id":"lc:palindrome-partitioning","name":"Palindrome Partitioning","links":[{"name":"Palindrome Partitioning","url":"https://leetcode.com/problems/palindrome-partitioning/"}],"gfg":false,"companies":[["Infosys",78.5],["Visa",69.7],["Coupang",69.5],["Salesforce",64.7],["Bloomberg",58.4],["Amazon",50.8],["Microsoft",48.8],["Meta",47.3],["Google",46.4],["Accenture",42.4],["DE Shaw",37.0]]},{"id":"lc:fair-distribution-of-cookies","name":"Fair Distribution of Cookies","links":[{"name":"Fair Distribution of Cookies","url":"https://leetcode.com/problems/fair-distribution-of-cookies/"}],"gfg":false,"companies":[["Zoho",41.3],["Amazon",25.1]]},{"id":"lc:maximum-number-of-achievable-transfer-requests","name":"Maximum Number of Achievable Transfer Requests","links":[{"name":"Maximum Number of Achievable Transfer Requests","url":"https://leetcode.com/problems/maximum-number-of-achievable-transfer-requests/"}],"gfg":false,"companies":[["Amazon",21.9]]},{"id":"lc:combinations","name":"Combinations","links":[{"name":"Combinations","url":"https://leetcode.com/problems/combinations/"}],"gfg":false,"companies":[["Meta",50.6],["Infosys",40.2],["Amazon",39.1],["TikTok",35.6],["Bloomberg",34.2],["IBM",33.4],["Google",32.4],["Microsoft",27.7]]},{"id":"lc:find-the-minimum-cost-array-permutation","name":"Find the Minimum Cost Array Permutation","links":[{"name":"Find the Minimum Cost Array Permutation","url":"https://leetcode.com/problems/find-the-minimum-cost-array-permutation/"}],"gfg":false,"companies":[["Google",14.9]]},{"id":"lc:path-with-maximum-gold","name":"Path with Maximum Gold","links":[{"name":"Path with Maximum Gold","url":"https://leetcode.com/problems/path-with-maximum-gold/"}],"gfg":false,"companies":[["Salesforce",41.2],["Goldman Sachs",31.8],["Google",22.1],["Microsoft",8.9],["Amazon",7.2]]},{"id":"lc:the-number-of-beautiful-subsets","name":"The Number of Beautiful Subsets","links":[{"name":"The Number of Beautiful Subsets","url":"https://leetcode.com/problems/the-number-of-beautiful-subsets/"}],"gfg":false,"companies":[["Infosys",62.5],["Bloomberg",9.8],["Amazon",5.1],["Google",5.0]]},{"id":"lc:maximum-score-words-formed-by-letters","name":"Maximum Score Words Formed by Letters","links":[{"name":"Maximum Score Words Formed by Letters","url":"https://leetcode.com/problems/maximum-score-words-formed-by-letters/"}],"gfg":false,"companies":[["Bloomberg",25.5],["Amazon",25.1],["Google",7.0]]},{"id":"lc:word-break-ii","name":"Word Break II","links":[{"name":"Word Break II","url":"https://leetcode.com/problems/word-break-ii/"}],"gfg":false,"companies":[["ServiceNow",100.0],["Moveworks",97.0],["X",93.7],["Dropbox",92.1],["Snap",85.2],["Anduril",65.4],["Bloomberg",65.0],["MongoDB",63.7],["TikTok",60.7],["Amazon",52.8],["Uber",47.5],["Grammarly",46.4],["Oracle",44.8],["Visa",40.8],["Meta",37.0],["Microsoft",32.0],["Google",29.7]]},{"id":"lc:split-a-string-into-the-max-number-of-unique-substrings","name":"Split a String Into the Max Number of Unique Substrings","links":[{"name":"Split a String Into the Max Number of Unique Substrings","url":"https://leetcode.com/problems/split-a-string-into-the-max-number-of-unique-substrings/"}],"gfg":false,"companies":[["Google",22.1],["Microsoft",14.1],["Amazon",8.9],["Meta",5.0]]},{"id":"lc:construct-the-lexicographically-largest-valid-sequence","name":"Construct the Lexicographically Largest Valid Sequence","links":[{"name":"Construct the Lexicographically Largest Valid Sequence","url":"https://leetcode.com/problems/construct-the-lexicographically-largest-valid-sequence/"}],"gfg":false,"companies":[["Meta",23.4],["Google",17.0],["Microsoft",14.1],["Amazon",12.5],["Bloomberg",8.2]]},{"id":"lc:letter-tile-possibilities","name":"Letter Tile Possibilities","links":[{"name":"Letter Tile Possibilities","url":"https://leetcode.com/problems/letter-tile-possibilities/"}],"gfg":false,"companies":[["Bloomberg",32.5],["Oracle",26.5],["Google",20.9],["Meta",15.3],["Microsoft",8.9]]},{"id":"lc:the-k-th-lexicographical-string-of-all-happy-strings-of-length-n","name":"The k-th Lexicographical String of All Happy Strings of Length n","links":[{"name":"The k-th Lexicographical String of All Happy Strings of Length n","url":"https://leetcode.com/problems/the-k-th-lexicographical-string-of-all-happy-strings-of-length-n/"}],"gfg":false,"companies":[["Microsoft",32.8],["Google",24.4],["Bloomberg",23.9],["Amazon",15.7],["Meta",15.3]]},{"id":"lc:longest-subsequence-repeated-k-times","name":"Longest Subsequence Repeated k Times","links":[{"name":"Longest Subsequence Repeated k Times","url":"https://leetcode.com/problems/longest-subsequence-repeated-k-times/"}],"gfg":false,"companies":[["Meta",21.5],["Google",14.9],["Amazon",5.1]]},{"id":"lc:24-game","name":"24 Game","links":[{"name":"24 Game","url":"https://leetcode.com/problems/24-game/"}],"gfg":false,"companies":[["Roku",79.9],["Uber",45.7],["Google",39.0],["Microsoft",27.7],["TikTok",26.8],["Bloomberg",15.4],["Meta",11.4]]},{"id":"lc:pyramid-transition-matrix","name":"Pyramid Transition Matrix","links":[{"name":"Pyramid Transition Matrix","url":"https://leetcode.com/problems/pyramid-transition-matrix/"}],"gfg":false,"companies":[["Airbnb",65.5],["Google",23.3],["Amazon",13.2]]},{"id":"lc:remove-invalid-parentheses","name":"Remove Invalid Parentheses","links":[{"name":"Remove Invalid Parentheses","url":"https://leetcode.com/problems/remove-invalid-parentheses/"}],"gfg":false,"companies":[["Millennium",76.4],["Meta",50.1],["TikTok",47.1],["Rubrik",46.9],["Oracle",26.5],["Microsoft",22.0],["Google",17.0],["Amazon",15.7],["Bloomberg",8.2]]}]}];
+const SHOW = 5;
+const KEY = "backtracking-problems-v1";
+
+let state = { done: {}, good: {} };
+let canSave = true;
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) { const s = JSON.parse(raw); if (s && s.done && s.good) state = s; }
+  localStorage.setItem(KEY + "-test", "1"); localStorage.removeItem(KEY + "-test");
+} catch (e) { canSave = false; }
+if (!canSave) document.getElementById("warn").style.display = "block";
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { document.getElementById("warn").style.display = "block"; }
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function tagsHtml(p, expanded) {
+  if (p.gfg) return '<span class="src">GFG</span>';
+  const list = expanded ? p.companies : p.companies.slice(0, SHOW);
+  let h = list.map(c => '<span class="tag">[' + esc(c[0]) + ']</span>').join("");
+  const rest = p.companies.length - list.length;
+  if (rest > 0) h += '<button class="more" type="button" data-more="1" title="Show all ' + p.companies.length + ' companies">+' + rest + ' more</button>';
+  return h;
+}
+function titleHtml(p) {
+  return p.links.map(l => '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>').join(' <span class="amp">&amp;</span> ');
+}
+
+const root = document.getElementById("sections");
+SECTIONS.forEach((sec, si) => {
+  const wrap = document.createElement("div");
+  if (si > 0) { const h = document.createElement("h2"); h.textContent = sec.title.replace("Tree / ", ""); wrap.appendChild(h); }
+  wrap.insertAdjacentHTML("beforeend",
+    '<div class="head"><span></span><span></span>' +
+    '<span class="c"><span class="hd good">GOOD ONE :)</span></span>' +
+    '<span class="c"><span class="hd done">DONE</span></span></div>');
+  const list = document.createElement("div");
+  sec.items.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.dataset.id = p.id;
+    row._p = p;
+    row.innerHTML =
+      '<span class="ord">' + (i + 1) + '.</span>' +
+      '<span class="t">' + titleHtml(p) + '<span class="tags">' + tagsHtml(p, false) + '</span></span>' +
+      '<span class="c"><input type="checkbox" class="cb-good" aria-label="Good one"></span>' +
+      '<span class="c"><input type="checkbox" class="cb-done" aria-label="Done"></span>';
+    row.querySelector(".cb-good").checked = !!state.good[p.id];
+    row.querySelector(".cb-done").checked = !!state.done[p.id];
+    row.classList.toggle("is-done", !!state.done[p.id]);
+    list.appendChild(row);
+  });
+  wrap.appendChild(list);
+  root.appendChild(wrap);
+});
+
+// A problem that appears in more than one place shares one tick everywhere.
+function syncRows(id) {
+  document.querySelectorAll(".row").forEach(r => {
+    if (r.dataset.id !== id) return;
+    r.querySelector(".cb-good").checked = !!state.good[id];
+    r.querySelector(".cb-done").checked = !!state.done[id];
+    r.classList.toggle("is-done", !!state.done[id]);
+  });
+}
+
+root.addEventListener("change", e => {
+  const row = e.target.closest(".row"); if (!row) return;
+  const id = row.dataset.id;
+  if (e.target.classList.contains("cb-done")) {
+    if (e.target.checked) state.done[id] = 1; else delete state.done[id];
+  }
+  if (e.target.classList.contains("cb-good")) {
+    if (e.target.checked) state.good[id] = 1; else delete state.good[id];
+  }
+  syncRows(id);
+  save();
+});
+root.addEventListener("click", e => {
+  const b = e.target.closest("[data-more]"); if (!b) return;
+  const row = b.closest(".row");
+  row.querySelector(".tags").innerHTML = tagsHtml(row._p, true);
+});
+</script>
+</body>
+</html>

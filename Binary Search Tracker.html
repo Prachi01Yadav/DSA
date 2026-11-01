@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Binary Search Tracker</title>
+<style>
+:root{--bg:#fafafa;--card:#fff;--text:#1c1c1e;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--star:#f59e0b;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121214;--card:#1c1c1f;--text:#ececee;--muted:#9ca3af;--line:#2e2e33;--accent:#60a5fa;--star:#fbbf24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121214;--card:#1c1c1f;--text:#ececee;--muted:#9ca3af;--line:#2e2e33;--accent:#60a5fa;--star:#fbbf24;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.4rem;margin:0 0 4px}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 16px}
+.stats{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.count{font-weight:600;white-space:nowrap}
+.bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--text);padding:5px 12px;border-radius:999px;font:inherit;font-size:.85rem;cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.section{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.sh{padding:12px 14px;font-weight:600;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.sh span{color:var(--muted);font-weight:400;font-size:.9rem}
+.row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex:none}
+.row input[data-i]{accent-color:var(--star)}
+.c{width:80px;flex:none;text-align:center}
+.hd{font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+.hd span:last-child{flex:1}
+.row a{flex:1;color:var(--text);text-decoration:none;min-width:0}
+.row a:hover{color:var(--accent);text-decoration:underline}
+.row small{color:var(--muted);margin-left:6px;white-space:nowrap}
+.row.done a{color:var(--muted);text-decoration:line-through}
+.star{border:0;background:none;cursor:pointer;font-size:1.25rem;line-height:1;color:var(--line);padding:2px 4px}
+.star.on{color:var(--star)}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+:root{--bg:#f3f5fc;--card:#fff;--line:#e8ebf4;--accent:#6366f1;--ok:#10b981;--star:#f59e0b;--okbg:#ecfdf5;--impbg:#fffbeb;--hover:#eef0ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1117;--card:#181b24;--line:#272b38;--accent:#818cf8;--ok:#34d399;--star:#fbbf24;--okbg:#10261e;--impbg:#2a2312;--hover:#222639}}
+:root[data-theme="dark"]{--bg:#0f1117;--card:#181b24;--line:#272b38;--accent:#818cf8;--ok:#34d399;--star:#fbbf24;--okbg:#10261e;--impbg:#2a2312;--hover:#222639}
+body{min-height:100vh}
+main{padding-top:32px}
+h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+.sub{margin-bottom:20px}
+.stats{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(99,102,241,.08)}
+.count{color:var(--accent);font-size:1.05rem}
+.bar{height:12px;border-radius:6px}
+.bar i{background:linear-gradient(90deg,#10b981,#6366f1,#ec4899);border-radius:6px}
+.tabs button{font-weight:500;transition:all .15s}
+.tabs button:hover{border-color:var(--accent);color:var(--accent)}
+.tabs button.on{background:linear-gradient(90deg,#6366f1,#8b5cf6);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(99,102,241,.35)}
+.section{border-radius:14px;box-shadow:0 4px 18px rgba(99,102,241,.10)}
+.sh{background:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899);color:#fff;border-bottom:0;padding:14px 16px}
+.sh span{color:rgba(255,255,255,.85)}
+.row{padding:11px 16px;transition:background .12s}
+.row:not(.hd):hover{background:var(--hover)}
+.row input{width:20px;height:20px}
+.row input[data-d]{accent-color:var(--ok)}
+.row a{font-weight:500}
+.row small{background:var(--hover);color:var(--accent);padding:1px 8px;border-radius:999px;font-size:.72rem;font-weight:600;margin-left:8px}
+.row:has(input[data-i]:checked){box-shadow:inset 4px 0 var(--star)}
+.row:not(.done):has(input[data-i]:checked){background:var(--impbg)}
+.row.done{background:var(--okbg)}
+.hd{background:var(--bg)}
+.hd span:nth-child(1){color:var(--star)}
+.hd span:nth-child(2){color:var(--ok)}
+:root{--bg:#f5efe3;--card:#fbf7ee;--text:#3b3224;--muted:#8a7d66;--line:#e6dcc6;--accent:#b8892b;--gold-text:#7a5a18;--gold-deep:#a97c24;--on-gold:#fff;--ok:#7f9255;--star:#c9972e;--okbg:#eceedb;--impbg:#f7ebc8;--hover:#f1e8d3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a14;--card:#26221a;--text:#efe6d2;--muted:#a39878;--line:#3a3426;--accent:#d4a645;--gold-text:#d9b45a;--gold-deep:#7a5c1f;--on-gold:#fff;--ok:#9bb36b;--star:#e0b04f;--okbg:#2a2d1b;--impbg:#3a3016;--hover:#302b20}}
+:root[data-theme="dark"]{--bg:#1d1a14;--card:#26221a;--text:#efe6d2;--muted:#a39878;--line:#3a3426;--accent:#d4a645;--gold-text:#d9b45a;--gold-deep:#7a5c1f;--on-gold:#fff;--ok:#9bb36b;--star:#e0b04f;--okbg:#2a2d1b;--impbg:#3a3016;--hover:#302b20}
+h1{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--gold-text)}
+.stats{box-shadow:0 2px 10px rgba(120,90,30,.10)}
+.count{color:var(--gold-text)}
+.bar i{background:linear-gradient(90deg,#d4b05a,#b8892b)}
+.tabs button.on{background:var(--gold-deep);box-shadow:0 2px 6px rgba(120,90,30,.25);color:var(--on-gold)}
+.section{box-shadow:0 4px 16px rgba(120,90,30,.12)}
+.sh{background:var(--gold-deep);color:var(--on-gold)}
+.row small{color:var(--gold-text)}
+main{padding-top:20px;padding-bottom:28px}
+h1{font-size:1.5rem}
+.sub{margin-bottom:12px;font-size:.85rem}
+.stats{padding:8px 14px;margin-bottom:10px}
+.bar{height:9px}
+.tabs{margin-bottom:10px}
+.tabs button{padding:3px 11px;font-size:.8rem}
+.sh{padding:8px 14px;font-size:.95rem}
+.row{padding:4px 12px;gap:8px;font-size:.88rem;line-height:1.3}
+.row input{width:16px;height:16px}
+.c{width:64px}
+.hd{font-size:.62rem;padding-top:5px;padding-bottom:5px}
+.row small{padding:0 6px;font-size:.66rem;margin-left:6px}
+.hd span:first-child{flex:1;color:var(--muted)}
+.hd span:nth-child(2){color:var(--star);flex:none}
+.hd span:nth-child(3){color:var(--ok);flex:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>Arrays / Binary Search</h1>
+  <p class="sub">Tick the box when solved, tap the star to mark as important. Progress is saved in this browser.</p>
+  <div class="stats"><span class="count" id="count"></span><div class="bar"><i id="fill"></i></div></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="section">
+    <div class="sh">Questions <span id="shown"></span></div>
+    <div class="row hd"><span>Problem</span><span class="c">Important</span><span class="c">Done</span></div>
+    <div id="list"></div>
+  </div>
+</main>
+<script>
+const LC="https://leetcode.com/problems/";
+const P=[
+["153|Find Minimum in Rotated Sorted Array|find-minimum-in-rotated-sorted-array"],
+["154|Find Minimum in Rotated Sorted Array II|find-minimum-in-rotated-sorted-array-ii"],
+["33|Search in Rotated Sorted Array|search-in-rotated-sorted-array"],
+["81|Search in Rotated Sorted Array II|search-in-rotated-sorted-array-ii"],
+["1283|Find the Smallest Divisor Given a Threshold|find-the-smallest-divisor-given-a-threshold"],
+["1337|The K Weakest Rows in a Matrix|the-k-weakest-rows-in-a-matrix"],
+["1228|Missing Number In Arithmetic Progression|missing-number-in-arithmetic-progression"],
+["34|Find First and Last Position of Element in Sorted Array|find-first-and-last-position-of-element-in-sorted-array"],
+["658|Find K Closest Elements|find-k-closest-elements"],
+["1182|Shortest Distance to Target Color|shortest-distance-to-target-color"],
+["792|Number of Matching Subsequences|number-of-matching-subsequences"],
+["4|Median of Two Sorted Arrays|median-of-two-sorted-arrays"],
+["1011|Capacity To Ship Packages Within D Days|capacity-to-ship-packages-within-d-days"],
+["GFG|Find the Rotation Count in Rotated Sorted array|https://www.geeksforgeeks.org/find-rotation-count-rotated-sorted-array/"],
+["540|Single Element in a Sorted Array|single-element-in-a-sorted-array"],
+["74|Search a 2D Matrix|search-a-2d-matrix"],
+["374|Guess Number Higher or Lower|guess-number-higher-or-lower"],
+["2187|Minimum Time to Complete Trips|minimum-time-to-complete-trips"],
+["875|Koko Eating Bananas|koko-eating-bananas"],
+["704|Binary Search|binary-search"],
+["2300|Successful Pairs of Spells and Potions|successful-pairs-of-spells-and-potions"],
+["2439|Minimize Maximum of Array|minimize-maximum-of-array"],
+["744|Find Smallest Letter Greater Than Target|find-smallest-letter-greater-than-target"],
+["1802|Maximum Value at a Given Index in a Bounded Array|maximum-value-at-a-given-index-in-a-bounded-array"],
+["2448|Minimum Cost to Make Array Equal|minimum-cost-to-make-array-equal"],
+["1970|Last Day Where You Can Still Cross|last-day-where-you-can-still-cross"],
+["852|Peak Index in a Mountain Array|peak-index-in-a-mountain-array"],
+["1870|Minimum Speed to Arrive on Time|minimum-speed-to-arrive-on-time"],
+["2141|Maximum Running Time of N Computers|maximum-running-time-of-n-computers"],
+["2616|Minimize the Maximum Difference of Pairs|minimize-the-maximum-difference-of-pairs"],
+["2251|Number of Flowers in Full Bloom|number-of-flowers-in-full-bloom"],
+["1095|Find in Mountain Array|find-in-mountain-array"],
+["2968|Apply Operations to Maximize Frequency Score|apply-operations-to-maximize-frequency-score"],
+["2812|Find the Safest Path in a Grid|find-the-safest-path-in-a-grid"],
+["826|Most Profit Assigning Work|most-profit-assigning-work"],
+["1482|Minimum Number of Days to Make m Bouquets|minimum-number-of-days-to-make-m-bouquets"],
+["1552|Magnetic Force Between Two Balls|magnetic-force-between-two-balls"],
+["719|Find K-th Smallest Pair Distance|find-k-th-smallest-pair-distance"],
+["2070|Most Beautiful Item for Each Query|most-beautiful-item-for-each-query"],
+["2563|Count the Number of Fair Pairs|count-the-number-of-fair-pairs"],
+["1760|Minimum Limit of Balls in a Bag|minimum-limit-of-balls-in-a-bag"],
+["3449|Maximize the Minimum Game Score|maximize-the-minimum-game-score"],
+["3464|Maximize the Distance Between Points on a Square|maximize-the-distance-between-points-on-a-square"],
+["2226|Maximum Candies Allocated to K Children|maximum-candies-allocated-to-k-children"],
+["2560|House Robber IV|house-robber-iv"],
+["2594|Minimum Time to Repair Cars|minimum-time-to-repair-cars"],
+["2071|Maximum Number of Tasks You Can Assign|maximum-number-of-tasks-you-can-assign"],
+["3357|Minimize the Maximum Adjacent Element Difference|minimize-the-maximum-adjacent-element-difference"],
+["2040|Kth Smallest Product of Two Sorted Arrays|kth-smallest-product-of-two-sorted-arrays"],
+["2106|Maximum Fruits Harvested After at Most K Steps|maximum-fruits-harvested-after-at-most-k-steps"],
+["1488|Avoid Flood in The City|avoid-flood-in-the-city"],
+["2528|Maximize the Minimum Powered City|maximize-the-minimum-powered-city"],
+["3453|Separate Squares I|separate-squares-i"],
+["3296|Minimum Number of Seconds to Make Mountain Height Zero|minimum-number-of-seconds-to-make-mountain-height-zero"],
+["1665|Minimum Number of Seconds to Make Mountain Height Zero|minimum-initial-energy-to-finish-tasks"]
+].map(r=>{const [n,t,s]=r[0].split("|");return{id:n,title:t,url:s.startsWith("http")?s:LC+s+"/"}});
+
+const KEY="bs-tracker-v1";
+let st={done:{},imp:{}},filter="all";
+try{const v=localStorage.getItem(KEY);if(v)st=Object.assign(st,JSON.parse(v))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+
+function render(){
+  const total=P.length,done=P.filter((p,i)=>st.done[i]).length;
+  document.getElementById("count").textContent=done+" / "+total+" solved";
+  document.getElementById("fill").style.width=(done/total*100)+"%";
+  const tabs=[["all","All"],["imp","Important"],["todo","Pending"],["done","Solved"]];
+  document.getElementById("tabs").innerHTML=tabs.map(t=>`<button data-f="${t[0]}" class="${filter===t[0]?"on":""}">${t[1]}</button>`).join("");
+  const rows=P.map((p,i)=>({p,i})).filter(({i})=>filter==="all"||(filter==="imp"&&st.imp[i])||(filter==="todo"&&!st.done[i])||(filter==="done"&&st.done[i]));
+  document.getElementById("shown").textContent=rows.length+" shown";
+  document.getElementById("list").innerHTML=rows.length?rows.map(({p,i})=>
+    `<div class="row ${st.done[i]?"done":""}"><a href="${p.url}" target="_blank" rel="noopener">${p.title}<small>${p.id==="GFG"?"GFG":"LC-"+p.id}</small></a><span class="c"><input type="checkbox" data-i="${i}" ${st.imp[i]?"checked":""} aria-label="Important"></span><span class="c"><input type="checkbox" data-d="${i}" ${st.done[i]?"checked":""} aria-label="Done"></span></div>`
+  ).join(""):'<div class="empty">Nothing here yet.</div>';
+}
+document.addEventListener("click",e=>{
+  const t=e.target;
+  if(t.dataset.f){filter=t.dataset.f;render()}
+  else if(t.dataset.i){st.imp[t.dataset.i]=!st.imp[t.dataset.i];save();render()}
+});
+document.addEventListener("change",e=>{
+  const d=e.target.dataset.d;
+  if(d!==undefined){st.done[d]=e.target.checked;save();render()}
+});
+render();
+</script>
+</body>
+</html>

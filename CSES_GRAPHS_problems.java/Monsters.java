@@ -78,7 +78,7 @@ Claims on Algo
             for(int j=0;j<m;j++){
                 if(g[i][j]=='M'){
                     q.add(new int[]{i,j,0});
-                     vis[i][j]=true;
+                    vis[i][j]=true;
                     shortestTimes[i][j]=0;
                 }
             }
@@ -110,7 +110,7 @@ Claims on Algo
                         shortestTimes[i_][j_]=1+d;
                         vis[i_][j_]=true;
                     }
- 
+
                 }
             }
         }   

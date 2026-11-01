@@ -99,7 +99,7 @@ Claims on Algo
             left+=cnt[i];
         }
         return (mx<=(left+1)/2) && (cnt[ch-'A']<=left/2);
-    }
+    } 
 
 
     // nCr using factorial + modular inverse -> Works when MOD is prime (ex: 1e9+7)

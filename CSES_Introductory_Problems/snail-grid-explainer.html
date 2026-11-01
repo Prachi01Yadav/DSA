@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Snail Who Had To Visit Every Square</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #FBF7EF;
+    --paper-line: #CFDCE9;
+    --paper-margin: #F2A6A0;
+    --ink: #2B3A4A;
+    --ink-soft: #5C6B7A;
+    --pen: #2B4C7E;
+    --marker: #FFDE7A;
+    --marker-soft: #FFF2C4;
+    --good: #4F8F63;
+    --good-soft: #DCEEDF;
+    --bad: #C1443B;
+    --bad-soft: #FAE0DD;
+    --prune: #3F7A73;
+    --prune-soft: #DCEEEA;
+    --tape: #F6E7A1;
+    --shadow: rgba(43,58,74,0.18);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background:
+      repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--paper-line) 28px),
+      var(--paper);
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    padding-left: 64px;
+    position: relative;
+  }
+
+  body::before{
+    content:"";
+    position: fixed;
+    top:0; left:0; bottom:0;
+    width: 64px;
+    background: var(--paper-margin);
+    opacity: 0.35;
+    z-index: 0;
+  }
+
+  /* punch holes + binder gutter */
+  .gutter{
+    position: fixed;
+    top:0; left:0; bottom:0;
+    width: 64px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .hole{
+    position:absolute;
+    left: 22px;
+    width: 20px; height:20px;
+    border-radius:50%;
+    background: var(--paper);
+    box-shadow: inset 0 2px 4px var(--shadow), 0 0 0 3px rgba(43,58,74,0.06);
+  }
+  .slime-track{
+    position:absolute;
+    left: 50px;
+    top:0;
+    width: 6px;
+    height: 100%;
+    background: repeating-linear-gradient(180deg, var(--prune) 0 10px, transparent 10px 20px);
+    opacity:.35;
+    border-radius: 3px;
+  }
+  #snail{
+    position:absolute;
+    left: 34px;
+    top: 40px;
+    font-size: 28px;
+    transform: translateY(0) scaleX(-1);
+    filter: drop-shadow(0 2px 2px var(--shadow));
+    transition: top .05s linear;
+  }
+
+  main{ position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 20px 24px 120px; }
+
+  .eyebrow{
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: .12em;
+    color: var(--prune);
+    background: var(--prune-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  h1{
+    font-family: 'Kalam', cursive;
+    font-size: 52px;
+    line-height: 1.08;
+    margin: 0 0 18px;
+    color: var(--pen);
+  }
+
+  h2{
+    font-family: 'Kalam', cursive;
+    font-size: 32px;
+    color: var(--pen);
+    margin: 0 0 8px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  h2 .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--marker);
+    padding: 3px 9px;
+    border-radius: 6px;
+    transform: rotate(-2deg);
+    box-shadow: 0 2px 0 var(--shadow);
+    color: var(--ink);
+    font-weight:600;
+  }
+
+  p{ margin: 0 0 16px; }
+  strong{ color: var(--pen); }
+
+  .lede{
+    font-size: 19px;
+    color: var(--ink-soft);
+  }
+
+  .hero-grid-wrap{
+    display:flex;
+    justify-content:center;
+    margin: 26px 0 8px;
+  }
+
+  .page{
+    background: rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(43,58,74,0.12);
+    border-radius: 14px;
+    padding: 28px 28px 24px;
+    margin: 46px 0;
+    position: relative;
+    box-shadow: 0 6px 0 rgba(43,58,74,0.05), 0 1px 3px var(--shadow);
+  }
+
+  .tape{
+    position:absolute;
+    width: 90px; height: 30px;
+    background: var(--tape);
+    opacity:.85;
+    top:-14px;
+    box-shadow: 0 2px 3px var(--shadow);
+  }
+  .tape.left{ left: 24px; transform: rotate(-4deg); }
+  .tape.right{ right: 24px; transform: rotate(3deg); }
+
+  .diagram-wrap{
+    display:flex;
+    justify-content:center;
+    margin: 18px 0;
+  }
+
+  .caption{
+    text-align:center;
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: -6px;
+  }
+
+  .stamp{
+    display:inline-block;
+    font-family:'Kalam', cursive;
+    font-weight:700;
+    font-size: 22px;
+    padding: 6px 18px;
+    border: 4px solid currentColor;
+    border-radius: 10px;
+    transform: rotate(-6deg);
+    letter-spacing: .04em;
+    margin: 10px 0;
+  }
+  .stamp.bad{ color: var(--bad); }
+  .stamp.good{ color: var(--good); }
+
+  pre{
+    background: #22303F;
+    color: #E8EEF4;
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.6;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  pre .c{ color:#8FA6BC; }
+  pre .k{ color:#F2A6A0; }
+  pre .n{ color:#FFDE7A; }
+
+  .callout{
+    border-left: 4px solid var(--prune);
+    background: var(--prune-soft);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 15.5px;
+  }
+  .callout.bad{ border-color: var(--bad); background: var(--bad-soft); }
+  .callout.good{ border-color: var(--good); background: var(--good-soft); }
+
+  .scoreboard{
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+    margin: 22px 0;
+  }
+  .bar-row{ display:flex; flex-direction:column; gap:5px; }
+  .bar-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    display:flex;
+    justify-content:space-between;
+    color: var(--ink-soft);
+  }
+  .bar-track{
+    height: 22px;
+    background: rgba(43,58,74,0.07);
+    border-radius: 6px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--pen), var(--prune));
+  }
+
+  .playground{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 14px;
+  }
+  .pg-grid{
+    display:grid;
+    grid-template-columns: repeat(5, 46px);
+    grid-template-rows: repeat(5, 46px);
+    gap: 3px;
+    background: rgba(43,58,74,0.15);
+    padding: 4px;
+    border-radius: 8px;
+  }
+  .pg-cell{
+    background: #fff;
+    border-radius: 4px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 18px;
+    user-select:none;
+    transition: background .15s, transform .1s;
+    position: relative;
+  }
+  .pg-cell:hover{ transform: scale(1.05); }
+  .pg-cell.visited{ background: var(--prune-soft); }
+  .pg-cell.start{ outline: 3px solid var(--good); outline-offset:-3px; }
+  .pg-cell.end{ outline: 3px solid var(--pen); outline-offset:-3px; }
+  .pg-cell.trapped{ background: var(--bad-soft); animation: pulse 1s infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow: 0 0 0 0 rgba(193,68,59,0.4);} 50%{ box-shadow: 0 0 0 6px rgba(193,68,59,0);} }
+  .pg-msg{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    min-height: 20px;
+    text-align:center;
+  }
+  .pg-reset{
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
+    font-size: 14px;
+    background: var(--pen);
+    color:white;
+    border:none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor:pointer;
+  }
+  .pg-reset:hover{ opacity:.9; }
+
+  footer{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-top: 40px;
+    font-style: italic;
+  }
+
+  @media (max-width: 700px){
+    body{ padding-left: 0; }
+    body::before, .gutter{ display:none; }
+    main{ padding: 20px 16px 100px; }
+    h1{ font-size: 38px; }
+    h2{ font-size: 26px; }
+    .pg-grid{ grid-template-columns: repeat(5, 15vw); grid-template-rows: repeat(5, 15vw); }
+  }
+</style>
+</head>
+<body>
+
+<div class="gutter">
+  <div class="hole" style="top:80px"></div>
+  <div class="hole" style="top:280px"></div>
+  <div class="hole" style="top:480px"></div>
+  <div class="hole" style="top:680px"></div>
+  <div class="hole" style="top:880px"></div>
+  <div class="hole" style="top:1080px"></div>
+  <div class="hole" style="top:1280px"></div>
+  <div class="hole" style="top:1480px"></div>
+  <div class="slime-track"></div>
+  <div id="snail">🐌</div>
+</div>
+
+<main>
+
+  <span class="eyebrow">A GRID PUZZLE, EXPLAINED FROM SCRATCH</span>
+  <h1>The Snail Who Had To<br>Visit Every Square</h1>
+  <p class="lede">Here's the whole problem in one breath: a snail starts in the <strong>top-left</strong> corner of a garden made of squares. It wants to reach the <strong>bottom-right</strong> corner. The rule is strict: it must step on <strong>every single square, exactly once</strong>. No repeats, no skipping. We want to know: how many different routes can the snail take?</p>
+
+  <div class="hero-grid-wrap"><div id="grid-hero"></div></div>
+  <p class="caption">One valid route on a 5×5 garden. Every square gets exactly one visit from the snail.</p>
+
+  <div class="page">
+    <div class="tape left"></div>
+    <h2>Plan A: Just Try Everything</h2>
+    <p>This is what programmers call <strong>backtracking</strong>, and honestly, it's the least clever plan you could think of. It's basically: "when in doubt, try every door and see what happens."</p>
+    <p>Stand on a square. Look in all four directions: up, down, left, right. For every neighbor that isn't slimed yet, go slime it, and repeat this whole process from there. When you can't go any further, you either finished the garden or you didn't. Come back, wipe that last slime off, and try a different door.</p>
+    <div class="callout">Every time the snail "comes back and tries a different door," that's called <strong>backtracking</strong>. It's just undoing a move so you can try the next option.</div>
+    <p>Every full attempt like this is one possible route. We just add up how many of these attempts end successfully.</p>
+  </div>
+
+  <div class="page">
+    <div class="tape right"></div>
+    <h2>Bug Hunt: "Am I Actually Done?"</h2>
+    <p>The tricky part of this whole puzzle isn't the moving around. It's knowing <strong>when to stop and declare victory (or defeat)</strong>. Here's a very tempting first idea:</p>
+    <div class="callout">"If the snail has nowhere left to go, that means it's stuck. So I'll check: am I on the last square? If yes, count it. If no, throw it away."</div>
+    <p>Sounds reasonable. It's wrong, though — in two different ways.</p>
+
+    <div class="diagram-wrap"><div id="grid-bug1"></div></div>
+    <p class="caption">The snail is squeezed into a corner with zero free neighbors. It's "stuck" — but three squares elsewhere never got visited.</p>
+    <p><strong>Problem one:</strong> "stuck" only tells you about the squares right next to you. It says nothing about squares far away that never got touched. The snail above is 100% stuck, and also standing nowhere near the last square, and also the garden is nowhere close to finished. Your check needs to catch this too — but "stuck" alone doesn't tell the whole story.</p>
+
+    <div class="diagram-wrap"><div id="grid-bug2"></div></div>
+    <p class="caption">The snail wandered onto the last square super early — plenty of squares are still bare.</p>
+    <p><strong>Problem two, the sneakier one:</strong> what if the snail reaches the very last square, but way too early, with squares still unvisited elsewhere? It's not "stuck" at that moment — it might still have free neighbors to wander into. But it doesn't matter, because the last square is now slimed, and the snail can never step there again. The route is already ruined. Waiting until the snail gets fully stuck, several moves later, just wastes time discovering something you could've known immediately.</p>
+    <div class="stamp bad">BUSTED</div>
+  </div>
+
+  <div class="page">
+    <div class="tape left"></div>
+    <h2>The Real Fix: Just Count Your Steps</h2>
+    <p>Forget "stuck" entirely. Here's a much more direct idea: <strong>keep a running counter</strong> of how many squares have been slimed so far. Every time the snail moves to a new square, add one to the counter.</p>
+    <p>Now the only question you ever need to ask is: <em>the moment the snail lands on the last square, does the counter equal the total number of squares in the garden?</em></p>
+    <pre>if snail is on the last square:
+    <span class="c">// did it slime EVERY square, not just some?</span>
+    if slimeCount == totalSquares:
+        <span class="k">this route works! count it.</span>
+    else:
+        <span class="k">too early — this route is dead. stop here.</span></pre>
+    <p>Notice what disappeared: there's no "check if stuck" anywhere. If the snail truly has nowhere to go and isn't on the last square, the four-direction loop just quietly produces nothing on its own. You don't need a special case for it — it falls out naturally.</p>
+    <div class="stamp good">FIXED</div>
+  </div>
+
+  <div class="page">
+    <div class="tape right"></div>
+    <h2><span class="tag">TRICK #1</span>Quit The Second You Cheat Early</h2>
+    <p>Now for speed. The fix above already buys us our first real optimization for free: the moment the snail steps on the last square too early, <strong>stop right there</strong>. Don't keep exploring from that square at all — there's no point, since you can never revisit it to actually finish properly.</p>
+    <p>This sounds small, but it's a huge time-saver, because it stops a doomed route the instant it goes wrong, instead of only noticing many moves later.</p>
+  </div>
+
+  <div class="page">
+    <div class="tape left"></div>
+    <h2><span class="tag">TRICK #2</span>Watch Out For Walls</h2>
+    <p>Here's a neat pattern to notice: sometimes the snail bumps into a wall, and its only options are to turn left or turn right (it can't go straight, because straight is a wall too). When that happens, that turn can quietly slice the rest of the unvisited garden into <strong>two separate pockets</strong>.</p>
+    <div class="diagram-wrap"><div id="grid-fork"></div></div>
+    <p class="caption">Forced to turn at the wall — and now the leftover squares are split into two pockets that can't reach each other.</p>
+    <p>Since the snail is only one snail, it can only wander into <em>one</em> of those two pockets. Whichever pocket it picks, the squares sitting in the <em>other</em> pocket are stranded forever — there's no way back across to visit them.</p>
+    <div class="callout bad">The instant you notice this split, you already know the route is doomed. No need to keep crawling around for another twenty moves just to prove it.</div>
+    <p>The real book this idea comes from (the Competitive Programmer's Handbook) reports this single trick shrinking the search from <strong>20 billion attempts down to 221 million</strong> — and the running time from <strong>119 seconds down to 1.8 seconds.</strong> Same puzzle. Just noticing dead ends sooner.</p>
+  </div>
+
+  <div class="page">
+    <div class="tape right"></div>
+    <h2><span class="tag">TRICK #3</span>Same Idea, Bigger Umbrella</h2>
+    <p>Trick #2 only mentioned walls specifically. But actually, the wall doesn't matter at all — it's just one way to force a turn. The real, more general rule is:</p>
+    <div class="callout good">Any time the snail is forced to turn (can't continue straight, but can turn left or right), check whether that turn splits the remaining garden into two disconnected pockets. If it does, this route is already dead — stop immediately.</div>
+    <p>This is the exact same trick as before, just not limiting itself to "only check this when we're touching a wall." With this wider net, the book reports the search finishing in just <strong>0.6 seconds</strong>. Same 20-billion-attempt monster from the start, tamed down to something that finishes almost instantly.</p>
+  </div>
+
+  <div class="page">
+    <div class="tape left"></div>
+    <h2><span class="tag">BONUS TRICK</span>The "Check Everything" Version</h2>
+    <p>Here's a trick that's less surgical than Trick #3, but easier to reason about: after every single move, do a quick flood — spread outward from where the snail is standing, only stepping on un-slimed squares, and count how many un-slimed squares you can actually reach.</p>
+    <p>If that number doesn't match how many un-slimed squares actually exist in the whole garden, something got cut off somewhere — <strong>dead end, stop now.</strong></p>
+    <div class="callout">This catches every kind of split, not just the wall-and-turn kind. It's more thorough than Trick #3. The catch: it costs you a full sweep of the garden after every move, even on moves that were perfectly fine. More certainty, but more work per step. Whether that trade is worth it depends on how big your garden is.</div>
+  </div>
+
+  <div class="page">
+    <div class="tape right"></div>
+    <h2>The Scoreboard</h2>
+    <p>Same puzzle. Same-sized garden. Just smarter about giving up early:</p>
+    <div class="scoreboard">
+      <div class="bar-row">
+        <div class="bar-label"><span>Plan A + Trick #1 only</span><span>~20 billion attempts · 119s</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span>+ Trick #2 (walls)</span><span>~221 million attempts · 1.8s</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:12%"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span>+ Trick #3 (any forced turn)</span><span>very efficient · 0.6s</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:3%"></div></div>
+      </div>
+    </div>
+    <p class="caption">Bar widths are for a rough feel of scale, not to exact measurement.</p>
+  </div>
+
+  <div class="page">
+    <div class="tape left"></div>
+    <h2>Try It Yourself</h2>
+    <p>Click squares below to "slime" them like the snail would. Watch what happens to the squares you leave behind — some of them can quietly get trapped, exactly like Trick #3 is watching out for.</p>
+    <div class="playground">
+      <div class="pg-grid" id="pg-grid"></div>
+      <div class="pg-msg" id="pg-msg">Click any square to start sliming the garden.</div>
+      <button class="pg-reset" id="pg-reset">Reset garden</button>
+    </div>
+  </div>
+
+  <footer>That's the whole journey — from "just try everything" to a snail that knows exactly when to give up. 🐌</footer>
+
+</main>
+
+<script>
+// ---------- small SVG grid-diagram helper ----------
+function drawGrid(containerId, opts){
+  const n = opts.n, cell = opts.cell || 46;
+  const w = n*cell, h = n*cell;
+  const svgns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgns, "svg");
+  svg.setAttribute("width", w);
+  svg.setAttribute("height", h);
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+
+  // grid lines
+  for(let i=0;i<=n;i++){
+    const l1 = document.createElementNS(svgns,"line");
+    l1.setAttribute("x1",0); l1.setAttribute("y1",i*cell); l1.setAttribute("x2",w); l1.setAttribute("y2",i*cell);
+    l1.setAttribute("stroke","#CBD9E6"); l1.setAttribute("stroke-width","1.5");
+    svg.appendChild(l1);
+    const l2 = document.createElementNS(svgns,"line");
+    l2.setAttribute("x1",i*cell); l2.setAttribute("y1",0); l2.setAttribute("x2",i*cell); l2.setAttribute("y2",h);
+    l2.setAttribute("stroke","#CBD9E6"); l2.setAttribute("stroke-width","1.5");
+    svg.appendChild(l2);
+  }
+
+  const cx = (c)=> c*cell + cell/2;
+  const cy = (r)=> r*cell + cell/2;
+
+  // trapped cell fills
+  (opts.trapped||[]).forEach(([r,c])=>{
+    const rect = document.createElementNS(svgns,"rect");
+    rect.setAttribute("x", c*cell+3); rect.setAttribute("y", r*cell+3);
+    rect.setAttribute("width", cell-6); rect.setAttribute("height", cell-6);
+    rect.setAttribute("rx", 5);
+    rect.setAttribute("fill", "#FAE0DD");
+    svg.appendChild(rect);
+    const x1 = document.createElementNS(svgns,"line");
+    x1.setAttribute("x1", c*cell+10); x1.setAttribute("y1", r*cell+10);
+    x1.setAttribute("x2", c*cell+cell-10); x1.setAttribute("y2", r*cell+cell-10);
+    x1.setAttribute("stroke","#C1443B"); x1.setAttribute("stroke-width","2.5"); x1.setAttribute("stroke-linecap","round");
+    svg.appendChild(x1);
+    const x2 = document.createElementNS(svgns,"line");
+    x2.setAttribute("x1", c*cell+cell-10); x2.setAttribute("y1", r*cell+10);
+    x2.setAttribute("x2", c*cell+10); x2.setAttribute("y2", r*cell+cell-10);
+    x2.setAttribute("stroke","#C1443B"); x2.setAttribute("stroke-width","2.5"); x2.setAttribute("stroke-linecap","round");
+    svg.appendChild(x2);
+  });
+
+  // missed (unvisited but not "trapped", just left over) cells
+  (opts.missed||[]).forEach(([r,c])=>{
+    const rect = document.createElementNS(svgns,"rect");
+    rect.setAttribute("x", c*cell+3); rect.setAttribute("y", r*cell+3);
+    rect.setAttribute("width", cell-6); rect.setAttribute("height", cell-6);
+    rect.setAttribute("rx", 5);
+    rect.setAttribute("fill", "#FFF2C4");
+    svg.appendChild(rect);
+  });
+
+  // path polyline (the slime trail)
+  if(opts.path && opts.path.length>1){
+    let d = "M " + cx(opts.path[0][1]) + " " + cy(opts.path[0][0]);
+    for(let i=1;i<opts.path.length;i++){
+      d += " L " + cx(opts.path[i][1]) + " " + cy(opts.path[i][0]);
+    }
+    const path = document.createElementNS(svgns,"path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill","none");
+    path.setAttribute("stroke","#2B4C7E");
+    path.setAttribute("stroke-width","4");
+    path.setAttribute("stroke-linecap","round");
+    path.setAttribute("stroke-linejoin","round");
+    path.setAttribute("opacity","0.85");
+    svg.appendChild(path);
+
+    opts.path.forEach(([r,c])=>{
+      const dot = document.createElementNS(svgns,"circle");
+      dot.setAttribute("cx", cx(c)); dot.setAttribute("cy", cy(r));
+      dot.setAttribute("r", 3.2);
+      dot.setAttribute("fill", "#2B4C7E");
+      svg.appendChild(dot);
+    });
+  }
+
+  // start marker
+  if(opts.start){
+    const [r,c] = opts.start;
+    const t = document.createElementNS(svgns,"text");
+    t.setAttribute("x", cx(c)); t.setAttribute("y", cy(r)+7);
+    t.setAttribute("text-anchor","middle");
+    t.setAttribute("font-size","20");
+    t.textContent = "🐌";
+    svg.appendChild(t);
+  }
+  // end marker
+  if(opts.end){
+    const [r,c] = opts.end;
+    const t = document.createElementNS(svgns,"text");
+    t.setAttribute("x", cx(c)); t.setAttribute("y", cy(r)+7);
+    t.setAttribute("text-anchor","middle");
+    t.setAttribute("font-size","18");
+    t.textContent = "🏁";
+    svg.appendChild(t);
+  }
+  // snail current position (if given separately from start)
+  if(opts.snailAt){
+    const [r,c] = opts.snailAt;
+    const t = document.createElementNS(svgns,"text");
+    t.setAttribute("x", cx(c)); t.setAttribute("y", cy(r)+7);
+    t.setAttribute("text-anchor","middle");
+    t.setAttribute("font-size","20");
+    t.textContent = "🐌";
+    svg.appendChild(t);
+  }
+
+  document.getElementById(containerId).appendChild(svg);
+}
+
+// hero: a clean example completed path on 5x5
+drawGrid("grid-hero", {
+  n:5, cell:46,
+  path: [[0,0],[0,1],[0,2],[0,3],[0,4],[1,4],[1,3],[1,2],[1,1],[1,0],
+         [2,0],[2,1],[2,2],[2,3],[2,4],[3,4],[3,3],[3,2],[3,1],[3,0],
+         [4,0],[4,1],[4,2],[4,3],[4,4]],
+  start:[0,0], end:[4,4]
+});
+
+// bug 1: stuck in a corner, not at destination, squares elsewhere unvisited
+drawGrid("grid-bug1", {
+  n:4, cell:46,
+  path: [[0,0],[1,0],[1,1],[0,1]],
+  snailAt:[0,1],
+  trapped: [[2,2],[2,3],[3,3]],
+  end:[3,3]
+});
+
+// bug 2: reached the end square too early
+drawGrid("grid-bug2", {
+  n:4, cell:46,
+  path: [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[3,3]],
+  start:[0,0],
+  missed: [[1,0],[1,1],[1,2],[2,0],[2,1],[2,2],[3,0],[3,1],[3,2]]
+});
+
+// wall fork: forced turn splitting remaining squares into two pockets
+drawGrid("grid-fork", {
+  n:5, cell:46,
+  path: [[0,0],[1,0],[1,1],[0,1],[0,2],[1,2],[1,3],[0,3],[0,4]],
+  snailAt:[0,4],
+  trapped: [[1,4],[2,4],[2,3],[2,2],[2,1],[2,0]],
+  missed: [[3,0],[3,1],[3,2],[3,3],[3,4],[4,0],[4,1],[4,2],[4,3],[4,4]],
+  end:[4,4]
+});
+
+// ---------- scroll-following snail in the gutter ----------
+const snailEl = document.getElementById('snail');
+function updateSnail(){
+  if(window.innerWidth <= 700 || !snailEl) return;
+  const doc = document.documentElement;
+  const scrollable = doc.scrollHeight - doc.clientHeight;
+  const frac = scrollable > 0 ? window.scrollY / scrollable : 0;
+  const trackHeight = doc.scrollHeight - 80;
+  snailEl.style.top = (40 + frac * trackHeight) + "px";
+}
+window.addEventListener('scroll', updateSnail);
+window.addEventListener('resize', updateSnail);
+updateSnail();
+
+// ---------- interactive playground ----------
+const PG_N = 5;
+const pgGrid = document.getElementById('pg-grid');
+const pgMsg = document.getElementById('pg-msg');
+let pgState = [];
+
+function pgInit(){
+  pgGrid.innerHTML = "";
+  pgState = Array.from({length: PG_N}, ()=> Array(PG_N).fill(false));
+  for(let r=0;r<PG_N;r++){
+    for(let c=0;c<PG_N;c++){
+      const cell = document.createElement('div');
+      cell.className = 'pg-cell';
+      cell.dataset.r = r; cell.dataset.c = c;
+      if(r===0 && c===0){ cell.classList.add('start'); cell.textContent='🐌'; }
+      if(r===PG_N-1 && c===PG_N-1){ cell.classList.add('end'); cell.textContent='🏁'; }
+      cell.addEventListener('click', ()=> pgToggle(r,c,cell));
+      pgGrid.appendChild(cell);
+    }
+  }
+  pgMsg.textContent = "Click any square to start sliming the garden.";
+}
+
+function pgToggle(r,c,cell){
+  pgState[r][c] = !pgState[r][c];
+  cell.classList.toggle('visited', pgState[r][c]);
+  pgRefreshTrapped();
+}
+
+function pgRefreshTrapped(){
+  const cells = pgGrid.querySelectorAll('.pg-cell');
+  let trappedCount = 0;
+  cells.forEach(cell=>{
+    const r = +cell.dataset.r, c = +cell.dataset.c;
+    cell.classList.remove('trapped');
+    const isEnd = (r===PG_N-1 && c===PG_N-1);
+    if(pgState[r][c]) return; // visited squares can't be "trapped"
+    let free = 0;
+    [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{
+      if(nr>=0 && nr<PG_N && nc>=0 && nc<PG_N && !pgState[nr][nc]) free++;
+    });
+    if(free===0 && !isEnd){
+      cell.classList.add('trapped');
+      trappedCount++;
+    }
+  });
+  pgMsg.textContent = trappedCount>0
+    ? `⚠️ ${trappedCount} square${trappedCount>1?'s are':' is'} now trapped — this route is already doomed, just like Trick #3 checks for.`
+    : "Looking good — nothing's trapped yet.";
+}
+
+document.getElementById('pg-reset').addEventListener('click', pgInit);
+pgInit();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stamping the Sequence — The Reverse-Time Greedy Pattern</title>
+<style>
+:root{
+  --bg:#fbfaf7; --card:#ffffff; --ink:#1f2430; --muted:#667085; --line:#e8e4da;
+  --indigo:#5b5bd6; --indigo-soft:#ececfd; --coral:#f2545b; --coral-soft:#fde8e9;
+  --teal:#0fa89a; --teal-soft:#dcf5f2; --amber:#f5a524; --amber-soft:#fff3d6;
+  --violet:#8b5cf6; --code-bg:#f6f4ee;
+  --tw:38px; --gap:4px;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;line-height:1.7;font-size:17px}
+#progress{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--indigo),var(--teal),var(--amber));width:0;z-index:100}
+nav#side{position:fixed;top:0;left:0;bottom:0;width:264px;padding:26px 16px;overflow:auto;background:#fff;border-right:1px solid var(--line);z-index:50}
+nav#side .brand{font-weight:800;font-size:15px;letter-spacing:.2px;margin:0 8px 14px;display:flex;gap:8px;align-items:center}
+nav#side .brand span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--indigo);color:#fff;font-size:16px}
+nav#side a{display:block;padding:7px 10px;border-radius:9px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;line-height:1.35}
+nav#side a:hover{background:#f3f1ea;color:var(--ink)}
+nav#side a.on{background:var(--indigo-soft);color:var(--indigo);font-weight:700}
+main{margin-left:264px;padding:0 28px 120px}
+.wrap{max-width:900px;margin:0 auto}
+header.hero{padding:70px 0 34px}
+.chip{display:inline-block;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--indigo-soft);color:var(--indigo);margin-right:6px}
+.chip.t{background:var(--teal-soft);color:var(--teal)} .chip.a{background:var(--amber-soft);color:#b27300} .chip.c{background:var(--coral-soft);color:var(--coral)}
+h1{font-size:clamp(34px,5vw,54px);line-height:1.1;margin:16px 0 12px;letter-spacing:-1px}
+h1 em{font-style:normal;background:linear-gradient(transparent 62%,#ffe08a 62%);padding:0 4px}
+.lead{font-size:19px;color:#3b4252;max-width:740px}
+section{padding-top:64px}
+h2{font-size:31px;line-height:1.2;margin:0 0 6px;letter-spacing:-.5px}
+h2 .n{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--ink);color:#fff;font-size:17px;margin-right:10px;vertical-align:3px}
+h3{font-size:21px;margin:30px 0 8px}
+p{margin:12px 0}
+.sub{color:var(--muted);margin-top:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);margin:18px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+.callout{border-radius:14px;padding:16px 20px;margin:18px 0;border:1px solid;display:flex;gap:14px}
+.callout .ic{font-size:26px;line-height:1.2}
+.callout.aha{background:var(--amber-soft);border-color:#f1d28c}
+.callout.tip{background:var(--teal-soft);border-color:#a7e3dc}
+.callout.warn{background:var(--coral-soft);border-color:#f6b9bc}
+.callout.info{background:var(--indigo-soft);border-color:#cfcff7}
+.callout b.t{display:block;margin-bottom:2px}
+.callout p{margin:4px 0}
+code{font-family:"JetBrains Mono","Fira Code",Consolas,Menlo,monospace;background:var(--code-bg);padding:2px 6px;border-radius:6px;font-size:.88em;border:1px solid #ebe7db}
+.codetabs{background:var(--code-bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:16px 0}
+.tabbar{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);background:#efece3;align-items:center}
+.tab{border:0;background:transparent;padding:6px 14px;border-radius:8px;font-weight:700;color:var(--muted);cursor:pointer;font-size:13px}
+.tab.on{background:#fff;color:var(--indigo);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.copy{margin-left:auto;border:1px solid var(--line);background:#fff;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted)}
+pre.code{margin:0;padding:16px 18px;overflow:auto;font-family:"JetBrains Mono","Fira Code",Consolas,Menlo,monospace;font-size:13.5px;line-height:1.6;color:#2b3040}
+pre.code .k{color:#8b3fd9;font-weight:600} pre.code .c{color:#8a8f9c;font-style:italic}
+pre.plain{background:var(--code-bg);border:1px solid var(--line);border-radius:14px;padding:16px 18px;overflow:auto;font-family:"JetBrains Mono",Consolas,Menlo,monospace;font-size:13.5px;line-height:1.6}
+/* tiles */
+.scroll{overflow-x:auto;padding:4px 2px 10px}
+.row{display:flex;gap:var(--gap);align-items:center}
+.frame{display:inline-block;min-width:100%}
+.rlabel{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:10px 0 4px}
+.tile{width:var(--tw);height:var(--tw);flex:0 0 var(--tw);display:grid;place-items:center;border-radius:9px;border:2px solid #d9d4c5;background:#fff;font-weight:800;font-family:"JetBrains Mono",Consolas,Menlo,monospace;font-size:17px;transition:.2s}
+.tile.q{border-style:dashed;border-color:#e0b53d;background:var(--amber-soft);color:#b27300}
+.tile.inwin{box-shadow:0 0 0 3px var(--indigo-soft);border-color:var(--indigo)}
+.tile.ok{background:var(--teal-soft);border-color:var(--teal);color:#0b7c71}
+.tile.bad{background:var(--coral-soft);border-color:var(--coral);color:var(--coral)}
+.tile.w{background:var(--amber-soft);border-color:#e0b53d;color:#b27300}
+.tile.vis{background:var(--indigo-soft);border-color:var(--indigo);color:var(--indigo)}
+.tile.buried{opacity:.38;text-decoration:line-through;background:#f1efe8}
+.tile.ghost{border:2px dotted #ece8dc;background:transparent}
+.tile.hi{box-shadow:0 0 0 3px #ffd36b}
+.row.idx .tile{border:0;background:transparent;height:16px;font-size:11px;color:#aaa;font-weight:600}
+.layers .lrow{display:flex;align-items:center;gap:12px;margin:6px 0}
+.layers .lab{width:128px;flex:0 0 128px;font-size:12px;font-weight:700;color:var(--muted)}
+.lrow.res{border-top:2px dashed var(--line);padding-top:10px;margin-top:12px}
+/* controls */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+input[type=text]{font-family:"JetBrains Mono",Consolas,monospace;font-size:16px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;min-width:150px;outline:none}
+input[type=text]:focus{border-color:var(--indigo);box-shadow:0 0 0 3px var(--indigo-soft)}
+button.btn{border:0;background:var(--indigo);color:#fff;padding:9px 16px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+button.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+button.btn.t{background:var(--teal)} button.btn:disabled{opacity:.4;cursor:default;transform:none}
+.meter{height:10px;background:#efece3;border-radius:99px;overflow:hidden;margin:10px 0}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--indigo));transition:width .3s}
+.verdict{padding:12px 16px;border-radius:12px;background:#f6f4ee;border:1px solid var(--line);margin:10px 0;min-height:52px}
+.log{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.log span{background:var(--indigo-soft);color:var(--indigo);font-weight:800;border-radius:8px;padding:2px 10px;font-family:"JetBrains Mono",monospace;font-size:14px}
+/* cards */
+.pcard{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:#fff;box-shadow:var(--shadow)}
+.pcard h4{margin:0 0 4px;font-size:17px}
+.pcard .dna{font-size:14px;color:#3b4252}
+.pcard ul{margin:8px 0 0;padding-left:18px;font-size:14px}
+.pcard li{margin:3px 0}
+.badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--indigo-soft);color:var(--indigo);margin-left:6px;vertical-align:2px}
+table{border-collapse:collapse;width:100%;font-size:15px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f3f1ea;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:14px 16px 14px 62px;background:#fff;border:1px solid var(--line);border-radius:14px;margin:12px 0;box-shadow:var(--shadow)}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:10px;background:var(--indigo);color:#fff;display:grid;place-items:center;font-weight:800}
+.checklist label{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;margin:8px 0;background:#fff;cursor:pointer}
+.checklist label:hover{border-color:var(--indigo)}
+.checklist input{margin-top:6px;transform:scale(1.25);accent-color:var(--indigo)}
+.quiz .q{margin:18px 0}
+.quiz .opt{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:15.5px}
+.quiz .opt:hover{border-color:var(--indigo)}
+.quiz .opt.right{background:var(--teal-soft);border-color:var(--teal)}
+.quiz .opt.wrong{background:var(--coral-soft);border-color:var(--coral)}
+.quiz .exp{display:none;margin-top:8px;padding:10px 14px;border-radius:10px;background:var(--amber-soft);font-size:15px}
+.kbd{font-family:monospace;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:13px}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 18px;margin:12px 0}
+summary{cursor:pointer;font-weight:700}
+footer{margin-top:80px;text-align:center;color:var(--muted);font-size:14px}
+@media(max-width:980px){
+  nav#side{display:none}
+  main{margin-left:0;padding:0 16px 80px}
+  :root{--tw:32px}
+  .tile{font-size:15px}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<nav id="side">
+  <div class="brand"><span>📮</span> Stamping the Sequence</div>
+  <a href="#s0">Start here</a>
+  <a href="#s1">1 · The problem, in plain words</a>
+  <a href="#s2">2 · Why going forward is a trap</a>
+  <a href="#s3">3 · THE BIG IDEA: rewind time</a>
+  <a href="#s4">4 · The magic ? wildcard</a>
+  <a href="#s5">5 · Walk-throughs, frame by frame</a>
+  <a href="#s6">6 · Playground (try your own!)</a>
+  <a href="#s7">7 · The algorithm + code</a>
+  <a href="#s8">8 · Why greedy is correct</a>
+  <a href="#s9">9 · Complexity &amp; the 10N bound</a>
+  <a href="#s10">10 · Pro version: queue / topo</a>
+  <a href="#s11">11 · Edge cases &amp; bug museum</a>
+  <a href="#s12">12 · The pattern, named</a>
+  <a href="#s13">13 · Pattern family tree</a>
+  <a href="#s14">14 · How to RECOGNISE it</a>
+  <a href="#s15">15 · How to APPLY it</a>
+  <a href="#s16">16 · Practice ladder</a>
+  <a href="#s17">17 · Quiz yourself</a>
+  <a href="#s18">18 · Cheat sheet</a>
+</nav>
+
+<main>
+<div class="wrap">
+
+<header class="hero" id="s0">
+  <span class="chip">LeetCode 936</span><span class="chip c">Hard</span><span class="chip t">Greedy</span><span class="chip a">Reverse Thinking</span><span class="chip">String</span><span class="chip">Topological Peeling</span>
+  <h1>Stamping the Sequence: <em>Think backwards</em> to win forwards 📮⏪</h1>
+  <p class="lead">This problem looks like a nasty search over a huge number of stamp orders. It is actually solved by <b>one</b> idea: <b>don't build the target, <i>un-build</i> it</b>. By the end of this page you'll know the trick, why it is correct, the whole family of problems that use the same trick, how to spot it in the wild, and exactly how to apply it.</p>
+  <div class="card">
+    <b>What you'll get:</b> a story to remember the idea · an interactive visualizer where you type your own stamp and target · proof intuition · complexity · the optimized queue version · bug museum · the pattern family tree with real LeetCode problems · a recognition checklist · an application recipe · a quiz.
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="n">1</span>The problem, in plain words</h2>
+  <p class="sub">Forget the formal statement for a moment.</p>
+  <p>You own a rubber stamp that prints a small word, say <code>abc</code>. You also own a long blank strip of paper made of <code>?</code> cells (blank = "nothing printed yet"). You may press the stamp <b>anywhere</b> on the strip as long as the whole stamp fits on the strip. Each press <b>overwrites</b> whatever was underneath those cells.</p>
+  <p>You want the strip to finally read exactly <code>target</code>. Output the left-edge index of every press, in order. Use at most <code>10 × target.length</code> presses. If it's impossible, output an empty list.</p>
+  <div class="card">
+    <div class="rlabel">Example 2 from the problem (stamp = abca, target = aabcaca) — one valid answer is [0, 3, 1]</div>
+    <div id="layerDemo"></div>
+    <p class="sub" style="margin-bottom:0">Each row is one press, oldest at the top. Faded + crossed-out letters were <b>painted over</b> by a later press. Only the blue letters survive and spell the target. Notice something? <b>The newest stamp is always 100% visible.</b> Hold that thought. It's the whole problem.</p>
+  </div>
+  <div class="callout info"><div class="ic">🎯</div><div><b class="t">Key vocabulary</b>
+    <p><b>Window</b> = a position <code>i</code> where the stamp could be placed (<code>0 ≤ i ≤ n − m</code>), covering cells <code>i … i+m−1</code>. There are <code>n − m + 1</code> windows.</p>
+    <p><b>n</b> = target length, <b>m</b> = stamp length.</p></div></div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="n">2</span>Why going forward is a trap 🪤</h2>
+  <p class="sub">Understanding why the obvious approach fails is half of learning the real one.</p>
+  <p>The forward instinct: "put the stamp where target starts matching, then continue…". Let's feel the pain:</p>
+  <ul>
+    <li><b>Too many choices.</b> At each of up to 10n steps you choose among <code>n−m+1</code> positions. That's an astronomically large tree.</li>
+    <li><b>Early stamps are lies.</b> A stamp you place early may show junk letters that only get fixed by later overwrites. You can't tell, looking at the current string, whether a wrong-looking letter is "a mistake" or "fine, will be overwritten later".</li>
+    <li><b>Overlaps create dependencies.</b> Press A must come before press B only because B overwrites part of A. Forward, you don't know those dependencies yet.</li>
+  </ul>
+  <div class="callout warn"><div class="ic">💥</div><div><b class="t">The forward-greedy attempt that breaks</b>
+    <p>stamp = <code>abca</code>, target = <code>aabcaca</code>. A forward-greedy "stamp where the first letters match" might put <code>abca</code> at 0 and get <code>abca???</code>, but position 1 needs to be <code>a</code> while the stamp put <code>b</code> there. Fixing it requires a <i>later</i> stamp that overwrites index 1, which itself must start at index 1 (or earlier) and clobber more cells… you are now guessing a chain of future overwrites. Forward thinking has no good "local rule".</p></div></div>
+  <p>Forward is hard because <b>the future is uncertain</b>. So let's make the future the past.</p>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="n">3</span>THE BIG IDEA: rewind the movie ⏪</h2>
+  <p class="sub">Think of the film <i>Memento</i>: the story makes sense only when told backwards.</p>
+
+  <div class="callout aha"><div class="ic">💡</div><div><b class="t">Aha #1 — The last stamp is fully visible.</b>
+    <p>Whatever stamp you pressed <b>last</b> has nothing painted over it. So in the final string, there must be a window that reads <b>exactly</b> like the stamp. That window is easy to find: just compare each window of <code>target</code> with <code>stamp</code>.</p></div></div>
+
+  <div class="callout aha"><div class="ic">💡</div><div><b class="t">Aha #2 — Once the last stamp is found, "erase" it.</b>
+    <p>Before that last press, those cells held <i>something else</i> (older stamps, or blank). We don't care what — whatever it was got overwritten. So after "undoing" the last press, those cells become <b>don't-care cells</b>. We mark them <code>?</code>.</p></div></div>
+
+  <div class="callout aha"><div class="ic">💡</div><div><b class="t">Aha #3 — Repeat: now the second-to-last stamp is fully visible, <i>except</i> for don't-care cells.</b>
+    <p>The second-to-last press was only covered by the last press. Those covered cells are now <code>?</code>. So we look for a window where every cell is either <code>?</code> or already equals the stamp's letter. Un-press it. More <code>?</code>. Repeat until the entire string is <code>?</code>. The sequence we found, <b>read backwards</b>, is the answer.</p></div></div>
+
+  <div class="card">
+    <h3 style="margin-top:0">The sticker analogy 🧼</h3>
+    <p>Imagine the strip is covered in layers of stickers pasted on top of each other. To strip them off, you can only remove a sticker that's <b>on top</b> — fully visible. After you peel it, the stickers beneath it are exposed. You peel those next. The order you peeled is the exact reverse of the order they were pasted. That is literally what we do. <b>Peel order reversed = paste order.</b></p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">The detective analogy 🕵️</h3>
+    <p>At a crime scene, the most recent event leaves the clearest evidence (fresh footprints). Older events are partially overwritten. A good detective reconstructs the timeline from <b>newest to oldest</b>: explain the freshest evidence, mentally remove it, and what remains reveals the previous event.</p>
+  </div>
+
+  <h3>One-line summary of the whole problem</h3>
+  <div class="callout tip"><div class="ic">🧠</div><div><p style="font-size:18px"><b>Repeatedly find a window that matches the stamp (treating <code>?</code> as "matches anything"), turn it into all <code>?</code>, record its index. Stop when everything is <code>?</code>. Reverse the recorded indices.</b></p></div></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="n">4</span>The magic <code>?</code> wildcard ✨</h2>
+  <p class="sub">Why one extra symbol turns an impossible search into a simple loop.</p>
+  <p>The <code>?</code> in the reverse process has a precise meaning: <b>"this cell will be overwritten by a later press (in forward time), so its current letter is irrelevant."</b></p>
+  <p>So when we test a window against the stamp, each cell falls in exactly one of three buckets:</p>
+  <table>
+    <tr><th>Cell in target window</th><th>Compare with stamp letter</th><th>Verdict</th></tr>
+    <tr><td>a real letter equal to stamp's</td><td>match</td><td><span class="chip t">ok — counts as a real match</span></td></tr>
+    <tr><td><code>?</code></td><td>anything</td><td><span class="chip a">wildcard — free pass</span></td></tr>
+    <tr><td>a real letter different from stamp's</td><td>conflict</td><td><span class="chip c">bad — window can't be peeled now</span></td></tr>
+  </table>
+  <p>A window is <b>peelable</b> when it has <b>no bad cells</b> <i>and</i> <b>at least one real match</b> (otherwise it's all <code>?</code> already and peeling achieves nothing).</p>
+  <div class="callout tip"><div class="ic">🔑</div><div><b class="t">Wildcards only ever make things easier</b>
+    <p>Turning cells into <code>?</code> never turns a peelable window into an unpeelable one — it can only convert "bad" cells into wildcards. That monotonicity (more <code>?</code> ⇒ more windows peelable) is the reason a simple greedy is correct. We prove it in §8.</p></div></div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="n">5</span>Walk-throughs, frame by frame 🎞️</h2>
+  <p class="sub">Every window scanned, every decision explained. Generated by the exact algorithm in §7.</p>
+  <h3>Example 1 — stamp = <code>abc</code>, target = <code>ababc</code></h3>
+  <div id="walk1"></div>
+  <h3>Example 2 — stamp = <code>abca</code>, target = <code>aabcaca</code></h3>
+  <div id="walk2"></div>
+  <div class="callout info"><div class="ic">🔁</div><div><b class="t">Why does the output differ from the sample?</b>
+    <p>The problem says "[1,0,2] would also be accepted… as well as some other answers". Many valid orders exist. Ours for example 2 is <code>[0,3,1]</code>; the sample prints <code>[3,0,1]</code>. Both replay correctly. (Verify with the forward replay in the playground below!)</p></div></div>
+  <h3>An impossible one — stamp = <code>abc</code>, target = <code>abab</code></h3>
+  <div id="walk3"></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="n">6</span>Playground: try your own 🎮</h2>
+  <p class="sub">Type any lowercase stamp and target (target up to 24 chars), then step through the reverse peeling. Then replay it forward to double-check.</p>
+  <div class="card">
+    <div class="controls">
+      <label>stamp <input id="pgStamp" type="text" value="abca" maxlength="12" spellcheck="false"></label>
+      <label>target <input id="pgTarget" type="text" value="aabcaca" maxlength="24" spellcheck="false"></label>
+      <button class="btn" id="pgGo">Load ▶</button>
+    </div>
+    <div class="controls">
+      <span class="sub">Presets:</span>
+      <button class="btn ghost" data-p="abc,ababc">Example 1</button>
+      <button class="btn ghost" data-p="abca,aabcaca">Example 2</button>
+      <button class="btn ghost" data-p="abc,abab">Impossible</button>
+      <button class="btn ghost" data-p="ab,ababababab">Repeating</button>
+      <button class="btn ghost" data-p="abc,abcabcabc">Tiles</button>
+      <button class="btn ghost" data-p="aba,abababa">Self-overlap</button>
+    </div>
+    <div id="pgErr" style="color:var(--coral);font-weight:700"></div>
+    <div class="controls">
+      <button class="btn ghost" id="pgPrev">◀ Prev</button>
+      <button class="btn" id="pgNext">Next ▶</button>
+      <button class="btn t" id="pgPlay">▶ Auto-play</button>
+      <button class="btn ghost" id="pgReset">⟲ Reset</button>
+      <span id="pgInfo" class="sub"></span>
+    </div>
+    <div class="meter"><i id="pgMeter"></i></div>
+    <div id="pgFrame"></div>
+    <div class="verdict" id="pgVerdict"></div>
+    <div class="rlabel">Peeled windows so far (reverse time)</div>
+    <div class="log" id="pgLog"></div>
+    <div id="pgResult"></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="n">7</span>The algorithm + code 💻</h2>
+  <p class="sub">The simple "repeat-scan" greedy. Easy to write in an interview, fast enough for n ≤ 1000.</p>
+  <h3>Pseudocode</h3>
+<pre class="plain">t = target as mutable chars
+stars = 0, order = []
+while stars &lt; n:
+    progress = false
+    for i in 0 .. n-m:                       # every window
+        c = tryUnstamp(i)                    # returns #real letters erased, or 0
+        if c &gt; 0:
+            order.append(i); stars += c; progress = true
+    if not progress: return []               # stuck =&gt; impossible
+return reverse(order)
+
+tryUnstamp(i):
+    real = 0
+    for j in 0 .. m-1:
+        if t[i+j] == '?':          continue          # wildcard
+        if t[i+j] != stamp[j]:     return 0          # conflict
+        real += 1
+    if real == 0: return 0                           # all '?', useless
+    set t[i..i+m-1] = '?'
+    return real</pre>
+
+  <div class="codetabs">
+<script type="text/plain" data-lang="java" data-label="Java">
+class Solution {
+    public int[] movesToStamp(String stamp, String target) {
+        char[] s = stamp.toCharArray();
+        char[] t = target.toCharArray();
+        int m = s.length, n = t.length;
+        List<Integer> order = new ArrayList<>();
+        int stars = 0;
+
+        while (stars < n) {
+            boolean progress = false;
+            for (int i = 0; i <= n - m; i++) {
+                int erased = unstamp(s, t, i);
+                if (erased > 0) {                 // found a peelable window
+                    stars += erased;
+                    order.add(i);
+                    progress = true;
+                    if (stars == n) break;
+                }
+            }
+            if (!progress) return new int[0];     // a full pass peeled nothing => impossible
+        }
+
+        int[] ans = new int[order.size()];
+        for (int k = 0; k < ans.length; k++)      // reverse: peel order -> stamp order
+            ans[k] = order.get(order.size() - 1 - k);
+        return ans;
+    }
+
+    // returns number of real letters erased, or 0 if window can't be peeled
+    private int unstamp(char[] s, char[] t, int i) {
+        int real = 0;
+        for (int j = 0; j < s.length; j++) {
+            if (t[i + j] == '?') continue;        // wildcard: matches anything
+            if (t[i + j] != s[j]) return 0;       // conflict: can't peel here
+            real++;
+        }
+        if (real == 0) return 0;                  // already all '?', useless
+        for (int j = 0; j < s.length; j++) t[i + j] = '?';
+        return real;
+    }
+}
+</script>
+<script type="text/plain" data-lang="python" data-label="Python">
+class Solution:
+    def movesToStamp(self, stamp: str, target: str) -> list[int]:
+        m, n = len(stamp), len(target)
+        t = list(target)
+        order, stars = [], 0
+
+        def unstamp(i):
+            real = 0
+            for j in range(m):
+                if t[i + j] == '?':              # wildcard
+                    continue
+                if t[i + j] != stamp[j]:         # conflict
+                    return 0
+                real += 1
+            if real == 0:                        # all '?', useless
+                return 0
+            for j in range(m):
+                t[i + j] = '?'
+            return real
+
+        while stars < n:
+            progress = False
+            for i in range(n - m + 1):
+                erased = unstamp(i)
+                if erased:
+                    stars += erased
+                    order.append(i)
+                    progress = True
+                    if stars == n:
+                        break
+            if not progress:                     # stuck => impossible
+                return []
+        return order[::-1]                       # reverse: peel order -> stamp order
+</script>
+  </div>
+
+  <div class="callout tip"><div class="ic">⚡</div><div><b class="t">Free quick-reject (nice interview bonus)</b>
+    <p>Cell <code>0</code> is covered by exactly one window (index 0), so <code>target[0]</code> must equal <code>stamp[0]</code>. Likewise <code>target[n−1]</code> must equal <code>stamp[m−1]</code>. If either fails, return <code>[]</code> immediately. (The loop would discover it anyway; this just saves time and shows insight.)</p></div></div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="n">8</span>Why greedy is correct 🧪</h2>
+  <p class="sub">Greedy algorithms scare people because "why is it OK to just pick any?" Here is the intuition-level proof.</p>
+
+  <div class="grid2">
+    <div class="card"><h3 style="margin-top:0">Lemma 1 · Monotone</h3>
+      <p>If a window is peelable now, it stays peelable after <i>any</i> other peeling. Peeling only converts real letters into <code>?</code>, and <code>?</code> never causes a conflict. A window that matched before still has no conflicts. ✔️</p></div>
+    <div class="card"><h3 style="margin-top:0">Lemma 2 · Order doesn't matter (confluence)</h3>
+      <p>Because of Lemma 1, peeling window A can never ruin the chance to peel B. So the final set of <code>?</code> cells you reach by exhaustively peeling is the <b>same</b> regardless of choices — it's a closure/fixpoint, like repeatedly applying a rule until nothing changes.</p></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Lemma 3 · Greedy finds a solution iff one exists</h3>
+    <p><b>(⇐) If a valid forward stamping sequence exists:</b> reverse it. The newest stamp is fully visible ⇒ peelable. Remove it, and the second-newest is visible apart from cells already peeled (which are <code>?</code>) ⇒ peelable, and so on. So <i>some</i> order peels everything. By Lemma 2, greedy reaches the same maximal closure, so it also peels everything.</p>
+    <p><b>(⇒) If greedy peels everything:</b> reverse its order. Every cell's final letter comes from the <i>last</i> forward press covering it — which is the window that first turned it into <code>?</code> in the reverse process; at that moment the cell held its real target letter, and the window had no conflicts, so that letter equals the stamp's letter there. Hence the forward replay produces exactly <code>target</code>. ✔️</p>
+  </div>
+
+  <div class="callout aha"><div class="ic">🧩</div><div><b class="t">Why we need "at least one real letter"</b>
+    <p>A window of all <code>?</code> matches trivially but erases nothing. If we counted it as progress, the loop would never terminate, and we'd output pointless stamps. Progress must mean <b>new <code>?</code> appeared</b>.</p></div></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="n">9</span>Complexity &amp; the mysterious 10N bound 📏</h2>
+  <table>
+    <tr><th>Version</th><th>Time</th><th>Space</th><th>Notes</th></tr>
+    <tr><td>Repeat-scan greedy (§7)</td><td>O(N · (N−M+1) · M) worst case</td><td>O(N)</td><td>≤ N passes (each non-final pass erases ≥1 cell); each pass scans N−M+1 windows × M cells. Real inputs are far faster.</td></tr>
+    <tr><td>Queue / topological (§10)</td><td>O(N · M)</td><td>O(N · M)</td><td>Each cell turns to <code>?</code> once and touches ≤ M windows.</td></tr>
+  </table>
+  <div class="callout info"><div class="ic">🔢</div><div><b class="t">The 10·N limit is a red herring (a generous bound)</b>
+    <p>In our solution each window is peeled <b>at most once</b> (after peeling it's all <code>?</code> and gets ignored). So we output at most <code>N − M + 1 ≤ N</code> indices — far below <code>10N</code>. The bound exists to stop you from thinking you need cleverly <i>minimal</i> sequences. You don't: any valid sequence works.</p>
+    <p>That's also a recognition signal: when a problem gives a very generous operation cap, it's hinting <i>"construct something valid, don't optimize"</i>.</p></div></div>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="n">10</span>Pro version: the queue (topological peeling) 🚀</h2>
+  <p class="sub">The repeat-scan wastes time re-checking windows that haven't changed. Fix it with the same trick as Kahn's topological sort.</p>
+  <p>For every window <code>k</code> keep:</p>
+  <ul>
+    <li><b>made[k]</b>: positions where the window already matches the stamp letter (these are the real letters it will erase).</li>
+    <li><b>todo[k]</b>: positions that currently <i>conflict</i>. They must each become <code>?</code> (erased by some other window) before window <code>k</code> can be peeled.</li>
+  </ul>
+  <p>A window with <code>todo = ∅</code> is peelable. Put it in a queue. When you peel it, every newly erased position <code>pos</code> is removed from the <code>todo</code> set of every window covering it (<code>k ∈ [pos−m+1, pos]</code>). If some <code>todo</code> becomes empty, that window joins the queue.</p>
+  <div class="callout tip"><div class="ic">🔗</div><div><b class="t">This is exactly Kahn's algorithm in disguise</b>
+    <p>Windows = nodes. "window k waits for position p to be erased" = dependency edge. <code>todo</code> size = in-degree. Queue holds nodes with in-degree 0. Peeling = removing a node and decrementing neighbours' in-degree. The reverse topological order is the stamping order.</p></div></div>
+
+  <div class="codetabs">
+<script type="text/plain" data-lang="java" data-label="Java">
+class Solution {
+    public int[] movesToStamp(String stamp, String target) {
+        int M = stamp.length(), N = target.length();
+        int W = N - M + 1;                               // number of windows
+
+        List<List<Integer>> made = new ArrayList<>();    // positions that already match the stamp
+        List<Set<Integer>> todo = new ArrayList<>();     // positions that still conflict
+        Deque<Integer> queue = new ArrayDeque<>();
+        List<Integer> order = new ArrayList<>();         // discovery order = reverse time
+
+        for (int i = 0; i < W; i++) {
+            List<Integer> mm = new ArrayList<>();
+            Set<Integer> tt = new HashSet<>();
+            for (int j = 0; j < M; j++) {
+                if (target.charAt(i + j) == stamp.charAt(j)) mm.add(i + j);
+                else tt.add(i + j);
+            }
+            made.add(mm);
+            todo.add(tt);
+            if (tt.isEmpty()) { queue.add(i); order.add(i); }   // peelable right now
+        }
+
+        boolean[] erased = new boolean[N];
+        while (!queue.isEmpty()) {
+            int i = queue.poll();
+            for (int pos : made.get(i)) {
+                if (erased[pos]) continue;
+                erased[pos] = true;                              // pos becomes '?'
+                for (int k = Math.max(0, pos - M + 1); k <= Math.min(W - 1, pos); k++) {
+                    // remove returns true only if pos was really a conflict of window k
+                    if (todo.get(k).remove(pos) && todo.get(k).isEmpty()) {
+                        queue.add(k);
+                        order.add(k);
+                    }
+                }
+            }
+        }
+
+        for (boolean e : erased) if (!e) return new int[0];     // some cell never freed
+
+        int[] ans = new int[order.size()];
+        for (int t = 0; t < ans.length; t++) ans[t] = order.get(order.size() - 1 - t);
+        return ans;
+    }
+}
+</script>
+<script type="text/plain" data-lang="python" data-label="Python">
+from collections import deque
+
+class Solution:
+    def movesToStamp(self, stamp: str, target: str) -> list[int]:
+        M, N = len(stamp), len(target)
+        W = N - M + 1
+        made, todo = [], []
+        q, order = deque(), []
+
+        for i in range(W):
+            mm, tt = [], set()
+            for j in range(M):
+                if target[i + j] == stamp[j]:
+                    mm.append(i + j)           # already matches
+                else:
+                    tt.add(i + j)              # conflict, must be erased first
+            made.append(mm)
+            todo.append(tt)
+            if not tt:                         # peelable right now
+                q.append(i)
+                order.append(i)
+
+        erased = [False] * N
+        while q:
+            i = q.popleft()
+            for pos in made[i]:
+                if erased[pos]:
+                    continue
+                erased[pos] = True             # pos becomes '?'
+                for k in range(max(0, pos - M + 1), min(W - 1, pos) + 1):
+                    if pos in todo[k]:
+                        todo[k].remove(pos)
+                        if not todo[k]:        # in-degree hit zero
+                            q.append(k)
+                            order.append(k)
+
+        return order[::-1] if all(erased) else []
+</script>
+  </div>
+  <div class="callout warn"><div class="ic">⚠️</div><div><b class="t">Subtle bug to avoid</b>
+    <p>Only enqueue window <code>k</code> when the removal <i>actually removed</i> something and the set is now empty. If you just do <code>remove(pos); if (isEmpty()) enqueue</code>, a window that was already empty from the start gets enqueued again for every overlapping position — duplicates that could blow past the 10N cap.</p></div></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <h2><span class="n">11</span>Edge cases &amp; the bug museum 🏛️</h2>
+  <div class="grid2">
+    <div class="card"><h3 style="margin-top:0">Edge cases</h3>
+      <ul>
+        <li><b>m = 1:</b> stamp is one letter. Possible iff target is that letter repeated. Greedy handles it (each window is a single cell).</li>
+        <li><b>m = n:</b> exactly one window. Possible iff stamp == target. Answer <code>[0]</code>.</li>
+        <li><b>stamp == target:</b> answer <code>[0]</code>.</li>
+        <li><b>Target uses a letter not in stamp:</b> no window can ever clear it ⇒ <code>[]</code>.</li>
+        <li><b>Ends mismatch:</b> <code>target[0]≠stamp[0]</code> or <code>target[n−1]≠stamp[m−1]</code> ⇒ <code>[]</code>.</li>
+        <li><b>Self-overlapping stamps</b> (like <code>aba</code>) can produce interesting chains — try them in the playground.</li>
+      </ul></div>
+    <div class="card"><h3 style="margin-top:0">Bug museum 🐛</h3>
+      <ul>
+        <li>Forgetting to <b>reverse</b> the output.</li>
+        <li>Counting an all-<code>?</code> window as a move (infinite loop / bloated answer).</li>
+        <li>Treating <code>?</code> as a literal letter instead of a wildcard.</li>
+        <li>Not checking that <b>every</b> cell became <code>?</code> at the end (queue version).</li>
+        <li>Off-by-one on window range: valid starts are <code>0 … n−m</code>, not <code>n−1</code>.</li>
+        <li>Using immutable Strings in a hot loop instead of a <code>char[]</code>.</li>
+        <li>Going forward and hoping.</li>
+        <li>Confusing with LC 2132 "Stamping the Grid" — totally different (2D prefix sums).</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+  <h2><span class="n">12</span>The pattern, named 🏷️</h2>
+  <p class="sub">Let's give the trick a handle you can remember under interview stress.</p>
+  <div class="card" style="border:2px solid var(--indigo)">
+    <h3 style="margin-top:0;color:var(--indigo)">Reverse-Time Greedy with a "Don't-Care" Marker (a.k.a. Peeling)</h3>
+    <p><b>Statement:</b> If a process builds the final state through overwriting operations, then the <b>last operation is fully visible in the final state</b>. Find it, <b>undo it</b> by replacing what it wrote with a <b>don't-care marker</b>, and repeat. The undo order, reversed, is the operation order.</p>
+    <p><b>Three ingredients:</b></p>
+    <ol>
+      <li><b>Overwrite semantics</b> (later operations hide earlier ones).</li>
+      <li><b>An undo test</b>: "is this operation visible/consistent with the current state?"</li>
+      <li><b>A neutral marker</b> (<code>?</code>) that makes already-explained cells stop causing conflicts.</li>
+    </ol>
+    <p><b>Why it works:</b> monotonic — explaining more only ever makes more operations explainable, so order among available choices doesn't matter.</p>
+  </div>
+  <p>Many people also call the broader idea <b>"work backwards"</b> or <b>"reverse engineering the last move"</b>. The queue implementation is a <b>topological sort by peeling layers</b>.</p>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+  <h2><span class="n">13</span>The pattern family tree 🌳</h2>
+  <p class="sub">Same DNA, different costumes. Knowing the siblings makes the pattern easy to spot.</p>
+
+  <div class="grid2">
+    <div class="pcard"><h4>1 · Think about the LAST operation <span class="badge">closest cousin</span></h4>
+      <div class="dna">Instead of "what do I do first?", ask "what happens last?" — it splits the problem cleanly.</div>
+      <ul>
+        <li><b>LC 312 Burst Balloons</b>: the <i>last</i> balloon burst splits the range into independent halves.</li>
+        <li><b>LC 1547 Min Cost to Cut a Stick</b>: think of the last cut.</li>
+        <li><b>LC 664 Strange Printer</b>: the last print of a colour over a range is visible; a classic printing/painting overwrite problem (interval DP).</li>
+        <li><b>LC 546 Remove Boxes</b>, <b>LC 1000 Merge Stones</b>: last-move interval DP.</li>
+      </ul>
+      <p class="dna" style="margin-bottom:0"><b>Shared DNA:</b> reasoning from the end. <b>Difference:</b> those use DP over intervals; Stamping uses a greedy because wildcards make choices commute.</p></div>
+
+    <div class="pcard"><h4>2 · Run the process in reverse <span class="badge">undo</span></h4>
+      <div class="dna">The forward move is many-to-one or ambiguous, but the <i>reverse</i> move is forced or simple.</div>
+      <ul>
+        <li><b>LC 780 Reaching Points</b>: from (tx,ty), the larger coordinate must have come from subtraction; go back.</li>
+        <li><b>LC 991 Broken Calculator</b>: reverse ×2 / −1 into ÷2 / +1.</li>
+        <li><b>LC 2139 Min Moves to Reach Target Score</b>: halve when possible, going backward from the target.</li>
+      </ul>
+      <p class="dna" style="margin-bottom:0"><b>Shared DNA:</b> start at the answer, undo steps. <b>Difference:</b> they undo a numeric operation; Stamping undoes an overwrite and needs a wildcard.</p></div>
+
+    <div class="pcard"><h4>3 · Peel layers / topological order <span class="badge">engine</span></h4>
+      <div class="dna">Repeatedly remove things that have no remaining blockers; each removal unblocks others.</div>
+      <ul>
+        <li><b>LC 207 / 210 Course Schedule I &amp; II</b> (Kahn's algorithm).</li>
+        <li><b>LC 802 Find Eventual Safe States</b>, <b>LC 310 Min Height Trees</b> (peel leaves).</li>
+        <li><b>LC 1136 Parallel Courses</b>, <b>LC 269 Alien Dictionary</b>, <b>LC 444 Sequence Reconstruction</b>.</li>
+      </ul>
+      <p class="dna" style="margin-bottom:0"><b>Shared DNA:</b> §10's queue version <i>is</i> this. A window is a node; conflicts are in-edges.</p></div>
+
+    <div class="pcard"><h4>4 · Repeatedly delete matches <span class="badge">cascade</span></h4>
+      <div class="dna">Remove pattern occurrences; removals expose new occurrences.</div>
+      <ul>
+        <li><b>LC 1910 Remove All Occurrences of a Substring</b>.</li>
+        <li><b>LC 1047 / 1209 Remove Adjacent Duplicates</b> (I and II) — stack-based cascades.</li>
+      </ul>
+      <p class="dna" style="margin-bottom:0"><b>Shared DNA:</b> "match, erase, newly exposed match". <b>Difference:</b> they truly delete characters; Stamping keeps a <code>?</code> placeholder so positions don't shift.</p></div>
+
+    <div class="pcard"><h4>5 · Wildcard matching <span class="badge">the ? idea</span></h4>
+      <div class="dna">A symbol that matches anything simplifies conflict checks.</div>
+      <ul>
+        <li><b>LC 44 Wildcard Matching</b>, <b>LC 10 Regular Expression Matching</b> (here wildcards are in the <i>pattern</i>; in Stamping they're in the <i>text</i>).</li>
+      </ul>
+      <p class="dna" style="margin-bottom:0">Useful to remember how to compare "letter vs ?" cleanly.</p></div>
+
+    <div class="pcard"><h4>6 · Fixpoint / closure greedy <span class="badge">proof style</span></h4>
+      <div class="dna">Apply any available rule until nothing changes; the end result is unique.</div>
+      <ul>
+        <li><b>LC 802</b>, <b>LC 1857</b> (topological DP), union-find/BFS "keep expanding" style problems.</li>
+      </ul>
+      <p class="dna" style="margin-bottom:0">If a step can only help future steps, order is irrelevant — your proof tool of choice.</p></div>
+  </div>
+
+  <h3>The family at a glance</h3>
+  <table>
+    <tr><th>Pattern</th><th>Key question</th><th>Typical tool</th></tr>
+    <tr><td>Last-operation thinking</td><td>"What was done last?"</td><td>Interval DP</td></tr>
+    <tr><td>Reverse simulation</td><td>"How do I undo one step?"</td><td>Loop / greedy</td></tr>
+    <tr><td>Peeling / topo</td><td>"What has no blockers now?"</td><td>Queue (Kahn)</td></tr>
+    <tr><td><b>Stamping (this)</b></td><td>"Which op is visible now, ignoring already-explained cells?"</td><td>Greedy + wildcard (+ queue)</td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section id="s14">
+  <h2><span class="n">14</span>How to RECOGNISE it 👀</h2>
+  <p class="sub">Tick what's true about a problem you're staring at. The more ticks, the more likely it's a reverse-time/peeling problem.</p>
+  <div class="card checklist" id="checklist">
+    <label><input type="checkbox"><span><b>Overwrite operations.</b> Later operations replace/cover earlier ones (paint, stamp, assign, replace, cover).</span></label>
+    <label><input type="checkbox"><span><b>You must output the sequence of operations</b>, not only yes/no or a count.</span></label>
+    <label><input type="checkbox"><span><b>You're given the final state</b> and must find how it was built.</span></label>
+    <label><input type="checkbox"><span><b>Forward choices explode</b> (many positions, many orders) and no local rule tells which is right.</span></label>
+    <label><input type="checkbox"><span><b>The latest operation leaves a clean fingerprint</b> in the final state (a fully visible pattern).</span></label>
+    <label><input type="checkbox"><span><b>A "don't care" notion is natural</b> — once something is explained/hidden, it shouldn't matter anymore.</span></label>
+    <label><input type="checkbox"><span><b>Generous cap on operations</b> (like 10·n): they want a valid construction, not the minimum.</span></label>
+    <label><input type="checkbox"><span><b>Explaining one thing unlocks others</b> (cascade / dependency feel).</span></label>
+  </div>
+  <div class="verdict" id="clVerdict">Tick the boxes…</div>
+
+  <h3>Trigger phrases in problem statements</h3>
+  <ul>
+    <li>"<b>place / stamp / paint / overwrite / cover</b> … <b>return the order / sequence of moves</b>"</li>
+    <li>"convert an initial blank state into target using operations" (initial is uniform, target is complex)</li>
+    <li>"at most <code>k · n</code> operations" with a big k</li>
+    <li>"return an empty array if impossible" (feasibility + construction together)</li>
+  </ul>
+
+  <h3>Anti-signals (when it's probably NOT this)</h3>
+  <ul>
+    <li>Operations <b>commute</b> (additions, XOR, counting) — order is irrelevant, no peeling needed.</li>
+    <li>Operations <b>destroy information irreversibly</b> in ways that can't be tested from the end state.</li>
+    <li>You need the <b>minimum</b> number of operations with a tight bound — often DP (like Strange Printer), where greedy peeling doesn't guarantee minimum.</li>
+  </ul>
+
+  <div class="callout aha"><div class="ic">⚡</div><div><b class="t">The 5-second smell test</b>
+    <p>Ask: <i>"In the final result, can I point at one operation and say 'this one is completely visible'?"</i> If yes, you can peel it and recurse. That's the pattern.</p></div></div>
+</section>
+
+<!-- 15 -->
+<section id="s15">
+  <h2><span class="n">15</span>How to APPLY it 🛠️</h2>
+  <p class="sub">A repeatable recipe. Works on Stamping and on its cousins.</p>
+  <ol class="steps">
+    <li><b>Write the forward process in one sentence.</b> "Start blank; stamp overwrites m consecutive cells."</li>
+    <li><b>Find the overwrite relationship.</b> "Later stamps hide earlier ones, so the newest stamp is fully visible."</li>
+    <li><b>Define the UNDO.</b> "Erase a visible stamp: its cells become don't-care."</li>
+    <li><b>Define the marker and its comparison rule.</b> "<code>?</code> equals anything; a conflict is a real letter ≠ stamp letter."</li>
+    <li><b>Define 'undoable now'.</b> "No conflicts, and at least one real letter." Check <b>monotonicity</b>: erasing never makes another undoable op become undoable-no-more.</li>
+    <li><b>Pick the engine.</b> Small input → repeat-scan loop. Large input → queue with in-degree counters (Kahn).</li>
+    <li><b>Record order, then reverse it.</b> Peel order = reverse of build order.</li>
+    <li><b>Check completeness.</b> Are all cells don't-care? If not ⇒ impossible.</li>
+    <li><b>Verify by forward replay</b> (do this in tests): stamp in the answer order from blanks and compare to the target.</li>
+  </ol>
+
+  <h3>Reusable template (language-agnostic)</h3>
+<pre class="plain">state   = final_state
+order   = []
+while not all_dont_care(state):
+    progress = false
+    for op in candidate_operations:
+        if visible_and_consistent(op, state) and would_change(op, state):
+            mark_dont_care(op, state)      # the UNDO
+            order.append(op)
+            progress = true
+    if not progress: return IMPOSSIBLE
+return reversed(order)</pre>
+
+  <h3>Mapping the template to Stamping</h3>
+  <table>
+    <tr><th>Template slot</th><th>Stamping</th></tr>
+    <tr><td><code>final_state</code></td><td><code>target</code> as a char array</td></tr>
+    <tr><td><code>candidate_operations</code></td><td>windows <code>0 … n−m</code></td></tr>
+    <tr><td><code>visible_and_consistent</code></td><td>no real letter conflicts with the stamp</td></tr>
+    <tr><td><code>would_change</code></td><td>at least one real (non-<code>?</code>) letter in window</td></tr>
+    <tr><td><code>mark_dont_care</code></td><td>set the window's cells to <code>?</code></td></tr>
+    <tr><td><code>all_dont_care</code></td><td>count of <code>?</code> == n</td></tr>
+  </table>
+
+  <h3>Practice applying it to a fresh problem (mini case study)</h3>
+  <details>
+    <summary>🖌️ "A wall is painted by repeatedly choosing a contiguous segment and painting it one colour. Given the final wall, output a valid sequence of paint operations (segment + colour)."</summary>
+    <p>Run the recipe: the last paint is a visible solid run of one colour. Peel it (mark don't-care), the next-to-last paint is a solid run ignoring don't-care cells… Same engine, but "operations" are now runs of any length. (Closely related to Strange Printer, where you additionally minimize the count — that's where DP replaces greedy.)</p>
+  </details>
+  <details>
+    <summary>🧱 "Build a string by repeatedly overwriting a window with one of several allowed words. Output an order."</summary>
+    <p>Multiple stamps: for each window try each stamp, same peel rule (no conflicts, at least one real letter). Monotonicity still holds ⇒ same greedy. Only the candidate-operations set grows.</p>
+  </details>
+</section>
+
+<!-- 16 -->
+<section id="s16">
+  <h2><span class="n">16</span>Practice ladder 🪜</h2>
+  <p class="sub">Solve in this order. Each rung adds one idea.</p>
+  <table>
+    <tr><th>#</th><th>Problem</th><th>What it trains</th></tr>
+    <tr><td>1</td><td>LC 207 / 210 Course Schedule I &amp; II</td><td>Kahn's algorithm: peel zero-in-degree nodes</td></tr>
+    <tr><td>2</td><td>LC 1910 Remove All Occurrences of a Substring</td><td>Match → erase → cascade on strings</td></tr>
+    <tr><td>3</td><td>LC 991 Broken Calculator, LC 780 Reaching Points</td><td>Undo steps from the answer</td></tr>
+    <tr><td>4</td><td>LC 802 Find Eventual Safe States</td><td>Peeling in reverse graph</td></tr>
+    <tr><td>5</td><td><b>LC 936 Stamping the Sequence</b> (this)</td><td>Reverse + wildcard + greedy</td></tr>
+    <tr><td>6</td><td>LC 664 Strange Printer</td><td>Overwrite thinking, but minimize ⇒ interval DP</td></tr>
+    <tr><td>7</td><td>LC 312 Burst Balloons, LC 1547 Min Cost to Cut a Stick</td><td>"Think about the last move"</td></tr>
+    <tr><td>8</td><td>LC 269 Alien Dictionary, LC 444 Sequence Reconstruction</td><td>Build dependency graph + topological order</td></tr>
+  </table>
+  <div class="callout tip"><div class="ic">🏁</div><div><b class="t">Redo drill</b>
+    <p>After solving, re-solve Stamping from scratch in both versions (repeat-scan and queue) without peeking, then run a <b>forward replay checker</b> to validate your output. Writing the checker cements the "peel order reversed = build order" idea.</p></div></div>
+</section>
+
+<!-- 17 -->
+<section id="s17">
+  <h2><span class="n">17</span>Quiz yourself 🧠</h2>
+  <p class="sub">Click an answer. Be honest with yourself before peeking.</p>
+  <div class="card quiz" id="quiz"></div>
+</section>
+
+<!-- 18 -->
+<section id="s18">
+  <h2><span class="n">18</span>Cheat sheet 📝</h2>
+  <div class="card" style="border:2px solid var(--teal)">
+    <ul>
+      <li><b>Core insight:</b> the last stamp is fully visible ⇒ work <b>backwards</b>.</li>
+      <li><b>Undo:</b> find a window where every cell is <code>?</code> or equals the stamp letter, with ≥1 real letter; turn the window into <code>?</code>.</li>
+      <li><b>Repeat</b> until everything is <code>?</code>. If a full pass does nothing ⇒ <code>[]</code>.</li>
+      <li><b>Reverse</b> the recorded indices.</li>
+      <li><b>Correctness:</b> erasing only helps (monotone) ⇒ order irrelevant ⇒ greedy finds a solution iff one exists.</li>
+      <li><b>Moves used:</b> ≤ N−M+1 (each window once) ≪ 10N.</li>
+      <li><b>Complexity:</b> repeat-scan O(N²M) worst; queue O(NM).</li>
+      <li><b>Quick reject:</b> <code>target[0]==stamp[0]</code> and <code>target[n−1]==stamp[m−1]</code> required.</li>
+      <li><b>Pattern name:</b> Reverse-time greedy with a wildcard / peeling (topological sort in disguise).</li>
+      <li><b>Recognise:</b> overwrite ops + output the order + final state given + generous op cap.</li>
+    </ul>
+  </div>
+  <footer>Made for Prachi's DSA prep · Go peel some stamps. 📮</footer>
+</section>
+
+</div>
+</main>
+
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ---------- syntax highlight + code tabs ---------- */
+function hl(code,lang){
+  const kw = lang==='java'
+    ? /\b(public|private|class|int|boolean|char|String|return|for|while|if|else|new|void|continue|break|static|final|true|false)\b/g
+    : /\b(def|class|return|for|while|if|else|in|not|and|or|True|False|continue|break|range|None|elif|self|import|from)\b/g;
+  return code.split('\n').map(line=>{
+    const idx = lang==='java' ? line.indexOf('//') : line.indexOf('#');
+    let c=line, cm='';
+    if(idx>=0){c=line.slice(0,idx);cm=line.slice(idx);}
+    return esc(c).replace(kw,'<span class="k">$1</span>')+(cm?'<span class="c">'+esc(cm)+'</span>':'');
+  }).join('\n');
+}
+$$('.codetabs').forEach(box=>{
+  const srcs=[...box.querySelectorAll('script[type="text/plain"]')];
+  const bar=document.createElement('div');bar.className='tabbar';
+  const panes=[];
+  srcs.forEach(s=>{
+    const lang=s.dataset.lang;
+    const raw=s.textContent.replace(/^\n/,'').replace(/\s+$/,'');
+    const pre=document.createElement('pre');pre.className='code';pre.innerHTML='<code style="background:none;border:0;padding:0">'+hl(raw,lang)+'</code>';
+    const btn=document.createElement('button');btn.textContent=s.dataset.label;btn.className='tab';
+    btn.onclick=()=>{panes.forEach(p=>{p.pre.style.display='none';p.btn.classList.remove('on');});pre.style.display='block';btn.classList.add('on');};
+    panes.push({pre,btn,raw});bar.appendChild(btn);
+  });
+  const copy=document.createElement('button');copy.className='copy';copy.textContent='Copy';
+  copy.onclick=()=>{const p=panes.find(p=>p.pre.style.display!=='none');try{navigator.clipboard.writeText(p.raw);}catch(e){}copy.textContent='Copied!';setTimeout(()=>copy.textContent='Copy',1200);};
+  bar.appendChild(copy);
+  box.appendChild(bar);panes.forEach(p=>box.appendChild(p.pre));
+  panes[0].btn.click();
+});
+
+/* ---------- the algorithm, instrumented ---------- */
+function simulate(stamp,target){
+  const m=stamp.length,n=target.length;
+  const t=target.split('');
+  const frames=[],order=[];
+  let stars=0,pass=0;
+  while(stars<n){
+    pass++;let progress=false;
+    for(let i=0;i<=n-m;i++){
+      const before=t.slice();
+      let match=true,cnt=0;const cell=[];
+      for(let j=0;j<m;j++){
+        const c=t[i+j];
+        if(c==='?'){cell.push('w');continue;}
+        if(c===stamp[j]){cell.push('ok');cnt++;}
+        else{cell.push('bad');match=false;}
+      }
+      const hit=match&&cnt>0;
+      if(hit){for(let j=0;j<m;j++)t[i+j]='?';stars+=cnt;order.push(i);progress=true;}
+      frames.push({pass,i,hit,cell,before,after:t.slice(),cnt,stars,allWild:match&&cnt===0});
+      if(stars===n)break;
+    }
+    if(!progress)break;
+  }
+  return {frames,order:order.slice().reverse(),peel:order,ok:stars===n,stars,n};
+}
+function forward(stamp,n,order){
+  const s=Array(n).fill('?');const st=[{i:-1,s:s.slice()}];
+  order.forEach(i=>{for(let j=0;j<stamp.length;j++)s[i+j]=stamp[j];st.push({i,s:s.slice()});});
+  return st;
+}
+
+/* ---------- renderers ---------- */
+function frameHTML(stamp,f){
+  const m=stamp.length;
+  let h='<div class="scroll"><div class="frame">';
+  h+='<div class="row idx">'+f.before.map((c,p)=>`<div class="tile">${p}</div>`).join('')+'</div>';
+  h+='<div class="rlabel">target now</div><div class="row">'+f.before.map((c,p)=>`<div class="tile ${c==='?'?'q':''} ${(p>=f.i&&p<f.i+m)?'inwin':''}">${c}</div>`).join('')+'</div>';
+  h+=`<div class="rlabel">stamp placed at window ${f.i}</div><div class="row" style="margin-left:calc(${f.i} * (var(--tw) + var(--gap)))">`+stamp.split('').map((c,j)=>`<div class="tile ${f.cell[j]}">${c}</div>`).join('')+'</div>';
+  if(f.hit){h+='<div class="rlabel">after peeling</div><div class="row">'+f.after.map(c=>`<div class="tile ${c==='?'?'q':''}">${c}</div>`).join('')+'</div>';}
+  h+='</div></div>';
+  return h;
+}
+function caption(f){
+  if(f.hit)return `✅ <b>Match!</b> Every real letter agrees with the stamp (${f.cnt} real letter${f.cnt>1?'s':''}; the rest were already <code>?</code>). Peel it → ${f.cnt} new <code>?</code>. Total <code>?</code> so far: <b>${f.stars}</b>.`;
+  if(f.allWild)return '🙈 This window is already all <code>?</code>. Peeling it changes nothing, so it is <b>skipped</b> (counting it would loop forever).';
+  const bad=f.cell.map((k,j)=>k==='bad'?f.i+j:null).filter(x=>x!==null);
+  return `❌ <b>Mismatch</b> at position${bad.length>1?'s':''} ${bad.join(', ')}: a real letter disagrees with the stamp. Can't peel here — <i>yet</i>. (Green = matches, red = conflict, amber = wildcard.)`;
+}
+function walkHTML(stamp,target){
+  const r=simulate(stamp,target);
+  let h='';
+  r.frames.forEach((f,k)=>{
+    h+=`<div class="card"><b>Frame ${k+1}</b> · pass ${f.pass} · window ${f.i}${frameHTML(stamp,f)}<div class="verdict">${caption(f)}</div></div>`;
+  });
+  if(r.ok){
+    h+=`<div class="callout tip"><div class="ic">🏆</div><div><b class="t">Done!</b><p>Peel order: <code>[${r.peel.join(', ')}]</code> → reversed answer: <code>[${r.order.join(', ')}]</code>.</p></div></div>`;
+    h+=`<div class="card"><b>Forward replay of the answer</b> (blank → target)${replayStatic(stamp,target.length,r.order)}</div>`;
+  }else{
+    h+=`<div class="callout warn"><div class="ic">🛑</div><div><b class="t">Stuck → return []</b><p>A whole pass peeled nothing, and only ${r.stars}/${r.n} cells are <code>?</code>. The remaining letters can never be produced.</p></div></div>`;
+  }
+  return h;
+}
+function replayStatic(stamp,n,order){
+  const st=forward(stamp,n,order);let h='<div class="scroll">';
+  st.forEach((x,k)=>{
+    h+=`<div class="row" style="margin:6px 0"><span class="lab" style="width:120px;flex:0 0 120px;font-size:12px;font-weight:700;color:var(--muted)">${k===0?'start':'stamp @ '+x.i}</span>`+
+       x.s.map((c,p)=>`<div class="tile ${c==='?'?'q':''} ${(k>0&&p>=x.i&&p<x.i+stamp.length)?'inwin':''}">${c}</div>`).join('')+'</div>';
+  });
+  return h+'</div>';
+}
+function layersHTML(stamp,target,order){
+  const m=stamp.length,n=target.length;
+  const top=Array(n).fill(-1);order.forEach((i,k)=>{for(let j=0;j<m;j++)top[i+j]=k;});
+  let h='<div class="scroll"><div class="layers">';
+  order.forEach((i,k)=>{
+    h+=`<div class="lrow"><span class="lab">stamp #${k+1} @ ${i}${k===order.length-1?' (newest)':k===0?' (oldest)':''}</span><div class="row">`;
+    for(let p=0;p<n;p++){
+      if(p>=i&&p<i+m){h+=`<div class="tile ${top[p]===k?'vis':'buried'}">${stamp[p-i]}</div>`;}
+      else h+='<div class="tile ghost"></div>';
+    }
+    h+='</div></div>';
+  });
+  h+='<div class="lrow res"><span class="lab">what you see</span><div class="row">'+target.split('').map(c=>`<div class="tile vis">${c}</div>`).join('')+'</div></div></div></div>';
+  return h;
+}
+
+/* ---------- static sections ---------- */
+$('#layerDemo').innerHTML=layersHTML('abca','aabcaca',[0,3,1]);
+$('#walk1').innerHTML=walkHTML('abc','ababc');
+$('#walk2').innerHTML=walkHTML('abca','aabcaca');
+$('#walk3').innerHTML=walkHTML('abc','abab');
+
+/* ---------- playground ---------- */
+const PG={frames:[],idx:0,res:null,stamp:'',target:'',timer:null,fw:0};
+function pgLoad(){
+  const stamp=$('#pgStamp').value.trim(),target=$('#pgTarget').value.trim();
+  const err=$('#pgErr');err.textContent='';
+  clearInterval(PG.timer);PG.timer=null;$('#pgPlay').textContent='▶ Auto-play';
+  if(!/^[a-z]+$/.test(stamp)||!/^[a-z]+$/.test(target)){err.textContent='Use lowercase letters a–z only.';return;}
+  if(stamp.length>target.length){err.textContent='Stamp must not be longer than target.';return;}
+  PG.stamp=stamp;PG.target=target;PG.res=simulate(stamp,target);PG.frames=PG.res.frames;PG.idx=0;PG.fw=0;
+  pgRender();
+}
+function pgRender(){
+  const r=PG.res;if(!r)return;
+  const f=PG.frames[PG.idx];
+  const n=PG.target.length;
+  $('#pgInfo').textContent=`Frame ${PG.idx+1} / ${PG.frames.length} · pass ${f.pass}`;
+  $('#pgFrame').innerHTML=frameHTML(PG.stamp,f);
+  $('#pgVerdict').innerHTML=caption(f);
+  $('#pgMeter').style.width=(f.stars/n*100)+'%';
+  const hitsSoFar=PG.frames.slice(0,PG.idx+1).filter(x=>x.hit).map(x=>x.i);
+  $('#pgLog').innerHTML=hitsSoFar.length?hitsSoFar.map(i=>`<span>${i}</span>`).join(''):'<i class="sub">nothing peeled yet</i>';
+  $('#pgPrev').disabled=PG.idx===0;
+  $('#pgNext').disabled=PG.idx===PG.frames.length-1;
+  const last=PG.idx===PG.frames.length-1;
+  let out='';
+  if(last){
+    if(r.ok){
+      const fw=forward(PG.stamp,n,r.order);
+      const okReplay=fw[fw.length-1].s.join('')===PG.target;
+      out+=`<div class="callout tip"><div class="ic">🏆</div><div><b class="t">Solved — answer: [${r.order.join(', ')}]</b><p>Peel order was [${r.peel.join(', ')}]; reversed gives the stamping order. Forward replay check: <b>${okReplay?'✅ reproduces the target':'❌ mismatch (bug!)'}</b>. Moves used: ${r.order.length} (limit ${10*n}).</p></div></div>`;
+      out+=`<div class="card" style="margin-bottom:0"><b>Forward replay</b> — press the stamp in answer order starting from a blank strip.<div class="controls"><button class="btn ghost" id="fwPrev">◀</button><button class="btn" id="fwNext">▶</button><span class="sub" id="fwInfo"></span></div><div id="fwView"></div></div>`;
+    }else{
+      out+=`<div class="callout warn"><div class="ic">🛑</div><div><b class="t">Impossible → return []</b><p>A full pass peeled nothing and only ${r.stars}/${n} cells became <code>?</code>. Try the “Impossible” preset to see why: some letters can never be explained by any stamp placement.</p></div></div>`;
+    }
+  }
+  $('#pgResult').innerHTML=out;
+  if(last&&r.ok){
+    const fw=forward(PG.stamp,n,r.order);
+    const draw=()=>{
+      const x=fw[PG.fw];
+      $('#fwInfo').textContent=PG.fw===0?'blank strip':`press #${PG.fw}: stamp at ${x.i}`;
+      $('#fwView').innerHTML='<div class="scroll"><div class="row">'+x.s.map((c,p)=>`<div class="tile ${c==='?'?'q':''} ${(PG.fw>0&&p>=x.i&&p<x.i+PG.stamp.length)?'inwin':''}">${c}</div>`).join('')+'</div></div>';
+      $('#fwPrev').disabled=PG.fw===0;$('#fwNext').disabled=PG.fw===fw.length-1;
+    };
+    $('#fwPrev').onclick=()=>{PG.fw=Math.max(0,PG.fw-1);draw();};
+    $('#fwNext').onclick=()=>{PG.fw=Math.min(fw.length-1,PG.fw+1);draw();};
+    draw();
+  }
+}
+$('#pgGo').onclick=pgLoad;
+$('#pgNext').onclick=()=>{if(PG.idx<PG.frames.length-1){PG.idx++;pgRender();}};
+$('#pgPrev').onclick=()=>{if(PG.idx>0){PG.idx--;pgRender();}};
+$('#pgReset').onclick=()=>{PG.idx=0;pgRender();};
+$('#pgPlay').onclick=()=>{
+  if(PG.timer){clearInterval(PG.timer);PG.timer=null;$('#pgPlay').textContent='▶ Auto-play';return;}
+  if(PG.idx>=PG.frames.length-1)PG.idx=0;
+  $('#pgPlay').textContent='⏸ Pause';
+  PG.timer=setInterval(()=>{
+    if(PG.idx<PG.frames.length-1){PG.idx++;pgRender();}
+    else{clearInterval(PG.timer);PG.timer=null;$('#pgPlay').textContent='▶ Auto-play';}
+  },1100);
+};
+$$('[data-p]').forEach(b=>b.onclick=()=>{const [s,t]=b.dataset.p.split(',');$('#pgStamp').value=s;$('#pgTarget').value=t;pgLoad();});
+pgLoad();
+
+/* ---------- recognition checklist ---------- */
+function clUpdate(){
+  const boxes=$$('#checklist input');const k=boxes.filter(b=>b.checked).length;
+  let msg;
+  if(k<=2)msg=`<b>${k}/8</b> — Probably not this pattern. Look for other tools (DP, two pointers, graphs…).`;
+  else if(k<=4)msg=`<b>${k}/8</b> — Warm. Ask the 5-second smell test: is some operation fully visible in the final state?`;
+  else if(k<=6)msg=`<b>${k}/8</b> — Hot! Very likely a reverse-time / peeling problem. Define the undo and the wildcard.`;
+  else msg=`<b>${k}/8</b> — 🔥 Textbook Stamping-style problem. Work backwards, peel, reverse the order.`;
+  $('#clVerdict').innerHTML=msg;
+}
+$$('#checklist input').forEach(b=>b.onchange=clUpdate);clUpdate();
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+ {q:'Why do we work BACKWARDS from the target?',o:['Because the target is shorter than the stamp','Because the last stamp pressed is fully visible, giving us a concrete window to find','Because forward greedy is O(n!) but backward greedy is O(1)','Because strings are easier to reverse'],a:1,e:'The newest stamp has nothing covering it, so some window of the target equals the stamp exactly. That gives a definite first step in reverse.'},
+ {q:'In the reverse process, what does “?” represent?',o:['A letter that is missing from the alphabet','A cell already explained by a later stamp, so it matches anything','An error state','A cell that was never stamped'],a:1,e:'? = “don\'t care”. A later (in forward time) stamp overwrites it, so its current letter no longer matters.'},
+ {q:'A window of the current string is entirely “?”. Should it count as a move?',o:['Yes, it matches perfectly','No — peeling it changes nothing and can cause infinite loops','Yes, but only once','Only if it is at index 0'],a:1,e:'Progress means at least one real letter became “?”. All-? windows are skipped.'},
+ {q:'stamp = "abc", target = "abab". What is the answer and why?',o:['[0, 1]','[1, 0]','[] — the last letter b can never match stamp’s last letter c','[0]'],a:2,e:'The last cell is covered only by window n−m, which would print stamp[m−1] = c there. Target has b, so it is impossible.'},
+ {q:'What is the maximum number of useful stamps in this algorithm?',o:['10 · n','n · m','n − m + 1 (each window once)','2n'],a:2,e:'Once a window is peeled it is all ?, so it is never used again. At most n−m+1 windows exist, far below the 10n cap.'},
+ {q:'Which problem shares the “think about the LAST operation” idea?',o:['LC 1 Two Sum','LC 312 Burst Balloons','LC 70 Climbing Stairs','LC 217 Contains Duplicate'],a:1,e:'In Burst Balloons you pick which balloon is burst LAST in a range, which splits the problem into independent halves.'},
+ {q:'The queue-based solution is the same idea as which classic algorithm?',o:['Dijkstra','Union-Find','Kahn\'s topological sort','KMP'],a:2,e:'Windows are nodes, todo-set size is in-degree, and the queue holds nodes with in-degree zero.'},
+ {q:'Which feature in a problem statement hints “construct something valid; don’t optimise”?',o:['“at most 10·n operations” with a huge cap','“return the minimum number of moves”','“n ≤ 20”','“array is sorted”'],a:0,e:'A generous cap means any valid construction is fine — a strong hint toward constructive greedy.'}
+];
+(function(){
+  const box=$('#quiz');
+  QUIZ.forEach((x,qi)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML=`<b>Q${qi+1}. ${x.q}</b>`;
+    x.o.forEach((t,oi)=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=t;
+      b.onclick=()=>{
+        if(d.dataset.done)return;d.dataset.done=1;
+        b.classList.add(oi===x.a?'right':'wrong');
+        if(oi!==x.a)d.querySelectorAll('.opt')[x.a].classList.add('right');
+        const e=d.querySelector('.exp');e.style.display='block';
+        updateScore();
+      };
+      d.appendChild(b);
+    });
+    const e=document.createElement('div');e.className='exp';e.innerHTML='💡 '+x.e;d.appendChild(e);
+    box.appendChild(d);
+  });
+  const sc=document.createElement('div');sc.id='score';sc.className='verdict';sc.textContent='Answer all questions to see your score.';box.appendChild(sc);
+  function updateScore(){
+    const qs=[...box.querySelectorAll('.q')];
+    const done=qs.filter(q=>q.dataset.done).length;
+    const right=qs.filter(q=>q.querySelector('.opt.wrong')===null&&q.dataset.done).length;
+    sc.innerHTML=`Answered ${done}/${qs.length} · Correct on first try: <b>${right}</b>`+(done===qs.length?(right===qs.length?' — 🏆 Flawless!':right>=qs.length-2?' — 🔥 Strong!':' — 📚 Re-read §3 and §8 and retry.'):'');
+  }
+})();
+
+/* ---------- scroll progress + spy ---------- */
+const links=$$('nav#side a');
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+function onScroll(){
+  const h=document.documentElement;
+  $('#progress').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let cur=0;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<140)cur=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===cur));
+}
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+</script>
+</body>
+</html>
